@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorGray"
+    tools:context=".noteListActivity">
+
+    <com.wyhwl.note.noteListListView
+        android:id="@+id/vwNoteList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorGray">
+
+
+    </com.wyhwl.note.noteListListView>
+
+    <com.wyhwl.note.noteListSlider
+        android:id="@+id/sldList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/layListMenu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="@color/colorAccent">
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layListItem"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layListSetting"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="@color/colorAccent">
+
+        </LinearLayout>
+    </com.wyhwl.note.noteListSlider>
+
+
+
+</android.support.constraint.ConstraintLayout>
