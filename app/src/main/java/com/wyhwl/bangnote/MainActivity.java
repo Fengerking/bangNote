@@ -1,4 +1,4 @@
-package com.wyhwl.note;
+package com.wyhwl.bangnote;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

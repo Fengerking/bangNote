@@ -7,16 +7,17 @@
     android:background="@color/colorGray"
     tools:context=".noteListActivity">
 
-    <com.wyhwl.note.noteListListView
+    <com.wyhwl.bangnote.noteListListView
         android:id="@+id/vwNoteList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:divider="@null"
         android:background="@color/colorGray">
 
 
-    </com.wyhwl.note.noteListListView>
+    </com.wyhwl.bangnote.noteListListView>
 
-    <com.wyhwl.note.noteListSlider
+    <com.wyhwl.bangnote.noteListSlider
         android:id="@+id/sldList"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -46,7 +47,7 @@
             android:background="@color/colorAccent">
 
         </LinearLayout>
-    </com.wyhwl.note.noteListSlider>
+    </com.wyhwl.bangnote.noteListSlider>
 
 
 

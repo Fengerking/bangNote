@@ -1,4 +1,4 @@
-package com.wyhwl.note;
+package com.wyhwl.bangnote;
 
 import android.graphics.Bitmap;
 

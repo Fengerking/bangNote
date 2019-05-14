@@ -1,0 +1,21 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".noteEditActivity">
+
+    <item android:id="@+id/menu_newpic"
+        android:icon="@mipmap/notepic"
+        android:title="@string/note_pic"
+        app:showAsAction="always"  />
+
+    <item android:id="@+id/menu_notesave"
+        android:icon="@mipmap/noteok"
+        android:title="@string/note_save"
+        app:showAsAction="always"/>
+
+    <item android:id="@+id/menu_notecount"
+        android:icon="@mipmap/notecount"
+        android:title="@string/note_count"
+        app:showAsAction="never"/>
+
+</menu>

@@ -1,4 +1,4 @@
-package com.wyhwl.note;
+package com.wyhwl.bangnote;
 
 public class dataNoteItem {
 }

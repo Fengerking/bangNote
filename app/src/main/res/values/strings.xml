@@ -1,3 +1,15 @@
 <resources>
-    <string name="app_name">bangNote</string>
+    <string name="app_name">丰耳笔记</string>
+    <string name="new_note">新建笔记</string>
+    <string name="old_note">笔记详情</string>
+    <string name="note_pic">插入图片</string>
+    <string name="note_save">保存笔记</string>
+    <string name="note_count">字数统计</string>
+    <string name="note_edit">编辑笔记</string>
+    <string name="note_search">搜索笔记</string>
+    <string name="note_move">移动笔记</string>
+    <string name="note_setting">设置</string>
+    <string name="note_backup">备份笔记</string>
+    <string name="note_restore">恢复笔记</string>
+    <string name="note_exit">退出</string>
 </resources>
