@@ -7,7 +7,18 @@ import android.view.MotionEvent;
 import android.widget.EditText;
 
 public class noteEditText extends EditText {
-    private Context     m_context = null;
+    private Context                 m_context = null;
+    private onTouchEventListener    m_touchListener = null;
+
+    // The event listener function
+    public interface onTouchEventListener{
+        public void onTouch (MotionEvent ev);
+    }
+
+    public void setOnTouchEventListener (onTouchEventListener touchListener) {
+        m_touchListener = touchListener;
+    }
+
     public noteEditText(Context context) {
         super(context);
         m_context = context;
@@ -23,8 +34,9 @@ public class noteEditText extends EditText {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-      //  AppCompatActivity activity = (AppCompatActivity)m_context;
-       // activity.onTouchEvent(ev);
-        return super.onTouchEvent(ev);
+        if (m_touchListener != null)
+            m_touchListener.onTouch(ev);
+        //return super.onTouchEvent(ev);
+        return true;
     }
 }

@@ -21,11 +21,12 @@ import android.widget.LinearLayout;
 
 import java.lang.reflect.Method;
 
-public class noteEditActivity extends AppCompatActivity {
+public class noteEditActivity extends AppCompatActivity
+            implements noteEditText.onTouchEventListener {
     private static int      RESULT_LOAD_IMAGE = 10;
-    private EditText        m_edtItem = null;
+    private noteEditText    m_edtNote = null;
     private LinearLayout    m_layView = null;
-    private int             mLastY;
+    private int             m_nLastY = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,11 +39,12 @@ public class noteEditActivity extends AppCompatActivity {
         //actionBar.setDisplayShowHomeEnabled(true);
         //actionBar.setDisplayUseLogoEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
-/*
+
         m_layView = (LinearLayout)findViewById(R.id.layView);
-        m_edtItem = (EditText)findViewById(R.id.editTitle);
+        m_edtNote = (noteEditText)findViewById(R.id.editText11);
+        m_edtNote.setOnTouchEventListener(this);
         // Editable edtText = m_edtItem.getText();
-        m_edtItem.addTextChangedListener(new TextWatcher() {
+        m_edtNote.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -55,7 +57,7 @@ public class noteEditActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                int nHeight = m_edtItem.getHeight();
+                int nHeight = m_edtNote.getHeight();
 
                 ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)m_layView.getLayoutParams();
                 param.height = 5000;
@@ -64,7 +66,25 @@ public class noteEditActivity extends AppCompatActivity {
 
             }
         });
-       */
+
+    }
+
+    public void onTouch (MotionEvent ev) {
+        int y = (int) ev.getY();
+        switch (ev.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                m_nLastY = y;
+                break;
+
+            case MotionEvent.ACTION_MOVE:
+                int dy = m_nLastY - y;
+                m_layView.scrollBy(0,dy);
+                m_nLastY = y;
+                break;
+
+            case MotionEvent.ACTION_UP:
+                break;
+        }
     }
 
     @Override
@@ -72,13 +92,13 @@ public class noteEditActivity extends AppCompatActivity {
         int y = (int) ev.getY();
         switch (ev.getAction()){
             case MotionEvent.ACTION_DOWN:
-                mLastY = y;
+                m_nLastY = y;
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                int dy = mLastY - y;
+                int dy = m_nLastY - y;
                 m_layView.scrollBy(0,dy);
-                mLastY = y;
+                m_nLastY = y;
                 break;
 
             case MotionEvent.ACTION_UP:

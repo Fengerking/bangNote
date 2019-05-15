@@ -67,9 +67,6 @@
 
         </RelativeLayout>
 
-
-
-
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="wrap_content"
@@ -78,10 +75,24 @@
             tools:layout_editor_absoluteX="156dp"
             tools:layout_editor_absoluteY="207dp" />
 
-
-
         <com.wyhwl.bangnote.noteEditText
             android:id="@+id/editText11"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:gravity="top"
+            android:hint="输入用户名"
+            android:imeOptions="actionNone"
+            android:inputType="textMultiLine"
+            android:minHeight="120dp"
+            android:text="123\n456\n7\n8\n9\n0\n"
+
+            android:textSize="40dp"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="6dp" />
+
+        <com.wyhwl.bangnote.noteEditText
+            android:id="@+id/editText1100"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@null"
