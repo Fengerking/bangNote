@@ -89,7 +89,7 @@ public class noteEditActivity extends AppCompatActivity
         m_txtTime.setText(fmtTime.format(date));
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                noteEditActivity.this, android.R.layout.simple_spinner_item, getNoteType());
+                noteEditActivity.this, R.layout.spn_note_type, getNoteType());
         m_spnType.setAdapter(adapter);
         m_spnType.setSelection(2);
 
