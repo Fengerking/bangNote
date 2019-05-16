@@ -4,18 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorView"
     tools:context=".noteEditActivity">
 
     <LinearLayout
         android:id="@+id/layView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/colorView"
         android:orientation="vertical">
-
+231
         <EditText
             android:id="@+id/editTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorText"
             android:gravity="top"
             android:hint="输入标题"
             android:imeOptions="actionNone"
@@ -31,82 +34,46 @@
                 android:id="@+id/textDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/colorText"
+                android:layout_marginLeft="8dp"
                 android:text="2019-05-15"
                 android:textSize="18dp"/>
-            <Spinner
-                android:id="@+id/spinDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <ImageButton
+                android:id="@+id/btnDate"
+                android:layout_width="16dp"
+                android:layout_height="12dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/btndown"
                 android:layout_toRightOf="@id/textDate"/>
 
             <TextView
                 android:id="@+id/textTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textColor="@color/colorText"
+                android:layout_marginLeft="8dp"
                 android:text="10:10:10"
                 android:textSize="18dp"
-                android:layout_toRightOf="@id/spinDate"/>
-            <Spinner
-                android:id="@+id/spinTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/btnDate"/>
+            <ImageButton
+                android:id="@+id/btnTime"
+                android:layout_width="16dp"
+                android:layout_height="12dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/btndown"
                 android:layout_toRightOf="@id/textTime"/>
 
             <Spinner
                 android:id="@+id/spinNoteType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"/>
-            <TextView
-                android:id="@+id/textNoteType"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="默认笔记"
+                android:textColor="@color/colorText"
                 android:textSize="18dp"
-                android:layout_toLeftOf="@id/spinNoteType"/>
+                android:layout_alignParentRight="true"/>
 
         </RelativeLayout>
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:srcCompat="@mipmap/ic_launcher"
-            tools:layout_editor_absoluteX="156dp"
-            tools:layout_editor_absoluteY="207dp" />
-
-        <com.wyhwl.bangnote.noteEditText
-            android:id="@+id/editText11"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:gravity="top"
-            android:hint="输入用户名"
-            android:imeOptions="actionNone"
-            android:inputType="textMultiLine"
-            android:minHeight="120dp"
-            android:text="123\n456\n7\n8\n9\n0\n"
-
-            android:textSize="40dp"
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="6dp" />
-
-        <com.wyhwl.bangnote.noteEditText
-            android:id="@+id/editText1100"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@null"
-            android:gravity="top"
-            android:hint="输入用户名"
-            android:imeOptions="actionNone"
-            android:inputType="textMultiLine"
-            android:minHeight="120dp"
-            android:text="123\n456\n7\n8\n9\n0\n"
-
-            android:textSize="40dp"
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="6dp" />
-
 
     </LinearLayout>
 
