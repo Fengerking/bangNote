@@ -3,6 +3,7 @@ package com.wyhwl.bangnote;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 public class noteImageView extends ImageView {
@@ -24,13 +25,12 @@ public class noteImageView extends ImageView {
 
     public void initImageView (Context context) {
         m_context = context;
-        setMinimumHeight(300);
+        m_nID = noteConfig.getImagViewID ();
+        setScaleType(ScaleType.FIT_XY);
         setBackgroundColor(Color.argb(0, 0, 0, 0));
     }
 
     public int getId() {
-        if (m_nID == 0)
-            m_nID = noteConfig.getNoteEditID ();
         return m_nID;
     }
 }

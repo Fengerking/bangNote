@@ -6,8 +6,9 @@ import android.os.Environment;
 import java.io.File;
 
 public class noteConfig {
-    public static int   m_nNoteID = 1;
+    public static int   m_nNoteID = 10;
     public static int   m_nImagID = 10000;
+    public static int   m_nImagIdStart = 10000;
 
     public static int   m_nTextColor = 0XFF9D9D9D;
 

@@ -33,6 +33,7 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
+import android.view.ViewGroup;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -47,7 +48,7 @@ import android.graphics.BitmapFactory;
 public class noteEditActivity extends AppCompatActivity
         implements noteEditText.onNoteEditListener, OnClickListener {
     private static int      RESULT_LOAD_IMAGE = 10;
-    private EditText        m_edtTitle = null;
+    private noteEditText    m_edtTitle = null;
     private TextView        m_txtDate = null;
     private TextView        m_txtTime = null;
     private ImageButton     m_btnDate = null;
@@ -57,8 +58,7 @@ public class noteEditActivity extends AppCompatActivity
     private LinearLayout    m_layView = null;
     private int             m_nLastY = 0;
 
-    private ArrayList<noteEditText>     m_lstNoteEdit;
-    private ArrayList<noteImageView>    m_lstNoteImage;
+    private int             m_nFocusID = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +73,7 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     private void initViews () {
-        m_edtTitle = (EditText)findViewById(R.id.editTitle);
+        m_edtTitle = (noteEditText) findViewById(R.id.editTitle);
         m_txtDate = (TextView)findViewById(R.id.textDate);
         m_txtTime = (TextView)findViewById(R.id.textTime);
         m_spnType = (Spinner)findViewById(R.id.spinNoteType);
@@ -81,6 +81,7 @@ public class noteEditActivity extends AppCompatActivity
         m_btnTime = (ImageButton)findViewById(R.id.btnTime);
         m_btnDate.setOnClickListener(this);
         m_btnTime.setOnClickListener(this);
+        m_edtTitle.setOnNoteEditListener(this);
 
         SimpleDateFormat fmtDate = new SimpleDateFormat("yyyy-MM-dd");
         Date date = new Date(System.currentTimeMillis());
@@ -95,8 +96,8 @@ public class noteEditActivity extends AppCompatActivity
 
         m_layView = (LinearLayout)findViewById(R.id.layView);
 
-        m_lstNoteEdit = new ArrayList<noteEditText>();
-        addNoteView(null, 0);
+        noteEditText noteView = (noteEditText)addNoteView(null, 0);
+        //noteView.setText ("1\n2\n3\n4");
     }
 
     private View addNoteView (View vwAfter, int nType) {
@@ -115,12 +116,61 @@ public class noteEditActivity extends AppCompatActivity
             int nCount = m_layView.getChildCount();
             for (int i = 0; i < nCount; i++) {
                 if (m_layView.getChildAt(i) == vwAfter) {
-                    m_layView.addView(vwNew, i);
+                    m_layView.addView(vwNew, i + 1);
                     break;
                 }
             }
         }
         return vwNew;
+    }
+
+    private void addImageView (String strImage) {
+        View  vwAfter = null;
+        if (m_nFocusID >= 10) {
+            View vwFocus = null, vwPrev = null;
+            int nCount = m_layView.getChildCount();
+            for (int i = 0; i < nCount; i++) {
+                vwFocus = m_layView.getChildAt(i);
+                if (vwFocus.getId() == m_nFocusID) {
+                    noteEditText edtView = (noteEditText)vwFocus;
+                    String strText = edtView.getText().toString();
+                    int nEnd = edtView.getSelectionEnd();
+                    if (nEnd < strText.length()) {
+                        String strPrev = strText.substring(0, nEnd);
+                        String strNext = strText.substring(nEnd);
+                        edtView.setText(strPrev);
+                        vwAfter = edtView;
+                        noteEditText noteView = (noteEditText) addNoteView(vwAfter, 0);
+                        noteView.setText(strNext);
+                    } else if (strText.length() == 0) {
+                        m_layView.removeView(vwFocus);
+                        vwAfter = vwPrev;
+                    }
+                    break;
+                }
+                vwPrev = vwFocus;
+            }
+        }
+
+        ImageView imgView = (ImageView) addNoteView (vwAfter, 1);
+        try {
+            FileInputStream fis = new FileInputStream (strImage);
+            Bitmap bmp = BitmapFactory.decodeStream(fis);
+            imgView.setImageBitmap(bmp);
+            fis.close();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        ViewGroup.LayoutParams params = imgView.getLayoutParams();
+        params.height = 300;
+        imgView.setLayoutParams(params);
+
+        vwAfter = m_layView.getChildAt(m_layView.getChildCount() - 1);
+        if (vwAfter.getId () >= noteConfig.m_nImagIdStart)
+            addNoteView(null, 0);
+
+        onResizeView();
     }
 
     private List<String> getNoteType() {
@@ -168,9 +218,17 @@ public class noteEditActivity extends AppCompatActivity
         switch (ev.getAction()){
             case MotionEvent.ACTION_DOWN:
                 m_nLastY = y;
+                if (nID >= 10)
+                    m_nFocusID = nID;
                 break;
             case MotionEvent.ACTION_MOVE:
+                int nPos = m_layView.getScrollY();
+                int nH = m_layView.getHeight();
                 int dy = m_nLastY - y;
+                if (nPos + dy < 0)
+                    dy = dy - nPos;
+                else if (nPos + dy > nH)
+                    dy = nH - nPos;
                 m_layView.scrollBy(0, dy);
                 m_nLastY = y;
                 break;
@@ -180,12 +238,18 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     public void onTextChanged (int nID) {
-    /*
-        int nHeight = m_edtItem.getHeight();
+
+    }
+
+    public void onResizeView () {
+        int nHeight = 0;
+        int nCount = m_layView.getChildCount();
+        for (int i = 0; i < nCount; i++) {
+            nHeight += m_layView.getHeight();
+        }
         ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)m_layView.getLayoutParams();
-        param.height = 5000;
+        param.height = nHeight + 100;
         m_layView.setLayoutParams(param);
-    */
     }
 
     @Override
@@ -261,24 +325,7 @@ public class noteEditActivity extends AppCompatActivity
             imagePath = uri.getPath();
         }
 
-        int nCount = m_layView.getChildCount();
-        for (int i = 0; i < nCount; i++) {
-            View vwFocus = m_layView.getChildAt(i);
-            if (vwFocus.hasFocus()) {
-                int ii = 0;
-            }
-
-        }
-
-        ImageView imgView = (ImageView) addNoteView (null, 1);
-        try {
-            FileInputStream fis = new FileInputStream (imagePath);
-            Bitmap bmp = BitmapFactory.decodeStream(fis);
-            imgView.setImageBitmap(bmp);
-            fis.close();
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+        addImageView(imagePath);
     }
 
     private String getImagePath(Uri uri, String selection) {
