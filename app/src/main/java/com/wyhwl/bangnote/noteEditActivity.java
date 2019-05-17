@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -34,6 +35,7 @@ import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 import android.view.ViewGroup;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -57,6 +59,7 @@ public class noteEditActivity extends AppCompatActivity
 
     private LinearLayout    m_layView = null;
     private int             m_nLastY = 0;
+    private int             m_nDispH = 0;
 
     private int             m_nFocusID = 0;
 
@@ -73,6 +76,8 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     private void initViews () {
+        DisplayMetrics dm = this.getResources().getDisplayMetrics();
+        m_nDispH = dm.heightPixels;
         m_edtTitle = (noteEditText) findViewById(R.id.editTitle);
         m_txtDate = (TextView)findViewById(R.id.textDate);
         m_txtTime = (TextView)findViewById(R.id.textTime);
@@ -97,7 +102,7 @@ public class noteEditActivity extends AppCompatActivity
         m_layView = (LinearLayout)findViewById(R.id.layView);
 
         noteEditText noteView = (noteEditText)addNoteView(null, 0);
-        //noteView.setText ("1\n2\n3\n4");
+        noteView.setText ("1\n2\n3\n4");
     }
 
     private View addNoteView (View vwAfter, int nType) {
@@ -126,10 +131,10 @@ public class noteEditActivity extends AppCompatActivity
 
     private void addImageView (String strImage) {
         View  vwAfter = null;
-        if (m_nFocusID >= 10) {
+        if (m_nFocusID >= 10) {  // the focus view is edittext?
             View vwFocus = null, vwPrev = null;
             int nCount = m_layView.getChildCount();
-            for (int i = 0; i < nCount; i++) {
+            for (int i = 2; i < nCount; i++) {
                 vwFocus = m_layView.getChildAt(i);
                 if (vwFocus.getId() == m_nFocusID) {
                     noteEditText edtView = (noteEditText)vwFocus;
@@ -143,8 +148,12 @@ public class noteEditActivity extends AppCompatActivity
                         noteEditText noteView = (noteEditText) addNoteView(vwAfter, 0);
                         noteView.setText(strNext);
                     } else if (strText.length() == 0) {
-                        m_layView.removeView(vwFocus);
-                        vwAfter = vwPrev;
+                        if (vwPrev != null && vwPrev.getId() < noteConfig.m_nImagIdStart ) {
+                            m_layView.removeView(vwFocus);
+                            vwAfter = vwPrev;
+                        } else {
+                            vwAfter = vwFocus;
+                        }
                     }
                     break;
                 }
@@ -163,13 +172,25 @@ public class noteEditActivity extends AppCompatActivity
         }
 
         ViewGroup.LayoutParams params = imgView.getLayoutParams();
-        params.height = 300;
+        params.height = noteConfig.m_nImageHeight;
         imgView.setLayoutParams(params);
 
-        vwAfter = m_layView.getChildAt(m_layView.getChildCount() - 1);
-        if (vwAfter.getId () >= noteConfig.m_nImagIdStart)
+        View vwImage = (View)imgView;
+        int nCount = m_layView.getChildCount();
+        if (m_layView.getChildAt(nCount - 1) == vwImage) {
             addNoteView(null, 0);
-
+        } else {
+            View vwNext = null;
+            for (int i = 2; i < nCount; i++) {
+                if (m_layView.getChildAt(i) == vwImage) {
+                    vwNext = m_layView.getChildAt(i+1);
+                    if (vwNext.getId() >= noteConfig.m_nImagIdStart) {
+                        addNoteView(vwImage, 0);
+                    }
+                    break;
+                }
+            }
+        }
         onResizeView();
     }
 
@@ -225,11 +246,18 @@ public class noteEditActivity extends AppCompatActivity
                 int nPos = m_layView.getScrollY();
                 int nH = m_layView.getHeight();
                 int dy = m_nLastY - y;
-                if (nPos + dy < 0)
-                    dy = dy - nPos;
-                else if (nPos + dy > nH)
-                    dy = nH - nPos;
-                m_layView.scrollBy(0, dy);
+                if (dy < 0) {// move down
+                    if (nPos < 0 || nPos + dy < 0)
+                        dy = -nPos;
+                } else {
+                    if (nH - nPos < m_nDispH)
+                        dy = (nH - nPos) - m_nDispH;
+                    else if (dy > (nH - nPos) - m_nDispH)
+                        dy = (nH - nPos) - m_nDispH;
+                }
+
+                if (dy != 0 && nH > m_nDispH)
+                    m_layView.scrollBy(0, dy);
                 m_nLastY = y;
                 break;
             case MotionEvent.ACTION_UP:
@@ -245,10 +273,10 @@ public class noteEditActivity extends AppCompatActivity
         int nHeight = 0;
         int nCount = m_layView.getChildCount();
         for (int i = 0; i < nCount; i++) {
-            nHeight += m_layView.getHeight();
+            nHeight += m_layView.getChildAt(i).getHeight();
         }
         ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)m_layView.getLayoutParams();
-        param.height = nHeight + 100;
+        param.height = nHeight + m_nDispH / 2;
         m_layView.setLayoutParams(param);
     }
 
@@ -303,6 +331,8 @@ public class noteEditActivity extends AppCompatActivity
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (data == null)
+            return;
         String imagePath = null;
         Uri uri = data.getData();
         if (DocumentsContract.isDocumentUri(this, uri)) {

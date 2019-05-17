@@ -71,9 +71,8 @@ public class noteEditText extends EditText {
     }
 
     public boolean onTouchEvent(MotionEvent ev) {
-        boolean bRC = super.onTouchEvent(ev);
         if (m_editListener != null)
             m_editListener.onMontionEvent(ev, m_nID);
-        return bRC;
+        return super.onTouchEvent(ev);
     }
 }

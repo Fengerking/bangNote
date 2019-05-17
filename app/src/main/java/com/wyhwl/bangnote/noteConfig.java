@@ -13,7 +13,7 @@ public class noteConfig {
     public static int   m_nTextColor = 0XFF9D9D9D;
 
     public static int   m_nTextSize = 24;
-
+    public static int   m_nImageHeight = 300;
 
     public static void initConfig(Context context) {
 
