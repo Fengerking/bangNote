@@ -5,20 +5,18 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 
 public class noteImageView extends ImageView {
-    private Context     m_context = null;
-    private int         m_nID = 0;
-    private String      m_strFileName = null;
+    private Context                 m_context = null;
+    private int                     m_nID = 0;
+    private String                  m_strFileName = null;
+    private onNoteImageListener     m_lsnImage = null;
 
     public noteImageView(Context context) {
         super(context);
@@ -31,6 +29,21 @@ public class noteImageView extends ImageView {
     public noteImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initImageView(context);
+    }
+
+    // The event listener function
+    public interface onNoteImageListener{
+        public void onNoteImageEvent (MotionEvent ev, int nID);
+    }
+
+    public void setNoteImageListener (onNoteImageListener lsnImage) {
+        m_lsnImage = lsnImage;
+    }
+
+    public boolean onTouchEvent(MotionEvent ev) {
+        if (m_lsnImage != null)
+            m_lsnImage.onNoteImageEvent(ev, m_nID);
+        return super.onTouchEvent(ev);
     }
 
     public void initImageView (Context context) {

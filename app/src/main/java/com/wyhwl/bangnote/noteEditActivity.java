@@ -17,6 +17,7 @@ import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -54,7 +55,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 public class noteEditActivity extends AppCompatActivity
-        implements noteEditText.onNoteEditListener, OnClickListener {
+        implements  noteEditText.onNoteEditListener,
+                    noteImageView.onNoteImageListener,
+                    OnClickListener {
     private static int      RESULT_LOAD_IMAGE = 10;
     private noteEditText    m_edtTitle = null;
     private TextView        m_txtDate = null;
@@ -128,6 +131,7 @@ public class noteEditActivity extends AppCompatActivity
             vwNew = noteEdit;
         } else {
             noteImageView noteImage = new noteImageView(this);
+            noteImage.setNoteImageListener(this);
             vwNew = noteImage;
         }
         if (vwAfter == null) {
@@ -198,6 +202,34 @@ public class noteEditActivity extends AppCompatActivity
         onResizeView();
     }
 
+    private void deleteImageView () {
+        if (m_nFocusID < noteConfig.m_nImagIdStart)
+            return;
+        View    vwPrev = null;
+        View    vwItem = null;
+        View    vwNext = null;
+        int nCount = m_layView.getChildCount();
+        for (int i = 2; i < nCount; i++) {
+            vwItem = m_layView.getChildAt(i);
+            if (vwItem.getId() == m_nFocusID) {
+                vwNext = m_layView.getChildAt(i+1);
+                m_layView.removeView(vwItem);
+                break;
+            }
+            vwPrev = vwItem;
+        }
+
+        if (vwPrev != null && vwNext != null) {
+            if (vwPrev.getId() < noteConfig.m_nImagIdStart && vwNext.getId() < noteConfig.m_nImagIdStart) {
+                String strPrev = ((noteEditText)vwPrev).getText ().toString();
+                String strNext = ((noteEditText)vwNext).getText ().toString();
+                strPrev = strPrev + strNext;
+                ((noteEditText)vwPrev).setText (strPrev);
+                m_layView.removeView(vwNext);
+            }
+        }
+    }
+
     public void onClick(View v) {
         Date    dateNow = new Date(System.currentTimeMillis());
         int     themeId = AlertDialog.THEME_HOLO_DARK;;
@@ -264,6 +296,10 @@ public class noteEditActivity extends AppCompatActivity
         onResizeView();
     }
 
+    public void onNoteImageEvent (MotionEvent ev, int nID) {
+        m_nFocusID = nID;
+    }
+
     public void onResizeView () {
         int nHeight = 0;
         int nCount = m_layView.getChildCount();
@@ -315,6 +351,7 @@ public class noteEditActivity extends AppCompatActivity
                 startActivityForResult(intent, RESULT_LOAD_IMAGE);//打开系统相册
                 break;
             case R.id.menu_notesave:
+                deleteImageView ();
                 break;
             case R.id.menu_notecount:
                 break;

@@ -3,6 +3,7 @@ package com.wyhwl.bangnote;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -75,4 +76,6 @@ public class noteEditText extends EditText {
             m_editListener.onMontionEvent(ev, m_nID);
         return super.onTouchEvent(ev);
     }
+
+
 }
