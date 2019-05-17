@@ -150,7 +150,8 @@ public class noteEditActivity extends AppCompatActivity
 
     private void addImageView (String strImage) {
         View  vwAfter = null;
-        if (m_nFocusID >= 10) {  // the focus view is edittext?
+        // the focus view is edittext?
+        if (m_nFocusID >= 10 && m_nFocusID < noteConfig.m_nImagIdStart) {
             View vwFocus = null, vwPrev = null;
             int nCount = m_layView.getChildCount();
             for (int i = 2; i < nCount; i++) {
@@ -266,8 +267,16 @@ public class noteEditActivity extends AppCompatActivity
         switch (ev.getAction()){
             case MotionEvent.ACTION_DOWN:
                 m_nLastY = y;
-                if (nID >= 10)
+                if (nID >= 10) {
                     m_nFocusID = nID;
+                    View vwItem = null;
+                    for (int i = 2; i < m_layView.getChildCount(); i++) {
+                        vwItem = m_layView.getChildAt(i);
+                        if (vwItem.getId() > noteConfig.m_nImagIdStart) {
+                            ((noteImageView) vwItem).setSelected(false);
+                        }
+                    }
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 int nPos = m_layView.getScrollY();
@@ -298,6 +307,20 @@ public class noteEditActivity extends AppCompatActivity
 
     public void onNoteImageEvent (MotionEvent ev, int nID) {
         m_nFocusID = nID;
+        if (ev.getAction() != MotionEvent.ACTION_DOWN)
+            return;
+
+        View vwItem = null;
+        int nCount = m_layView.getChildCount();
+        for (int i = 2; i < nCount; i++) {
+            vwItem = m_layView.getChildAt(i);
+            if (vwItem.getId() >= noteConfig.m_nImagIdStart) {
+                if (vwItem.getId() == m_nFocusID)
+                    ((noteImageView)vwItem).setSelected(true);
+                else
+                    ((noteImageView)vwItem).setSelected(false);
+            }
+        }
     }
 
     public void onResizeView () {

@@ -3,7 +3,10 @@ package com.wyhwl.bangnote;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.RectF;
+import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
@@ -15,6 +18,7 @@ import java.io.FileOutputStream;
 public class noteImageView extends ImageView {
     private Context                 m_context = null;
     private int                     m_nID = 0;
+    private boolean                 m_bSelected = false;
     private String                  m_strFileName = null;
     private onNoteImageListener     m_lsnImage = null;
 
@@ -100,5 +104,30 @@ public class noteImageView extends ImageView {
 
     public String getImageFileName () {
         return m_strFileName;
+    }
+
+    public void setSelected (boolean bSelected) {
+        if (m_bSelected == bSelected)
+            return;
+        m_bSelected = bSelected;
+        invalidate();
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (!m_bSelected)
+            return;
+
+        Paint paint = new Paint ();
+        paint.setColor(0XFFFF0000);
+        paint.setStrokeWidth((float)6.0);
+
+        float[] pts={0,0,getWidth(),0,
+                        getWidth(), 0, getWidth(), getHeight(),
+                        getWidth(),getHeight(),0,getHeight(),
+                        0, getHeight(),0, 0};
+
+        canvas.drawLines(pts, paint);
     }
 }

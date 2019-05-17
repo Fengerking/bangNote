@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,10 +16,14 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Collections;
 
 public class noteListAdapter extends BaseAdapter {
     private Context                     m_context = null;
     private ArrayList<dataNoteList>     m_lstNote = null;
+
+    private ArrayList<String>           m_lstFiles = null;
 
     public noteListAdapter (Context context) {
         m_context = context;
@@ -85,6 +90,36 @@ public class noteListAdapter extends BaseAdapter {
             bw.flush();
         }catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void fillFileList(String strPath) {
+        if (m_lstFiles != null)
+            m_lstFiles.clear();
+        else
+            m_lstFiles = new ArrayList<String>();
+        File fPath = new File(strPath);
+        File[] fList = fPath.listFiles();
+        if (fList != null) {
+            for (int i = 0; i < fList.length; i++)
+            {
+                File file = fList[i];
+                if (file.isHidden())
+                    continue;
+                if (file.isDirectory())
+                    continue;
+                m_lstFiles.add (file.getPath());
+            }
+        }
+
+        Comparator comp = new dateComparator();
+        Collections.sort(m_lstFiles, comp);
+    }
+
+    public class dateComparator implements Comparator<Object> {
+        @SuppressWarnings("unchecked")
+        public int compare(Object o1, Object o2) {
+            return 1;
         }
     }
 }

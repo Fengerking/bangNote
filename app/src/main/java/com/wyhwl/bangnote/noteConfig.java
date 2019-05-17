@@ -11,7 +11,7 @@ import java.util.List;
 
 public class noteConfig {
     public static int           m_nNoteID = 10;
-    public static int           m_nImagID = 10000;
+    public static int           m_nImagID = 10001;
     public static int           m_nImagIdStart = 10000;
 
     public static int           m_nTextColor = 0XFF9D9D9D;
