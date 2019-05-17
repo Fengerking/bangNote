@@ -37,6 +37,12 @@ import android.widget.TimePicker;
 import android.view.ViewGroup;
 import android.util.Log;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.lang.reflect.Method;
@@ -62,6 +68,7 @@ public class noteEditActivity extends AppCompatActivity
     private int             m_nDispH = 0;
 
     private int             m_nFocusID = 0;
+    private String          m_strNoteFile = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +79,19 @@ public class noteEditActivity extends AppCompatActivity
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        Uri uri = getIntent().getData();
+        if (uri != null)
+            m_strNoteFile = uri.toString();
+        else
+            m_strNoteFile = noteConfig.getNoteTextFile();
+
         initViews();
+        readFromFile();
+    }
+
+    protected void onStop() {
+        super.onStop();
+        writeToFile();
     }
 
     private void initViews () {
@@ -95,14 +114,10 @@ public class noteEditActivity extends AppCompatActivity
         m_txtTime.setText(fmtTime.format(date));
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                noteEditActivity.this, R.layout.spn_note_type, getNoteType());
+                noteEditActivity.this, R.layout.spn_note_type, noteConfig.m_lstNoteType);
         m_spnType.setAdapter(adapter);
-        m_spnType.setSelection(2);
 
         m_layView = (LinearLayout)findViewById(R.id.layView);
-
-        noteEditText noteView = (noteEditText)addNoteView(null, 0);
-        noteView.setText ("1\n2\n3\n4");
     }
 
     private View addNoteView (View vwAfter, int nType) {
@@ -161,19 +176,8 @@ public class noteEditActivity extends AppCompatActivity
             }
         }
 
-        ImageView imgView = (ImageView) addNoteView (vwAfter, 1);
-        try {
-            FileInputStream fis = new FileInputStream (strImage);
-            Bitmap bmp = BitmapFactory.decodeStream(fis);
-            imgView.setImageBitmap(bmp);
-            fis.close();
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        ViewGroup.LayoutParams params = imgView.getLayoutParams();
-        params.height = noteConfig.m_nImageHeight;
-        imgView.setLayoutParams(params);
+        noteImageView imgView = (noteImageView) addNoteView (vwAfter, 1);
+        imgView.setImageFile (strImage);
 
         View vwImage = (View)imgView;
         int nCount = m_layView.getChildCount();
@@ -192,15 +196,6 @@ public class noteEditActivity extends AppCompatActivity
             }
         }
         onResizeView();
-    }
-
-    private List<String> getNoteType() {
-        List<String> dataList = new ArrayList<String>();
-        dataList.add("默认笔记");
-        dataList.add("学习日记");
-        dataList.add("旅游日记");
-        dataList.add("心灵鸡汤");
-        return dataList;
     }
 
     public void onClick(View v) {
@@ -266,7 +261,7 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     public void onTextChanged (int nID) {
-
+        onResizeView();
     }
 
     public void onResizeView () {
@@ -276,7 +271,7 @@ public class noteEditActivity extends AppCompatActivity
             nHeight += m_layView.getChildAt(i).getHeight();
         }
         ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)m_layView.getLayoutParams();
-        param.height = nHeight + m_nDispH / 2;
+        param.height = nHeight + m_nDispH * 3 / 4;
         m_layView.setLayoutParams(param);
     }
 
@@ -369,5 +364,103 @@ public class noteEditActivity extends AppCompatActivity
             cursor.close();
         }
         return path;
+    }
+
+    private void readFromFile () {
+        try {
+            FileInputStream fis = new FileInputStream (m_strNoteFile);
+            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+            String strLine = null;
+            while((strLine = br.readLine())!=null) {
+                parseLineText(strLine, br);
+            }
+            fis.close();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (m_layView.getChildCount() <= 2)
+            addNoteView(null, 0);
+    }
+
+    private void parseLineText (String strText, BufferedReader br) {
+        try {
+            String strLine = strText;
+            if (strLine.compareTo(noteConfig.m_strTagNoteTitle) == 0) {
+                strLine = br.readLine();
+                m_edtTitle.setText(strLine);
+            } else if (strLine.compareTo(noteConfig.m_strTagNoteDate) == 0) {
+                strLine = br.readLine();
+                m_txtDate.setText(strLine);
+            } else if (strLine.compareTo(noteConfig.m_strTagNoteTime) == 0) {
+                strLine = br.readLine();
+                m_txtTime.setText(strLine);
+            } else if (strLine.compareTo(noteConfig.m_strTagNoteType) == 0) {
+                strLine = br.readLine();
+                for (int i = 0; i < noteConfig.m_lstNoteType.size(); i++) {
+                    if (strLine.compareTo(noteConfig.m_lstNoteType.get(i)) == 0) {
+                        m_spnType.setSelection(i);
+                        break;
+                    }
+                }
+            } else if (strLine.compareTo(noteConfig.m_strTagNoteText) == 0) {
+                String strContent = "";
+                while ((strLine = br.readLine()) != null) {
+                    if (strLine.indexOf(noteConfig.m_strTagNotePrev) >= 0)
+                        break;
+                    strContent = strContent + strLine;
+                }
+                noteEditText noteText = (noteEditText) addNoteView(null, 0);
+                noteText.setText(strContent);
+                if (strLine != null)
+                    parseLineText(strLine, br);
+            } else if (strLine.compareTo(noteConfig.m_strTagNotePict) == 0) {
+                strLine = br.readLine();
+                noteImageView noteImage = (noteImageView) addNoteView(null, 1);
+                noteImage.setImageFile(strLine);
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeToFile () {
+        String strName = "";
+        String strText = "";
+        try {
+            FileOutputStream fos = new FileOutputStream (m_strNoteFile);
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+
+            strName = noteConfig.m_strTagNoteTitle; bw.write((strName+"\n").toCharArray());
+            strText = m_edtTitle.getText().toString(); bw.write((strText+"\n").toCharArray());
+
+            strName = noteConfig.m_strTagNoteDate; bw.write((strName+"\n").toCharArray());
+            strText = m_txtDate.getText().toString(); bw.write((strText+"\n").toCharArray());
+
+            strName = noteConfig.m_strTagNoteTime; bw.write((strName+"\n").toCharArray());
+            strText = m_txtTime.getText().toString(); bw.write((strText+"\n").toCharArray());
+
+            strName = noteConfig.m_strTagNoteType; bw.write((strName+"\n").toCharArray());
+            int nSel = m_spnType.getSelectedItemPosition();
+            strText = noteConfig.m_lstNoteType.get(nSel); bw.write((strText+"\n").toCharArray());
+
+            View vwItem = null;
+            int nCount = m_layView.getChildCount();
+            for (int i = 2; i < nCount; i++) {
+                vwItem = m_layView.getChildAt(i);
+                if (vwItem.getId() < noteConfig.m_nImagIdStart) {
+                    noteEditText noteText = (noteEditText)vwItem;
+                    strName = noteConfig.m_strTagNoteText; bw.write((strName+"\n").toCharArray());
+                    strText = noteText.getText().toString(); bw.write((strText+"\n").toCharArray());
+                } else if (vwItem.getId() >= noteConfig.m_nImagIdStart) {
+                    noteImageView noteImage = (noteImageView)vwItem;
+                    strName = noteConfig.m_strTagNotePict; bw.write((strName+"\n").toCharArray());
+                    strText = noteImage.getImageFileName(); bw.write((strText+"\n").toCharArray());
+                }
+            }
+            bw.flush();
+            fos.close();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

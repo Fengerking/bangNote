@@ -1,5 +1,6 @@
 package com.wyhwl.bangnote;
 
+
 import android.app.Application;
 
 import java.lang.reflect.Constructor;
@@ -8,15 +9,13 @@ import java.lang.reflect.Method;
 
 
 public class noteApplication extends Application {
-   @Override
-   public void onCreate() {
+    @Override
+    public void onCreate() {
        super.onCreate();
        closeAndroidPDialog ();
 
-       noteConfig.initConfig(getApplicationContext());
-
-   }
-
+       //noteConfig.initConfig(getApplicationContext());
+    }
 
 
     private void closeAndroidPDialog(){
@@ -39,4 +38,6 @@ public class noteApplication extends Application {
             e.printStackTrace();
         }
     }
+
+
 }
