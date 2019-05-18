@@ -8,7 +8,7 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 public class noteListItemView extends TextView {
-    private dataNoteList    m_dataNote = null;
+    private dataNoteItem    m_dataItem = null;
     private Paint           m_pntDate;
     private Paint           m_pntMonth;
     private Paint           m_pntItem;
@@ -40,13 +40,13 @@ public class noteListItemView extends TextView {
         m_pntDate.setColor(Color.argb(0XFF, 0xFF, 0XFF, 0XFF));
     }
 
-    public void setDataList (dataNoteList noteList) {
-        m_dataNote = noteList;
+    public void setDataList (dataNoteItem noteItem) {
+        m_dataItem = noteItem;
         invalidate();
     }
 
     protected void onDraw(Canvas canvas) {
-        if (m_dataNote == null)
+        if (m_dataItem == null)
             return;
 
         int nW = getWidth();
@@ -57,7 +57,7 @@ public class noteListItemView extends TextView {
 
         canvas.drawLine(100, 0, 100, nH, m_pntDate);
         canvas.drawCircle(100, 50, 25, m_pntDate);
-
+/*
         String strDraw = m_dataNote.m_strDate.substring(5, 7);
         canvas.drawText(strDraw, 40, 50, m_pntMonth);
         strDraw = m_dataNote.m_strDate.substring(0, 4);
@@ -69,5 +69,6 @@ public class noteListItemView extends TextView {
 
         m_pntDate.setColor(Color.argb(255, 50, 50, 50));
         canvas.drawRect(150, 16, nW - 16, nH - 16, m_pntDate);
+*/
     }
 }

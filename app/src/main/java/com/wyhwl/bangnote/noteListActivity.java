@@ -22,9 +22,7 @@ public class noteListActivity extends AppCompatActivity
         setContentView(R.layout.activity_note_list);
 
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setLogo(R.mipmap.ic_launcher);
-        actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setDisplayUseLogoEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         m_sldList = (noteListSlider)findViewById(R.id.sldList);
         m_sldList.setSwitchListener(this);

@@ -72,6 +72,7 @@ public class noteEditActivity extends AppCompatActivity
 
     private int             m_nFocusID = 0;
     private String          m_strNoteFile = null;
+    private dataNoteItem    m_dataItem = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -233,6 +234,14 @@ public class noteEditActivity extends AppCompatActivity
 
     public void onClick(View v) {
         Date    dateNow = new Date(System.currentTimeMillis());
+        try {
+            String strTime = m_txtDate.getText().toString();
+            strTime = strTime+ " " + m_txtTime.getText().toString();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            dateNow = formatter.parse(strTime);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
         int     themeId = AlertDialog.THEME_HOLO_DARK;;
         int     nID     = v.getId();
         switch (nID) {
@@ -427,59 +436,42 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     private void readFromFile () {
-        try {
-            FileInputStream fis = new FileInputStream (m_strNoteFile);
-            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-            String strLine = null;
-            while((strLine = br.readLine())!=null) {
-                parseLineText(strLine, br);
+        m_dataItem = new dataNoteItem();
+        m_dataItem.readFromFile(m_strNoteFile);
+        m_edtTitle.setText(m_dataItem.m_strTitle);
+        m_txtDate.setText(m_dataItem.m_strDate);
+        m_txtTime.setText(m_dataItem.m_strTime);
+        for (int i = 0; i < noteConfig.m_lstNoteType.size(); i++) {
+            if (m_dataItem.m_strType.compareTo(noteConfig.m_lstNoteType.get(i)) == 0) {
+                m_spnType.setSelection(i);
+                break;
             }
-            fis.close();
-        }catch (Exception e) {
-            e.printStackTrace();
+        }
+
+        dataNoteItem.dataContent dataItem = null;
+        for (int i = 0; i < m_dataItem.m_lstItem.size(); i++) {
+            dataItem = m_dataItem.m_lstItem.get(i);
+            if (dataItem.m_nType == dataNoteItem.m_nItemTypeText) {
+                noteEditText noteEdit = (noteEditText)addNoteView(null, 0);
+                noteEdit.setText(dataItem.m_strItem);
+            } else {
+                if (m_layView.getChildCount() <= 2)
+                    addNoteView(null, 0);
+                else {
+                    View vwLast = m_layView.getChildAt(m_layView.getChildCount() - 1);
+                    if (vwLast.getId() >= noteConfig.m_nImagIdStart)
+                        addNoteView(null, 0);
+                }
+                noteImageView noteImage = (noteImageView)addNoteView(null, 1);
+                noteImage.setImageFile(dataItem.m_strItem);
+            }
         }
         if (m_layView.getChildCount() <= 2)
             addNoteView(null, 0);
-    }
-
-    private void parseLineText (String strText, BufferedReader br) {
-        try {
-            String strLine = strText;
-            if (strLine.compareTo(noteConfig.m_strTagNoteTitle) == 0) {
-                strLine = br.readLine();
-                m_edtTitle.setText(strLine);
-            } else if (strLine.compareTo(noteConfig.m_strTagNoteDate) == 0) {
-                strLine = br.readLine();
-                m_txtDate.setText(strLine);
-            } else if (strLine.compareTo(noteConfig.m_strTagNoteTime) == 0) {
-                strLine = br.readLine();
-                m_txtTime.setText(strLine);
-            } else if (strLine.compareTo(noteConfig.m_strTagNoteType) == 0) {
-                strLine = br.readLine();
-                for (int i = 0; i < noteConfig.m_lstNoteType.size(); i++) {
-                    if (strLine.compareTo(noteConfig.m_lstNoteType.get(i)) == 0) {
-                        m_spnType.setSelection(i);
-                        break;
-                    }
-                }
-            } else if (strLine.compareTo(noteConfig.m_strTagNoteText) == 0) {
-                String strContent = "";
-                while ((strLine = br.readLine()) != null) {
-                    if (strLine.indexOf(noteConfig.m_strTagNotePrev) >= 0)
-                        break;
-                    strContent = strContent + strLine;
-                }
-                noteEditText noteText = (noteEditText) addNoteView(null, 0);
-                noteText.setText(strContent);
-                if (strLine != null)
-                    parseLineText(strLine, br);
-            } else if (strLine.compareTo(noteConfig.m_strTagNotePict) == 0) {
-                strLine = br.readLine();
-                noteImageView noteImage = (noteImageView) addNoteView(null, 1);
-                noteImage.setImageFile(strLine);
-            }
-        }catch (Exception e) {
-            e.printStackTrace();
+        else {
+            View vwLast = m_layView.getChildAt(m_layView.getChildCount() - 1);
+            if (vwLast.getId() >= noteConfig.m_nImagIdStart)
+                addNoteView(null, 0);
         }
     }
 
@@ -509,8 +501,12 @@ public class noteEditActivity extends AppCompatActivity
                 vwItem = m_layView.getChildAt(i);
                 if (vwItem.getId() < noteConfig.m_nImagIdStart) {
                     noteEditText noteText = (noteEditText)vwItem;
-                    strName = noteConfig.m_strTagNoteText; bw.write((strName+"\n").toCharArray());
-                    strText = noteText.getText().toString(); bw.write((strText+"\n").toCharArray());
+                    strText = noteText.getText().toString();
+                    if (strText.length() > 0) {
+                        strName = noteConfig.m_strTagNoteText;
+                        bw.write((strName + "\n").toCharArray());
+                        bw.write((strText + "\n").toCharArray());
+                    }
                 } else if (vwItem.getId() >= noteConfig.m_nImagIdStart) {
                     noteImageView noteImage = (noteImageView)vwItem;
                     strName = noteConfig.m_strTagNotePict; bw.write((strName+"\n").toCharArray());

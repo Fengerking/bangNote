@@ -24,6 +24,7 @@ public class noteConfig {
     public static String        m_strNoteFile = null;
 
     public static List<String>  m_lstNoteType = null;
+    public static String        m_strNoteType = null;
 
     public static String        m_strTagNotePrev    = "[note";
     public static String        m_strTagNoteTitle   = "[noteTitle]";
@@ -46,6 +47,7 @@ public class noteConfig {
         m_lstNoteType.add("学习日记");
         m_lstNoteType.add("旅游日记");
         m_lstNoteType.add("心灵鸡汤");
+        m_strNoteType = "默认笔记";
     }
 
     public static int       getNoteEditID () {
