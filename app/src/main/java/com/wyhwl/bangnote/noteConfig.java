@@ -14,7 +14,7 @@ public class noteConfig {
     public static int           m_nImagID = 10001;
     public static int           m_nImagIdStart = 10000;
 
-    public static int           m_nTextColor = 0XFF9D9D9D;
+    public static int           m_nTextColor = 0XFF000000;
 
     public static int           m_nTextSize = 24;
     public static int           m_nImageHeight = 300;
@@ -35,9 +35,12 @@ public class noteConfig {
     public static String        m_strTagNotePict    = "[notePict]";
 
     public static void initConfig(Context context) {
-        m_strNoteTextPath = "/sdcard/bangNote/text/";
-        m_strNotePictPath = "/sdcard/bangNote/picture/";
-        File file = new File(m_strNoteTextPath);
+        File file = Environment.getExternalStorageDirectory();
+        m_strNoteTextPath = file.getPath() + "/bangNote/text/";
+        m_strNotePictPath = file.getPath() + "/bangNote/picture/";
+        file = new File(file.getPath() + "/bangNote/");
+        file.mkdir();
+        file = new File(m_strNoteTextPath);
         file.mkdir();
         file = new File(m_strNotePictPath);
         file.mkdir();

@@ -1,5 +1,6 @@
 package com.wyhwl.bangnote;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,14 +8,22 @@ import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.AdapterView;
+import android.net.Uri;
+import android.widget.ImageButton;
 
 import java.lang.reflect.Method;
+
 
 public class noteListActivity extends AppCompatActivity
                               implements noteListSlider.switchListener {
 
     private noteListListView        m_lstView = null;
     private noteListSlider          m_sldList = null;
+    private noteListAdapter         m_lstData = null;
+
+    private ImageButton             m_btnNewNote = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +37,29 @@ public class noteListActivity extends AppCompatActivity
         m_sldList.setSwitchListener(this);
 
         m_lstView = (noteListListView)findViewById(R.id.vwNoteList);
-        m_lstView.setAdapter(new noteListAdapter(this));
+        m_lstView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                dataNoteItem noteItem = m_lstData.getNoteItem(position);
+                Intent intent = new Intent(noteListActivity.this, noteEditActivity.class);
+                intent.setData(Uri.parse(noteItem.m_strFile));
+                startActivity(intent);
+            }
+        });
+
+        m_btnNewNote = (ImageButton)findViewById(R.id.btnNewNote);
+        m_btnNewNote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(noteListActivity.this, noteEditActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    public void onResume () {
+        super.onResume();
+        m_lstData = new noteListAdapter(this);
+        m_lstView.setAdapter(m_lstData);
     }
 
     @Override
@@ -70,6 +101,10 @@ public class noteListActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
+            case android.R.id.home:
+                finish();
+                break;
+
             case R.id.menu_newpic:
                 break;
             case R.id.menu_notesave:

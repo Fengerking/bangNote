@@ -37,11 +37,11 @@
                 android:textColor="@color/colorText"
                 android:layout_marginLeft="8dp"
                 android:text="2019-05-15"
-                android:textSize="18dp"/>
+                android:textSize="20dp"/>
             <ImageButton
                 android:id="@+id/btnDate"
-                android:layout_width="16dp"
-                android:layout_height="12dp"
+                android:layout_width="18dp"
+                android:layout_height="16dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginTop="6dp"
                 android:background="@drawable/btndown"
@@ -52,14 +52,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorText"
-                android:layout_marginLeft="8dp"
+                android:layout_marginLeft="12dp"
                 android:text="10:10:10"
-                android:textSize="18dp"
+                android:textSize="20dp"
                 android:layout_toRightOf="@id/btnDate"/>
             <ImageButton
                 android:id="@+id/btnTime"
-                android:layout_width="16dp"
-                android:layout_height="12dp"
+                android:layout_width="18dp"
+                android:layout_height="16dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginTop="6dp"
                 android:background="@drawable/btndown"
@@ -70,7 +70,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorText"
-                android:textSize="18dp"
+                android:textSize="20dp"
                 android:layout_alignParentRight="true"/>
 
         </RelativeLayout>

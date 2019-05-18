@@ -73,6 +73,7 @@ public class noteEditActivity extends AppCompatActivity
     private int             m_nFocusID = 0;
     private String          m_strNoteFile = null;
     private dataNoteItem    m_dataItem = null;
+    private boolean         m_bNewNote = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,10 +85,14 @@ public class noteEditActivity extends AppCompatActivity
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         Uri uri = getIntent().getData();
-        if (uri != null)
+        if (uri != null) {
             m_strNoteFile = uri.toString();
-        else
+            m_bNewNote = false;
+        }
+        else {
             m_strNoteFile = noteConfig.getNoteTextFile();
+            m_bNewNote = true;
+        }
 
         initViews();
         readFromFile();
@@ -476,6 +481,16 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     private void writeToFile () {
+        if (m_bNewNote && m_edtTitle.getText().toString().length() <= 0) {
+            if (m_layView.getChildCount() <= 3) {
+                View vwItem = m_layView.getChildAt(2);
+                if (vwItem.getId() < noteConfig.m_nImagIdStart) {
+                    String strItem = ((noteEditText)vwItem).getText().toString();
+                    if (strItem.length() <= 0)
+                        return;
+                }
+            }
+        }
         String strName = "";
         String strText = "";
         try {

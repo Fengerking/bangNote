@@ -31,6 +31,18 @@ public class noteListAdapter extends BaseAdapter {
         fillFileList(noteConfig.m_strNoteTextPath);
     }
 
+    public dataNoteItem getNoteItem (int nIndex) {
+        if (nIndex < 0 || nIndex >= m_lstSelItem.size())
+            return null;
+        return m_lstSelItem.get(nIndex);
+    }
+
+    public void updateNoteItem () {
+        m_lstAllItem.clear();
+        m_lstSelItem.clear();
+        fillFileList(noteConfig.m_strNoteTextPath);
+    }
+
     public int getCount() {
         return m_lstSelItem.size();
     }
@@ -43,7 +55,7 @@ public class noteListAdapter extends BaseAdapter {
 
     public View getView(int position, View convertView, ViewGroup parent) {
         noteListItemView itemView = new noteListItemView(m_context);
-        itemView.setTextSize(60);
+        itemView.setTextSize(80);
         itemView.setDataList(m_lstSelItem.get(position));
         return itemView;
     }
@@ -63,8 +75,9 @@ public class noteListAdapter extends BaseAdapter {
                 dataNoteItem noteItem = new dataNoteItem();
                 noteItem.readFromFile(file.getPath());
                 m_lstAllItem.add(noteItem);
-                if (noteItem.m_strType.compareTo(noteConfig.m_strNoteType) == 0)
+                if (noteItem.m_strType.compareTo(noteConfig.m_strNoteType) == 0) {
                     m_lstSelItem.add(noteItem);
+                }
             }
         }
 

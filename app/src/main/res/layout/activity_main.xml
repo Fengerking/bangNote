@@ -5,17 +5,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorView"
     tools:context=".MainActivity">
 
-
+    <RelativeLayout
+        android:id="@+id/layMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <Button
         android:id="@+id/btnTest"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="enter"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
         tools:layout_editor_absoluteX="161dp"
         tools:layout_editor_absoluteY="171dp" />
 
-
+    </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

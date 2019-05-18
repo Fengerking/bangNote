@@ -21,10 +21,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setLogo(R.mipmap.ic_launcher);
-        actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setDisplayUseLogoEnabled(true);
+        //ActionBar actionBar = getSupportActionBar();
+        //actionBar.setLogo(R.mipmap.ic_launcher);
+        //actionBar.setDisplayShowHomeEnabled(true);
+        //actionBar.setDisplayUseLogoEnabled(true);
 
         CheckWritePermission(true);
         noteConfig.initConfig(this);

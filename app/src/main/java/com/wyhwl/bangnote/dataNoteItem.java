@@ -13,6 +13,7 @@ public class dataNoteItem {
     public static int           m_nItemTypeText = 0;
     public static int           m_nItemTypePict = 1;
 
+    public String               m_strFile = "";
     public String               m_strTitle = "";
     public String               m_strDate = "";
     public String               m_strTime = "";
@@ -35,6 +36,7 @@ public class dataNoteItem {
     }
 
     public int readFromFile (String strFile) {
+        m_strFile = strFile;
         try {
             FileInputStream fis = new FileInputStream (strFile);
             BufferedReader br = new BufferedReader(new InputStreamReader(fis));

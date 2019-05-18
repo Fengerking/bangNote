@@ -7,48 +7,61 @@
     android:background="@color/colorView"
     tools:context=".noteListActivity">
 
-    <com.wyhwl.bangnote.noteListListView
-        android:id="@+id/vwNoteList"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:divider="@null"
-        android:background="@color/colorView">
-
-
-    </com.wyhwl.bangnote.noteListListView>
-
-    <com.wyhwl.bangnote.noteListSlider
-        android:id="@+id/sldList"
+    <RelativeLayout
+        android:id="@+id/layList"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <LinearLayout
-            android:id="@+id/layListMenu"
+        <com.wyhwl.bangnote.noteListListView
+            android:id="@+id/vwNoteList"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:background="@color/colorAccent">
+            android:layout_height="wrap_content"
+            android:divider="@null"
+            android:background="@color/colorView">
+        </com.wyhwl.bangnote.noteListListView>
 
-        </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/layListItem"
+        <com.wyhwl.bangnote.noteListSlider
+            android:id="@+id/sldList"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <LinearLayout
+                android:id="@+id/layListMenu"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="@color/colorAccent">
 
-        </LinearLayout>
+            </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/layListSetting"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:background="@color/colorAccent">
-
-        </LinearLayout>
-    </com.wyhwl.bangnote.noteListSlider>
+            <LinearLayout
+                android:id="@+id/layListItem"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
 
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layListSetting"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="@color/colorAccent">
+
+            </LinearLayout>
+        </com.wyhwl.bangnote.noteListSlider>
+
+        <ImageButton
+            android:id="@+id/btnNewNote"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/newnote"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="8dp"
+            android:layout_marginRight="8dp"/>
+
+    </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>
