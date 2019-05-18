@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.widget.ImageButton;
 
 import java.lang.reflect.Method;
+import java.io.File;
 
 
 public class noteListActivity extends AppCompatActivity
@@ -32,20 +33,29 @@ public class noteListActivity extends AppCompatActivity
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        noteConfig.initConfig(this);
 
         m_sldList = (noteListSlider)findViewById(R.id.sldList);
         m_sldList.setSwitchListener(this);
 
+        m_lstData = new noteListAdapter(this);
         m_lstView = (noteListListView)findViewById(R.id.vwNoteList);
         m_lstView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 dataNoteItem noteItem = m_lstData.getNoteItem(position);
-                Intent intent = new Intent(noteListActivity.this, noteEditActivity.class);
+                Intent intent = new Intent(noteListActivity.this, noteViewActivity.class);
                 intent.setData(Uri.parse(noteItem.m_strFile));
                 startActivity(intent);
             }
         });
 
+        m_lstView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                noteListItemView noteView = (noteListItemView)view;
+                noteView.setSelect ();
+                return true;
+            }
+        });
         m_btnNewNote = (ImageButton)findViewById(R.id.btnNewNote);
         m_btnNewNote.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,9 +66,9 @@ public class noteListActivity extends AppCompatActivity
         });
     }
 
-    public void onResume () {
+    protected void onResume () {
         super.onResume();
-        m_lstData = new noteListAdapter(this);
+        m_lstData.updateNoteItem();
         m_lstView.setAdapter(m_lstData);
     }
 
@@ -105,8 +115,19 @@ public class noteListActivity extends AppCompatActivity
                 finish();
                 break;
 
-            case R.id.menu_newpic:
+            case R.id.menu_deletenote:
+                int nCount = m_lstView.getCount();
+                for (int i = 0; i < nCount; i++) {
+                    noteListItemView noteView = (noteListItemView)m_lstView.getChildAt(i);
+                    if (noteView.isSelect()) {
+                        File file = new File(noteView.getDataList().m_strFile);
+                        file.delete();
+                    }
+                }
+                m_lstData.updateNoteItem();
+                m_lstView.setAdapter(m_lstData);
                 break;
+
             case R.id.menu_notesave:
                 break;
             case R.id.menu_notecount:

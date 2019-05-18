@@ -47,7 +47,7 @@ public class noteListAdapter extends BaseAdapter {
         return m_lstSelItem.size();
     }
     public Object getItem(int arg0) {
-        return arg0;
+        return m_lstSelItem.get(arg0);
     }
     public long getItemId(int position) {
         return position;

@@ -14,6 +14,11 @@
         android:title="@string/note_move"
         app:showAsAction="always"  />
 
+    <item android:id="@+id/menu_deletenote"
+        android:icon="@drawable/notedelete"
+        android:title="@string/note_delete"
+        app:showAsAction="always"  />
+
     <item android:id="@+id/menu_setting"
         android:icon="@mipmap/notesetting"
         android:title="@string/note_setting"

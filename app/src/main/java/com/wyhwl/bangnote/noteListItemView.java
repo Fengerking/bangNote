@@ -6,7 +6,11 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.TextView;
+import android.util.Log;
+import android.text.method.LinkMovementMethod;
 
 public class noteListItemView extends TextView {
     private dataNoteItem    m_dataItem = null;
@@ -17,6 +21,9 @@ public class noteListItemView extends TextView {
 
     private Paint           m_pntLeft;
     private Paint           m_pntRect;
+    private Paint           m_pntSelect;
+
+    private boolean         m_bSelect = false;
 
     public noteListItemView(Context context) {
         super(context);
@@ -45,17 +52,31 @@ public class noteListItemView extends TextView {
         m_pntTextItem.setColor(0XFFCCCCCC);
 
         m_pntLeft =  new Paint();
-        m_pntLeft.setTextSize(30);
         m_pntLeft.setColor(0XFFCCCCCC);
 
         m_pntRect =  new Paint();
-        m_pntRect.setTextSize(30);
         m_pntRect.setColor(0XFF666666);
+
+        m_pntSelect =  new Paint();
+        m_pntSelect.setColor(0XFF999999);
     }
 
     public void setDataList (dataNoteItem noteItem) {
         m_dataItem = noteItem;
         invalidate();
+    }
+
+    public dataNoteItem getDataList () {
+        return m_dataItem;
+    }
+
+    public void setSelect () {
+        m_bSelect = !m_bSelect;
+        invalidate();
+    }
+
+    public boolean isSelect () {
+        return m_bSelect;
     }
 
     protected void onDraw(Canvas canvas) {
@@ -68,6 +89,11 @@ public class noteListItemView extends TextView {
         int nL = 150;
         int nY = 90;
         int nC = 40;
+
+        if (m_bSelect) {
+            Rect rcView = new Rect(4, 4, nW - 4, nH - 4);
+            canvas.drawRect(rcView, m_pntSelect);
+        }
 
         canvas.drawLine(nL, 0, nL, nH, m_pntLeft);
         canvas.drawCircle(nL, nY, nC, m_pntLeft);
@@ -99,7 +125,5 @@ public class noteListItemView extends TextView {
         m_pntTextItem.getTextBounds(m_dataItem.m_strType, 0, m_dataItem.m_strType.length(), rcText);
         int nStart = rcItem.right - (rcText.right - rcText.left) - 12;
         canvas.drawText(m_dataItem.m_strType, nStart, nTop, m_pntTextItem);
-
-
     }
 }

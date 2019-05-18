@@ -83,6 +83,7 @@ public class noteEditActivity extends AppCompatActivity
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        noteConfig.initConfig(this);
 
         Uri uri = getIntent().getData();
         if (uri != null) {
