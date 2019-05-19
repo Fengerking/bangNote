@@ -1,9 +1,12 @@
 package com.wyhwl.bangnote;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -12,7 +15,10 @@ import android.widget.TextView;
 import android.util.Log;
 import android.text.method.LinkMovementMethod;
 
+import java.io.FileInputStream;
+
 public class noteListItemView extends TextView {
+    private Context         m_context = null;
     private dataNoteItem    m_dataItem = null;
 
     private Paint           m_pntTextLeft;
@@ -27,18 +33,19 @@ public class noteListItemView extends TextView {
 
     public noteListItemView(Context context) {
         super(context);
-        init ();
+        init (context);
     }
     public noteListItemView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init ();
+        init (context);
     }
     public noteListItemView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init ();
+        init (context);
     }
 
-    public void init () {
+    public void init (Context context) {
+        m_context = context;
         m_pntTextLeft = new Paint();
         m_pntTextLeft.setTextSize(40);
         m_pntTextLeft.setColor(0XFF222222);
@@ -55,7 +62,7 @@ public class noteListItemView extends TextView {
         m_pntLeft.setColor(0XFFCCCCCC);
 
         m_pntRect =  new Paint();
-        m_pntRect.setColor(0XFF666666);
+        m_pntRect.setColor(0XFF444444);
 
         m_pntSelect =  new Paint();
         m_pntSelect.setColor(0XFF999999);
@@ -105,25 +112,47 @@ public class noteListItemView extends TextView {
         strDraw = m_dataItem.m_strDate.substring(8, 10);
         canvas.drawText(strDraw, nL - nC + 15, nY + 15, m_pntTextLeft);
 
-        Rect rcItem = new Rect(nL + 60, 16, nW - 16, nH - 16);
-        canvas.drawRect(rcItem, m_pntRect);
+        Rect    rcItem = new Rect(nL + 60, 16, nW - 16, nH - 16);
+        RectF   rcItemf = new RectF(nL + 60, 16, nW - 16, nH - 16);
+        canvas.drawRoundRect(rcItemf, 24, 24, m_pntRect);
 
-        int nLeft = rcItem.left + 10;
+        Bitmap bmpItem = null;
+        if (m_dataItem.m_strImgFile != null) {
+            try {
+                FileInputStream fis = new FileInputStream (m_dataItem.m_strImgFile);
+                bmpItem = BitmapFactory.decodeStream(fis);
+                fis.close();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            bmpItem = BitmapFactory.decodeResource(m_context.getResources(), R.mipmap.ic_launcher);
+        }
+        if (bmpItem != null) {
+            int nOff = 12;
+            Rect rcSrc = new Rect(0, 0, bmpItem.getWidth(), bmpItem.getHeight());
+            Rect rcDst = new Rect(rcItem.left + nOff, rcItem.top + nOff, rcItem.left + (rcItem.bottom - rcItem.top) - nOff * 2, rcItem.bottom - nOff * 2);
+            canvas.drawBitmap(bmpItem, rcSrc, rcDst, m_pntRect);
+        }
+
+        int nLeft = rcItem.left + 10 + rcItem.bottom - rcItem.top;
         int nTop  = rcItem.top + 60;
         Rect rcText = new Rect();
-        if (m_dataItem.m_strTitle.length() > 0) {
-            m_pntTextTitle.getTextBounds(m_dataItem.m_strTitle, 0, m_dataItem.m_strTitle.length(), rcText);
-            int nStart = rcItem.left + ((rcItem.right - rcItem.left) - (rcText.right - rcText.left))/ 2;
-            canvas.drawText(m_dataItem.m_strTitle, nStart, nTop, m_pntTextTitle);
-        }
+        String strTitle = "无标题";
+        if (m_dataItem.m_strTitle.length() > 0)
+            strTitle = m_dataItem.m_strTitle;
+        m_pntTextTitle.getTextBounds(strTitle, 0, strTitle.length(), rcText);
+        int nStart = nLeft + ((rcItem.right - nLeft) - (rcText.right - rcText.left))/ 2;
+        canvas.drawText(strTitle, nStart, nTop, m_pntTextTitle);
+
 
         nTop  = nTop + 72;
         canvas.drawText(m_dataItem.m_strFirstLine, nLeft, nTop, m_pntTextItem);
-        nTop  = rcItem.bottom - 8;
+        nTop  = rcItem.bottom - 16;
         canvas.drawText(m_dataItem.m_strTime, nLeft, nTop, m_pntTextItem);
 
         m_pntTextItem.getTextBounds(m_dataItem.m_strType, 0, m_dataItem.m_strType.length(), rcText);
-        int nStart = rcItem.right - (rcText.right - rcText.left) - 12;
+        nStart = rcItem.right - (rcText.right - rcText.left) - 16;
         canvas.drawText(m_dataItem.m_strType, nStart, nTop, m_pntTextItem);
     }
 }

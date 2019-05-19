@@ -21,6 +21,7 @@ public class dataNoteItem {
 
     public String               m_strDateTime = "";
     public String               m_strFirstLine = "";
+    public String               m_strImgFile = null;
 
     public ArrayList<dataContent>    m_lstItem = null;
 
@@ -89,6 +90,8 @@ public class dataNoteItem {
                 dataContent content = new dataContent();
                 content.m_nType = m_nItemTypePict;
                 content.m_strItem = br.readLine();
+                if (m_strImgFile == null)
+                    m_strImgFile = content.m_strItem;
                 m_lstItem.add(content);
             }
         }catch (Exception e) {

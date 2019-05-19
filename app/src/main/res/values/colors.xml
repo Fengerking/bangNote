@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#234446</color>
-    <color name="colorPrimaryDark">#234446</color>
+    <color name="colorPrimary">#233446</color>
+    <color name="colorPrimaryDark">#233446</color>
     <color name="colorAccent">#D81B60</color>
     <!-- user define color -->
-    <color name="colorView">#888888</color>
+    <color name="colorView">#666666</color>
     <color name="colorText">#000000</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlack">#000000</color>

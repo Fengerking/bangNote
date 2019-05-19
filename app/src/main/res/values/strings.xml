@@ -12,6 +12,7 @@
     <string name="note_backup">备份笔记</string>
     <string name="note_restore">恢复笔记</string>
     <string name="note_delete">删除笔记</string>
+    <string name="note_notitle">无标题</string>
     <string name="note_exit">退出</string>
 
 </resources>

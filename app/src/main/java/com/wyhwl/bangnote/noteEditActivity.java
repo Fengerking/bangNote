@@ -79,7 +79,6 @@ public class noteEditActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_edit);
-        setTitle(R.string.new_note);
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -89,10 +88,12 @@ public class noteEditActivity extends AppCompatActivity
         if (uri != null) {
             m_strNoteFile = uri.toString();
             m_bNewNote = false;
+            setTitle(R.string.note_edit);
         }
         else {
             m_strNoteFile = noteConfig.getNoteTextFile();
             m_bNewNote = true;
+            setTitle(R.string.new_note);
         }
 
         initViews();

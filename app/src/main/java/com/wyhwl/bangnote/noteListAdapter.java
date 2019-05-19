@@ -81,16 +81,18 @@ public class noteListAdapter extends BaseAdapter {
             }
         }
 
-        if (m_lstAllItem.size() > 1) {
+        if (m_lstSelItem.size() > 1) {
             Comparator comp = new dateComparator();
-            Collections.sort(m_lstAllItem, comp);
+            Collections.sort(m_lstSelItem, comp);
         }
     }
 
     public class dateComparator implements Comparator<Object> {
         @SuppressWarnings("unchecked")
         public int compare(Object o1, Object o2) {
-            return 1;
+            dataNoteItem noteItem1 = (dataNoteItem)o1;
+            dataNoteItem noteItem2 = (dataNoteItem)o2;
+            return noteItem2.m_strDateTime.compareTo(noteItem1.m_strDateTime);
         }
     }
 }
