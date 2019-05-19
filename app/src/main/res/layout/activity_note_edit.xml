@@ -11,8 +11,8 @@
         android:id="@+id/layView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
         android:background="@color/colorView"
         android:orientation="vertical">
 
@@ -43,7 +43,7 @@
                 android:id="@+id/btnDate"
                 android:layout_width="18dp"
                 android:layout_height="16dp"
-                android:layout_marginLeft="8dp"
+                android:layout_marginLeft="4dp"
                 android:layout_marginTop="6dp"
                 android:background="@drawable/btndown"
                 android:layout_toRightOf="@id/textDate"/>
@@ -53,7 +53,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorText"
-                android:layout_marginLeft="12dp"
+                android:layout_marginLeft="4dp"
                 android:text="10:10:10"
                 android:textSize="20dp"
                 android:layout_toRightOf="@id/btnDate"/>
@@ -61,7 +61,7 @@
                 android:id="@+id/btnTime"
                 android:layout_width="18dp"
                 android:layout_height="16dp"
-                android:layout_marginLeft="8dp"
+                android:layout_marginLeft="4dp"
                 android:layout_marginTop="6dp"
                 android:background="@drawable/btndown"
                 android:layout_toRightOf="@id/textTime"/>

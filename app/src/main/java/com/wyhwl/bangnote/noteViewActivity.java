@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -24,7 +25,8 @@ import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class noteViewActivity extends AppCompatActivity {
+public class noteViewActivity extends AppCompatActivity
+                            implements noteImageShow.noteImageShowListener {
     private String          m_strNoteFile = null;
     private TextView        m_txtTitle = null;
     private TextView        m_txtDate = null;
@@ -33,6 +35,11 @@ public class noteViewActivity extends AppCompatActivity {
     private LinearLayout    m_layView = null;
 
     private dataNoteItem    m_dataItem = null;
+    private noteImageShow   m_noteImage = null;
+
+    private int             m_nLastY = 0;
+    private int             m_nLastYPos = 0;
+    private int             m_nDispH = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,16 +61,71 @@ public class noteViewActivity extends AppCompatActivity {
     }
 
     private void initViews () {
+        DisplayMetrics dm = this.getResources().getDisplayMetrics();
+        m_nDispH = dm.heightPixels;
+
         m_txtTitle = (TextView)findViewById(R.id.textTitle);
         m_txtDate = (TextView)findViewById(R.id.textDate);
         m_txtTime = (TextView)findViewById(R.id.textTime);
         m_txtType = (TextView)findViewById(R.id.textType);
         m_layView = (LinearLayout)findViewById(R.id.layView);
+
+        m_layView.postDelayed(() -> readFromFile(), 10);
     }
 
     protected void onResume () {
         super.onResume();
-        readFromFile();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        int y = (int) ev.getY();
+        switch (ev.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                m_nLastY = y;
+                m_nLastYPos = y;
+                 break;
+            case MotionEvent.ACTION_MOVE:
+                if (Math.abs(m_nLastYPos - y) > 20)
+                    m_noteImage = null;
+                int nPos = m_layView.getScrollY();
+                int nH = m_layView.getHeight();
+                int dy = m_nLastY - y;
+                if (dy < 0) {// move down
+                    if (nPos < 0 || nPos + dy < 0)
+                        dy = -nPos;
+                } else {
+                    if (nH - nPos < m_nDispH)
+                        dy = (nH - nPos) - m_nDispH;
+                    else if (dy > (nH - nPos) - m_nDispH)
+                        dy = (nH - nPos) - m_nDispH;
+                }
+
+                if (dy != 0 && nH > m_nDispH)
+                    m_layView.scrollBy(0, dy);
+                m_nLastY = y;
+                break;
+            case MotionEvent.ACTION_UP:
+                if (Math.abs(m_nLastYPos - y) > 20)
+                    m_noteImage = null;
+                break;
+        }
+        return true;
+    }
+
+    public int onNoteImageShowEvent (View view){
+        m_noteImage = (noteImageShow)view;
+        m_layView.postDelayed(() -> openNoteImageActivity(), 500);
+        return 0;
+    }
+
+    private void openNoteImageActivity () {
+        if (m_noteImage == null)
+            return;
+        String strImgFile = m_noteImage.getImageFile();
+        Intent intent = new Intent(noteViewActivity.this, noteImageActivity.class);
+        intent.setData(Uri.parse(strImgFile));
+        startActivity(intent);
     }
 
     private void readFromFile () {
@@ -79,45 +141,39 @@ public class noteViewActivity extends AppCompatActivity {
 
         dataNoteItem.dataContent dataItem = null;
         for (int i = 0; i < m_dataItem.m_lstItem.size(); i++) {
+            TextView txtView = new TextView(this);
+            txtView.setText("\n");
+            txtView.setTextSize(4);
+            m_layView.addView(txtView);
+
             dataItem = m_dataItem.m_lstItem.get(i);
             if (dataItem.m_nType == dataNoteItem.m_nItemTypeText) {
-                TextView txtView = new TextView(this);
+                txtView = new TextView(this);
                 m_layView.addView(txtView);
                 txtView.setText(dataItem.m_strItem);
                 txtView.setTextSize(noteConfig.m_nTextSize);
                 txtView.setTextColor(noteConfig.m_nTextColor);
             } else {
-                ImageView imgView = new ImageView(this);
+                noteImageShow imgView = new noteImageShow(this);
                 m_layView.addView(imgView);
-
-                try {
-                    FileInputStream fis = new FileInputStream (dataItem.m_strItem);
-                    Bitmap bmp = BitmapFactory.decodeStream(fis);
-                    fis.close();
-                    imgView.setImageBitmap(bmp);
-                    ViewGroup.LayoutParams params = imgView.getLayoutParams();
-                    params.width = -1;
-                    params.height = bmp.getHeight() * 1000 / bmp.getWidth();
-                    imgView.setLayoutParams(params);
-                    imgView.setScaleType(ImageView.ScaleType.FIT_XY);
-                }catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-
+                imgView.setImageFile (dataItem.m_strItem, false);
+                imgView.setNoteImageShowListener(this);
             }
         }
 
+        m_layView.post(()->onResizeView());
+    }
+
+    public void onResizeView () {
         int nHeight = 0;
         int nCount = m_layView.getChildCount();
         for (int i = 0; i < nCount; i++) {
             nHeight += m_layView.getChildAt(i).getHeight();
         }
         ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)m_layView.getLayoutParams();
-        param.height = nHeight + 1200;
+        param.height = nHeight + 200;
         m_layView.setLayoutParams(param);
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_noteview, menu);
@@ -143,6 +199,7 @@ public class noteViewActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
+                finish();
                 break;
 
             case R.id.menu_edit:
