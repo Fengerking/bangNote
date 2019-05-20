@@ -1,18 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@color/colorBlack"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0099cc"
     tools:context=".noteImageActivity">
 
-    <com.wyhwl.bangnote.noteImageShow
-        android:id="@+id/imgShow"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:background="@color/colorBlack">
+    <RelativeLayout
+        android:id="@+id/layView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    </com.wyhwl.bangnote.noteImageShow>
+        <com.wyhwl.bangnote.noteImageShow
+            android:id="@+id/imgShow"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@color/colorBlack">
+        </com.wyhwl.bangnote.noteImageShow>
 
-</android.support.constraint.ConstraintLayout>
+        <ImageButton
+            android:id="@+id/btnZoomIn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/zoomin"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="360dp"
+            android:layout_marginLeft="8dp"/>
+
+        <ImageButton
+            android:id="@+id/btnZoomOut"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/zoomout"
+            android:layout_toRightOf="@id/btnZoomIn"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="360dp"
+            android:layout_marginLeft="12dp"/>
+
+    </RelativeLayout>
+
+</FrameLayout>

@@ -39,7 +39,7 @@ public class noteImageShow extends ImageView {
 
     // The event listener function
     public interface noteImageShowListener{
-        public int onNoteImageShowEvent (View view);
+        public int onNoteImageShowEvent (View view, MotionEvent ev);
     }
 
     public void setNoteImageShowListener (noteImageShowListener listener) {
@@ -106,14 +106,11 @@ public class noteImageShow extends ImageView {
             DisplayMetrics dm = this.getResources().getDisplayMetrics();
             float scale = (float)dm.widthPixels / m_nBmpWidth;
 
-            ViewGroup.LayoutParams param = (ViewGroup.LayoutParams) getLayoutParams();
             if (!m_bCanZoom) {
+                ViewGroup.LayoutParams param = (ViewGroup.LayoutParams) getLayoutParams();
                 param.height = (int) (m_nBmpHeight * scale);
-            } else {
-                param.width = dm.widthPixels;
-                param.height = dm.heightPixels;
+                setLayoutParams(param);
             }
-            setLayoutParams(param);
 
             m_nowMatrix.postScale(scale, scale, 0, 0);
             if (m_bCanZoom) {
@@ -132,7 +129,7 @@ public class noteImageShow extends ImageView {
     public boolean onTouchEvent(MotionEvent event) {
         if (!m_bCanZoom) {
             if (m_imgListener != null)
-               m_imgListener.onNoteImageShowEvent(this);
+               m_imgListener.onNoteImageShowEvent(this, event);
             return false;
         }
 
@@ -171,6 +168,8 @@ public class noteImageShow extends ImageView {
                 invalidate();
                 break;
             }
+        if (m_imgListener != null)
+            m_imgListener.onNoteImageShowEvent(this, event);
         return true;
     }
 

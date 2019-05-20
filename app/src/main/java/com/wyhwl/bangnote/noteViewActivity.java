@@ -113,7 +113,7 @@ public class noteViewActivity extends AppCompatActivity
         return true;
     }
 
-    public int onNoteImageShowEvent (View view){
+    public int onNoteImageShowEvent (View view, MotionEvent ev){
         m_noteImage = (noteImageShow)view;
         m_layView.postDelayed(() -> openNoteImageActivity(), 500);
         return 0;
