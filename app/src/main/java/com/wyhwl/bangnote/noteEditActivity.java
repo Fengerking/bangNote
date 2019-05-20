@@ -74,6 +74,7 @@ public class noteEditActivity extends AppCompatActivity
     private String          m_strNoteFile = null;
     private dataNoteItem    m_dataItem = null;
     private boolean         m_bNewNote = true;
+    private boolean         m_bReadFromFile = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +98,7 @@ public class noteEditActivity extends AppCompatActivity
         }
 
         initViews();
-        readFromFile();
+        m_layView.postDelayed(()->readFromFile(), 100);
     }
 
     protected void onStop() {
@@ -318,6 +319,8 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     public void onTextChanged (int nID) {
+        if (m_bReadFromFile)
+            return;
         onResizeView();
     }
 
@@ -344,10 +347,12 @@ public class noteEditActivity extends AppCompatActivity
         int nCount = m_layView.getChildCount();
         for (int i = 0; i < nCount; i++) {
             nHeight += m_layView.getChildAt(i).getHeight();
+            Log.e("ResizeView", "height = " + nHeight);
         }
         ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)m_layView.getLayoutParams();
         param.height = nHeight + m_nDispH * 3 / 4;
         m_layView.setLayoutParams(param);
+        Log.e("ResizeView", "Total height = " + param.height);
     }
 
     @Override
@@ -384,12 +389,15 @@ public class noteEditActivity extends AppCompatActivity
                 finish();
                 break;
 
+            case R.id.menu_camera:
+                break;
+
             case R.id.menu_newpic:
                 Intent intent = new Intent("android.intent.action.GET_CONTENT");
                 intent.setType("image/*");
                 startActivityForResult(intent, RESULT_LOAD_IMAGE);//打开系统相册
                 break;
-            case R.id.menu_notesave:
+            case R.id.menu_delpic:
                 deleteImageView ();
                 break;
             case R.id.menu_notecount:
@@ -443,6 +451,7 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     private void readFromFile () {
+        m_bReadFromFile = true;
         m_dataItem = new dataNoteItem();
         m_dataItem.readFromFile(m_strNoteFile);
         m_edtTitle.setText(m_dataItem.m_strTitle);
@@ -480,6 +489,8 @@ public class noteEditActivity extends AppCompatActivity
             if (vwLast.getId() >= noteConfig.m_nImagIdStart)
                 addNoteView(null, 0);
         }
+        m_bReadFromFile = false;
+        m_layView.postDelayed(()->onResizeView(), 100);
     }
 
     private void writeToFile () {

@@ -99,6 +99,7 @@ public class noteImageShow extends ImageView {
                 m_nBmpHeight = bmp.getWidth();
                 Bitmap bmpNew = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matBmp, true);
                 setImageBitmap(bmpNew);
+                bmp.recycle();
             } else {
                 setImageBitmap(bmp);
             }

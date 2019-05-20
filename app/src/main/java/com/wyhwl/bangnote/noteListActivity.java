@@ -20,11 +20,11 @@ import java.io.File;
 public class noteListActivity extends AppCompatActivity
                               implements noteListSlider.switchListener {
 
-    private noteListListView        m_lstView = null;
-    private noteListSlider          m_sldList = null;
-    private noteListAdapter         m_lstData = null;
+    private noteListListView m_lstView = null;
+    private noteListSlider m_sldList = null;
+    private noteListAdapter m_lstData = null;
 
-    private ImageButton             m_btnNewNote = null;
+    private ImageButton m_btnNewNote = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,41 +35,47 @@ public class noteListActivity extends AppCompatActivity
         actionBar.setDisplayHomeAsUpEnabled(true);
         noteConfig.initConfig(this);
 
-        m_sldList = (noteListSlider)findViewById(R.id.sldList);
+        m_sldList = (noteListSlider) findViewById(R.id.sldList);
         m_sldList.setSwitchListener(this);
 
         m_lstData = new noteListAdapter(this);
-        m_lstView = (noteListListView)findViewById(R.id.vwNoteList);
+        m_lstView = (noteListListView) findViewById(R.id.vwNoteList);
         m_lstView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 dataNoteItem noteItem = m_lstData.getNoteItem(position);
                 Intent intent = new Intent(noteListActivity.this, noteViewActivity.class);
                 intent.setData(Uri.parse(noteItem.m_strFile));
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         });
 
         m_lstView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                noteListItemView noteView = (noteListItemView)view;
-                noteView.setSelect ();
+                noteListItemView noteView = (noteListItemView) view;
+                noteView.setSelect();
                 return true;
             }
         });
-        m_btnNewNote = (ImageButton)findViewById(R.id.btnNewNote);
+        m_btnNewNote = (ImageButton) findViewById(R.id.btnNewNote);
         m_btnNewNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(noteListActivity.this, noteEditActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         });
+
+        m_lstView.postDelayed(()->updateList(), 20);
     }
 
-    protected void onResume () {
+    protected void onResume() {
         super.onResume();
+    }
+
+    protected void updateList () {
         m_lstData.updateNoteItem();
         m_lstView.setAdapter(m_lstData);
+        m_lstView.invalidate();
     }
 
     @Override
@@ -84,6 +90,7 @@ public class noteListActivity extends AppCompatActivity
                 //Toast.makeText(MainActivity.this,"提交文本："+s,Toast.LENGTH_SHORT).show();
                 return false;
             }
+
             @Override
             public boolean onQueryTextChange(String s) {
                 //Toast.makeText(MainActivity.this,"当前文本："+s,Toast.LENGTH_SHORT).show();
@@ -118,14 +125,13 @@ public class noteListActivity extends AppCompatActivity
             case R.id.menu_deletenote:
                 int nCount = m_lstView.getCount();
                 for (int i = 0; i < nCount; i++) {
-                    noteListItemView noteView = (noteListItemView)m_lstView.getChildAt(i);
+                    noteListItemView noteView = (noteListItemView) m_lstView.getChildAt(i);
                     if (noteView.isSelect()) {
                         File file = new File(noteView.getDataList().m_strFile);
                         file.delete();
                     }
                 }
-                m_lstData.updateNoteItem();
-                m_lstView.setAdapter(m_lstData);
+                m_lstView.postDelayed(()->updateList(), 200);
                 break;
 
             case R.id.menu_notesave:
@@ -138,16 +144,21 @@ public class noteListActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    public int onSwitchStart (int nView){
+    public int onSwitchStart(int nView) {
         return 0;
     }
 
-    public int OnSwitchEnd (int nView) {
+    public int OnSwitchEnd(int nView) {
         return 0;
     }
 
-    public int onMotionEvent (MotionEvent ev) {
+    public int onMotionEvent(MotionEvent ev) {
         m_lstView.onTouchEvent(ev);
         return 0;
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        m_lstView.postDelayed(()->updateList(), 1000);
     }
 }

@@ -125,7 +125,7 @@ public class noteViewActivity extends AppCompatActivity
         String strImgFile = m_noteImage.getImageFile();
         Intent intent = new Intent(noteViewActivity.this, noteImageActivity.class);
         intent.setData(Uri.parse(strImgFile));
-        startActivity(intent);
+        startActivityForResult(intent, 1);
     }
 
     private void readFromFile () {
@@ -174,6 +174,12 @@ public class noteViewActivity extends AppCompatActivity
         param.height = nHeight + 200;
         m_layView.setLayoutParams(param);
     }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        m_layView.postDelayed(()->readFromFile(), 500);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_noteview, menu);
@@ -205,7 +211,7 @@ public class noteViewActivity extends AppCompatActivity
             case R.id.menu_edit:
                 Intent intent = new Intent(noteViewActivity.this, noteEditActivity.class);
                 intent.setData(Uri.parse(m_strNoteFile));
-                startActivity(intent);
+                startActivityForResult(intent, 1);
                 break;
 
             case R.id.menu_notesave:

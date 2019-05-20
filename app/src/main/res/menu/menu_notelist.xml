@@ -3,17 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".noteListActivity">
 
-    <item android:id="@+id/menu_search"
-        android:title="@string/note_search"
-        android:icon="@mipmap/notesearch"
-        app:showAsAction="ifRoom|collapseActionView"
-        app:actionViewClass="android.support.v7.widget.SearchView" />
-
-    <item android:id="@+id/menu_movenote"
-        android:icon="@mipmap/notemove"
-        android:title="@string/note_move"
-        app:showAsAction="always"  />
-
     <item android:id="@+id/menu_deletenote"
         android:icon="@drawable/notedelete"
         android:title="@string/note_delete"
@@ -23,6 +12,14 @@
         android:icon="@mipmap/notesetting"
         android:title="@string/note_setting"
         app:showAsAction="never"/>
+
+    <item android:id="@+id/menu_search"
+        android:title="@string/note_search"
+        android:icon="@drawable/notesearch"
+        app:showAsAction="ifRoom|collapseActionView"
+        app:actionViewClass="android.support.v7.widget.SearchView" />
+
+
 
 
 </menu>

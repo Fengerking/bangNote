@@ -3,15 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".noteEditActivity">
 
+    <item android:id="@+id/menu_camera"
+        android:icon="@drawable/notecamera"
+        android:title="照相机"
+        app:showAsAction="always"/>
+
     <item android:id="@+id/menu_newpic"
-        android:icon="@mipmap/notepic"
+        android:icon="@drawable/newpic"
         android:title="@string/note_pic"
         app:showAsAction="always"  />
 
-    <item android:id="@+id/menu_notesave"
-        android:icon="@mipmap/noteok"
-        android:title="@string/note_save"
+    <item android:id="@+id/menu_delpic"
+        android:icon="@drawable/delpic"
+        android:title="删除图片"
         app:showAsAction="always"/>
+
+    <item android:id="@+id/menu_notesave"
+        android:icon="@drawable/notesave"
+        android:title="@string/note_save"
+        app:showAsAction="never"/>
 
     <item android:id="@+id/menu_notecount"
         android:icon="@mipmap/notecount"

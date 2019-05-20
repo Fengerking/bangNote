@@ -4,14 +4,10 @@
     tools:context=".noteViewActivity">
 
     <item android:id="@+id/menu_edit"
-        android:icon="@mipmap/noteedit"
+        android:icon="@drawable/noteedit"
         android:title="@string/note_edit"
         app:showAsAction="always"  />
 
-    <item android:id="@+id/menu_move"
-        android:icon="@mipmap/notemove"
-        android:title="@string/note_move"
-        app:showAsAction="always"/>
 
     <item android:id="@+id/menu_notecount"
         android:icon="@mipmap/notecount"
