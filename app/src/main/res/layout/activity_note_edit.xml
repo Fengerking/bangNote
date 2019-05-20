@@ -21,7 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/colorText"
-            android:gravity="top"
+            android:gravity="center_horizontal"
             android:hint="输入标题"
             android:imeOptions="actionNone"
             android:text=""

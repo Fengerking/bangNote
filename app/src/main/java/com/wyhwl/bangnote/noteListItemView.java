@@ -126,33 +126,52 @@ public class noteListItemView extends TextView {
                 e.printStackTrace();
             }
         } else {
-            bmpItem = BitmapFactory.decodeResource(m_context.getResources(), R.mipmap.ic_launcher);
+            bmpItem = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.ic_launcher);
         }
         if (bmpItem != null) {
             int nOff = 12;
             Rect rcSrc = new Rect(0, 0, bmpItem.getWidth(), bmpItem.getHeight());
             Rect rcDst = new Rect(rcItem.left + nOff, rcItem.top + nOff, rcItem.left + (rcItem.bottom - rcItem.top) - nOff * 2, rcItem.bottom - nOff * 2);
             canvas.drawBitmap(bmpItem, rcSrc, rcDst, m_pntRect);
+
+            m_pntRect.setStrokeWidth((float) 24.0);
+            m_pntRect.setStyle(Paint.Style.STROKE);
+            RectF rcBmp = new RectF (rcDst);
+            canvas.drawRoundRect(rcBmp, 24, 24, m_pntRect);
         }
 
         int nLeft = rcItem.left + 10 + rcItem.bottom - rcItem.top;
         int nTop  = rcItem.top + 60;
-        Rect rcText = new Rect();
         String strTitle = "无标题";
         if (m_dataItem.m_strTitle.length() > 0)
             strTitle = m_dataItem.m_strTitle;
-        m_pntTextTitle.getTextBounds(strTitle, 0, strTitle.length(), rcText);
-        int nStart = nLeft + ((rcItem.right - nLeft) - (rcText.right - rcText.left))/ 2;
-        canvas.drawText(strTitle, nStart, nTop, m_pntTextTitle);
+        Rect rcDraw = new Rect (nLeft, nTop, rcItem.right - 8, rcItem.bottom - 8);
+        drawRectText(strTitle, rcDraw, canvas, m_pntTextTitle, 1);
 
+        rcDraw.top += 72;
+        drawRectText(m_dataItem.m_strFirstLine, rcDraw, canvas, m_pntTextItem, 0);
+        rcDraw.top = rcItem.bottom - 16;
+        drawRectText(m_dataItem.m_strTime, rcDraw, canvas, m_pntTextItem, 0);
 
-        nTop  = nTop + 72;
-        canvas.drawText(m_dataItem.m_strFirstLine, nLeft, nTop, m_pntTextItem);
-        nTop  = rcItem.bottom - 16;
-        canvas.drawText(m_dataItem.m_strTime, nLeft, nTop, m_pntTextItem);
+        drawRectText(m_dataItem.m_strType, rcDraw, canvas, m_pntTextItem, 2);
+    }
 
-        m_pntTextItem.getTextBounds(m_dataItem.m_strType, 0, m_dataItem.m_strType.length(), rcText);
-        nStart = rcItem.right - (rcText.right - rcText.left) - 16;
-        canvas.drawText(m_dataItem.m_strType, nStart, nTop, m_pntTextItem);
+    private void drawRectText (String strText, Rect rcDraw, Canvas canvas, Paint paint, int nType) {
+        Rect rcText = new Rect();
+        int nTextLen = strText.length();
+        paint.getTextBounds(strText, 0, nTextLen, rcText);
+        while ((rcText.right - rcText.left) > (rcDraw.right - rcDraw.left)) {
+            nTextLen--;
+            paint.getTextBounds(strText, 0, nTextLen, rcText);
+        }
+
+        String strDraw = strText.substring(0, nTextLen);
+        int nStart = rcDraw.left;
+        if (nType == 1) { // center
+            nStart = rcDraw.left + ((rcDraw.right - rcDraw.left) - (rcText.right - rcText.left))/ 2;
+        } else if (nType == 2) {  // right
+            nStart = rcDraw.right - rcText.right;
+        }
+        canvas.drawText(strDraw, 0, nTextLen, nStart, rcDraw.top + rcText.bottom, paint);
     }
 }

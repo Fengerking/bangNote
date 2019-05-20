@@ -49,10 +49,10 @@ public class noteEditText extends EditText {
         m_bCreate = bCreate;
         m_nID = noteConfig.getNoteEditID ();
         setMinHeight(100);
-        setHint("插入文字");
         setTextSize(noteConfig.m_nTextSize);
         setTextColor(noteConfig.m_nTextColor);
         if (m_bCreate) {
+            setHint("插入文字");
             setBackground(null);
         } else {
             m_nID = 1;

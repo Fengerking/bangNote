@@ -73,8 +73,11 @@ public class dataNoteItem {
                 while ((strLine = br.readLine()) != null) {
                     if (strLine.indexOf(noteConfig.m_strTagNotePrev) >= 0)
                         break;
-                    if (m_strFirstLine.length() == 0)
+                    if (m_strFirstLine.length() == 0) {
                         m_strFirstLine = strLine;
+                        while (m_strFirstLine.substring(0,1).compareTo(" ") == 0)
+                            m_strFirstLine = m_strFirstLine.substring(1);
+                    }
                     if (strContent.length() > 0)
                         strContent += "\n";
                     strContent += strLine;
