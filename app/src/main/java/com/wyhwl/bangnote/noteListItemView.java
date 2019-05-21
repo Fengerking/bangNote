@@ -95,7 +95,7 @@ public class noteListItemView extends TextView {
 
         int nL = 150;
         int nY = 90;
-        int nC = 40;
+        int nC = 45;
 
         if (m_bSelect) {
             Rect rcView = new Rect(4, 4, nW - 4, nH - 4);
@@ -109,8 +109,9 @@ public class noteListItemView extends TextView {
         canvas.drawText(strDraw, 48, nY, m_pntTextLeft);
         strDraw = m_dataItem.m_strDate.substring(0, 4);
         canvas.drawText(strDraw, 4, nY + 50, m_pntTextLeft);
+        m_pntTextLeft.setTextSize(50);
         strDraw = m_dataItem.m_strDate.substring(8, 10);
-        canvas.drawText(strDraw, nL - nC + 15, nY + 15, m_pntTextLeft);
+        canvas.drawText(strDraw, nL - nC + 18, nY + 18, m_pntTextLeft);
 
         Rect    rcItem = new Rect(nL + 60, 16, nW - 16, nH - 16);
         RectF   rcItemf = new RectF(nL + 60, 16, nW - 16, nH - 16);

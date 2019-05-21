@@ -126,10 +126,11 @@ public class noteEditActivity extends AppCompatActivity
         m_txtTime.setText(fmtTime.format(date));
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                noteEditActivity.this, R.layout.spn_note_type, noteConfig.m_lstNoteType);
+                noteEditActivity.this, R.layout.spn_note_type, noteConfig.m_noteTypeMng.getListName());
         m_spnType.setAdapter(adapter);
 
         m_layView = (LinearLayout)findViewById(R.id.layView);
+        noteConfig.m_bNoteModified = false;
     }
 
     private View addNoteView (View vwAfter, int nType) {
@@ -259,6 +260,7 @@ public class noteEditActivity extends AppCompatActivity
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         String strDate = String.format("%d-%02d-%02d", year, month, dayOfMonth);
                         m_txtDate.setText(strDate);
+                        noteConfig.m_bNoteModified = true;
                     }
                 }, nYear, nMonth - 1, nDate);
                 dlgDate.show();
@@ -272,6 +274,7 @@ public class noteEditActivity extends AppCompatActivity
                         int     nSecond = dateNow.getSeconds();
                         String strTime = String.format("%02d:%02d:%02d", hourOfDay, minute, nSecond);
                         m_txtTime.setText(strTime);
+                        noteConfig.m_bNoteModified = true;
                     }
                 }, nHour, nMinute, true);
                 dlgTime.show();
@@ -321,6 +324,7 @@ public class noteEditActivity extends AppCompatActivity
     public void onTextChanged (int nID) {
         if (m_bReadFromFile)
             return;
+        noteConfig.m_bNoteModified = true;
         onResizeView();
     }
 
@@ -435,6 +439,7 @@ public class noteEditActivity extends AppCompatActivity
         }
 
         addImageView(imagePath);
+        noteConfig.m_bNoteModified = true;
     }
 
     private String getImagePath(Uri uri, String selection) {
@@ -457,8 +462,8 @@ public class noteEditActivity extends AppCompatActivity
         m_edtTitle.setText(m_dataItem.m_strTitle);
         m_txtDate.setText(m_dataItem.m_strDate);
         m_txtTime.setText(m_dataItem.m_strTime);
-        for (int i = 0; i < noteConfig.m_lstNoteType.size(); i++) {
-            if (m_dataItem.m_strType.compareTo(noteConfig.m_lstNoteType.get(i)) == 0) {
+        for (int i = 0; i < noteConfig.m_noteTypeMng.getCount(); i++) {
+            if (m_dataItem.m_strType.compareTo(noteConfig.m_noteTypeMng.getName(i)) == 0) {
                 m_spnType.setSelection(i);
                 break;
             }
@@ -494,16 +499,15 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     private void writeToFile () {
-        if (m_bNewNote && m_edtTitle.getText().toString().length() <= 0) {
-            if (m_layView.getChildCount() <= 3) {
-                View vwItem = m_layView.getChildAt(2);
-                if (vwItem.getId() < noteConfig.m_nImagIdStart) {
-                    String strItem = ((noteEditText)vwItem).getText().toString();
-                    if (strItem.length() <= 0)
-                        return;
-                }
-            }
+        int nSel = m_spnType.getSelectedItemPosition();
+        String strNoteType = noteConfig.m_noteTypeMng.getName(nSel);
+        if (noteConfig.m_bNoteModified == false) {
+            if (strNoteType.compareTo(m_dataItem.m_strType) != 0)
+                noteConfig.m_bNoteModified = true;
+            else
+                return;
         }
+
         String strName = "";
         String strText = "";
         try {
@@ -520,8 +524,7 @@ public class noteEditActivity extends AppCompatActivity
             strText = m_txtTime.getText().toString(); bw.write((strText+"\n").toCharArray());
 
             strName = noteConfig.m_strTagNoteType; bw.write((strName+"\n").toCharArray());
-            int nSel = m_spnType.getSelectedItemPosition();
-            strText = noteConfig.m_lstNoteType.get(nSel); bw.write((strText+"\n").toCharArray());
+            strText = strNoteType; bw.write((strText+"\n").toCharArray());
 
             View vwItem = null;
             int nCount = m_layView.getChildCount();
@@ -546,5 +549,6 @@ public class noteEditActivity extends AppCompatActivity
         }catch (Exception e) {
             e.printStackTrace();
         }
+        noteConfig.m_bNoteModified = true;
     }
 }

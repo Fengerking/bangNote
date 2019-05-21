@@ -125,12 +125,15 @@ public class noteViewActivity extends AppCompatActivity
         String strImgFile = m_noteImage.getImageFile();
         Intent intent = new Intent(noteViewActivity.this, noteImageActivity.class);
         intent.setData(Uri.parse(strImgFile));
-        startActivityForResult(intent, 1);
+        startActivity(intent);
     }
 
     private void readFromFile () {
         if (m_strNoteFile == null)
             return;
+
+        while (m_layView.getChildCount() > 2)
+            m_layView.removeView(m_layView.getChildAt((m_layView.getChildCount() - 1)));
 
         m_dataItem = new dataNoteItem();
         m_dataItem.readFromFile(m_strNoteFile);
@@ -177,7 +180,8 @@ public class noteViewActivity extends AppCompatActivity
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        m_layView.postDelayed(()->readFromFile(), 500);
+        if (noteConfig.m_bNoteModified)
+            m_layView.postDelayed(()->readFromFile(), 500);
     }
 
     @Override

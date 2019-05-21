@@ -37,7 +37,8 @@
                 <RelativeLayout
                     android:id="@+id/layMenuTop"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="64dp"
+                    android:layout_marginTop="12dp">
 
                     <ImageView
                         android:id="@+id/imgViewNote"
@@ -67,7 +68,16 @@
                         android:textColor="@color/colorWhite"
                         android:textSize="16dp" />
 
+                    <View
+                        android:id="@+id/menu_divider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_alignParentBottom="true"
+                        android:background="@color/colorBlack" />
+
                 </RelativeLayout>
+
+
 
                 <ListView
                     android:id="@+id/lstNoteType"

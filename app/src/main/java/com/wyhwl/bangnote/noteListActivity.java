@@ -3,18 +3,30 @@ package com.wyhwl.bangnote;
 import android.content.Intent;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
+
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.net.Uri;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.EditText;
+import android.content.DialogInterface;
+import android.view.LayoutInflater;
+import android.widget.RadioButton;
+import android.widget.Spinner;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.lang.reflect.Method;
 import java.io.File;
+import java.util.ArrayList;
 
 
 public class noteListActivity extends AppCompatActivity
@@ -33,6 +45,8 @@ public class noteListActivity extends AppCompatActivity
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+        noteConfig.CheckWritePermission(this, true);
         noteConfig.initConfig(this);
 
         m_sldList = (noteListSlider) findViewById(R.id.sldList);
@@ -70,6 +84,11 @@ public class noteListActivity extends AppCompatActivity
 
     protected void onResume() {
         super.onResume();
+    }
+
+    protected void onStop() {
+        super.onStop();
+        noteConfig.m_noteTypeMng.writeToFile();
     }
 
     protected void updateList () {
@@ -123,6 +142,8 @@ public class noteListActivity extends AppCompatActivity
                 break;
 
             case R.id.menu_deletenote:
+                addNoteTypeDialog ();
+              /*
                 int nCount = m_lstView.getCount();
                 for (int i = 0; i < nCount; i++) {
                     noteListItemView noteView = (noteListItemView) m_lstView.getChildAt(i);
@@ -132,6 +153,7 @@ public class noteListActivity extends AppCompatActivity
                     }
                 }
                 m_lstView.postDelayed(()->updateList(), 200);
+                */
                 break;
 
             case R.id.menu_notesave:
@@ -159,6 +181,66 @@ public class noteListActivity extends AppCompatActivity
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        m_lstView.postDelayed(()->updateList(), 1000);
+        if (noteConfig.m_bNoteModified)
+            m_lstView.postDelayed(()->updateList(), 1000);
     }
+
+    private void addNoteTypeDialog() {
+        final View noteTypeView = LayoutInflater.from(noteListActivity.this)
+                                    .inflate(R.layout.note_type_input,null);
+        AlertDialog.Builder dlgNoteType =
+                new AlertDialog.Builder(noteListActivity.this){
+                    public AlertDialog create() {
+                        return super.create();
+                    }
+                    public AlertDialog show() {
+                        RadioButton rbnNormal = (RadioButton)noteTypeView.findViewById(R.id.noteTypeNormal);
+                        rbnNormal.setChecked(true);
+                        return super.show();
+                    }
+                };
+
+        dlgNoteType.setIcon(R.drawable.notetype_aa);
+        dlgNoteType.setTitle("输入笔记类型名称：");
+        dlgNoteType.setView(noteTypeView);
+        dlgNoteType.setNeutralButton("取消",
+                    new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+        dlgNoteType.setPositiveButton("确定",
+                    new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+        dlgNoteType.show();
+    }
+
 }
+
+/*
+        m_strListPath = m_strListPath + "/url";
+        ArrayList<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        HashMap<String, Object> map;
+
+        try {
+            FileInputStream fis = new FileInputStream (strFile);
+            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+            String line = null;
+            while((line = br.readLine())!=null)
+            {
+                map = new HashMap<String, Object>();
+                map.put("name", line);
+                map.put("path", line);
+                map.put("img", R.drawable.item_video);
+                map.put("dir", "2");
+                list.add(map);
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        SimpleAdapter adapter = new SimpleAdapter(this, list, R.layout.menu_list_item,
+                new String[]{"name","img"}, new int[]{R.id.name, R.id.img});
+        m_lstFiles.setAdapter(adapter);
+ */

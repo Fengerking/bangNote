@@ -33,7 +33,7 @@ public class dataNoteItem {
         m_strDate = fmtDate.format(date);
         SimpleDateFormat fmtTime = new SimpleDateFormat("HH:mm:ss");
         m_strTime = fmtTime.format(date);
-        m_strType = noteConfig.m_lstNoteType.get(0);
+        m_strType = noteConfig.m_noteTypeMng.getCurType();
     }
 
     public int readFromFile (String strFile) {

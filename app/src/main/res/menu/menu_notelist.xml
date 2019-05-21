@@ -4,7 +4,7 @@
     tools:context=".noteListActivity">
 
     <item android:id="@+id/menu_deletenote"
-        android:icon="@drawable/notedelete"
+        android:icon="@drawable/lajitong"
         android:title="@string/note_delete"
         app:showAsAction="always"  />
 
