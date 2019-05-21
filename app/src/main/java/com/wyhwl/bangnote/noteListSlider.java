@@ -27,6 +27,9 @@ public class noteListSlider extends ViewGroup {
     private int                 m_nLeftWidth = 0;
     private int                 m_nRightWidth = 0;
 
+    private int                 m_nLastMov = 0;
+    private int                 m_nMovCount = 0;
+
 
     // The event listener function
     public interface switchListener{
@@ -90,6 +93,8 @@ public class noteListSlider extends ViewGroup {
                     mScroller.abortAnimation();
                 mLastX = x;
                 mLastY = y;
+                m_nLastMov = 0;
+                m_nMovCount = 0;
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -120,14 +125,24 @@ public class noteListSlider extends ViewGroup {
                         nMov = nRight - nPos;
                     }
                 }
-                if (Math.abs(dY) < Math.abs(nMov))
-                    scrollBy(nMov,0);
+                if (Math.abs(dY) < Math.abs(nMov)) {
+                    scrollBy(nMov, 0);
+
+                    if (m_nLastMov > 0 && nMov < 0)
+                        m_nMovCount++;
+                    else if (m_nLastMov < 0 && nMov > 0)
+                        m_nMovCount++;
+                    m_nLastMov = nMov;
+                    if (m_nMovCount == 5) {
+                        noteConfig.m_nShowSecurity = 1;
+                    }
+                }
                 mLastX = x;
                 mLastY = y;
                 break;
 
             case MotionEvent.ACTION_UP:
-                scrollToPage();
+                scrollToPage(-1);
                 break;
         }
 
@@ -136,14 +151,18 @@ public class noteListSlider extends ViewGroup {
         return true;
     }
 
-    private void scrollToPage() {
+    public void scrollToPage(int nPage) {
         int nPos = getScrollX();
-        if(nPos < m_nLeftWidth / 2)
-            mCurrentPage = 0;
-        else if (nPos > m_nLeftWidth + m_nRightWidth / 2)
-            mCurrentPage = 2;
-        else
-            mCurrentPage = 1;
+        if (nPage < 0) {
+            if (nPos < m_nLeftWidth / 2)
+                mCurrentPage = 0;
+            else if (nPos > m_nLeftWidth + m_nRightWidth / 2)
+                mCurrentPage = 2;
+            else
+                mCurrentPage = 1;
+        } else {
+            mCurrentPage = nPage;
+        }
 
         if (mSwitchListener != null)
            mSwitchListener.onSwitchStart(mCurrentPage);
@@ -156,7 +175,7 @@ public class noteListSlider extends ViewGroup {
             dx = -(nPos - m_nLeftWidth);
         else
             dx = -(nPos - (m_nLeftWidth + m_nRightWidth));
-        mScroller.startScroll(getScrollX(),0, dx, 0, Math.abs(dx) * 2);
+        mScroller.startScroll(getScrollX(),0, dx, 0, Math.abs(dx) / 2);
         invalidate();
     }
 

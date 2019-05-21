@@ -115,6 +115,7 @@ public class noteListItemView extends TextView {
 
         Rect    rcItem = new Rect(nL + 60, 16, nW - 16, nH - 16);
         RectF   rcItemf = new RectF(nL + 60, 16, nW - 16, nH - 16);
+        m_pntRect.setStyle(Paint.Style.FILL);
         canvas.drawRoundRect(rcItemf, 24, 24, m_pntRect);
 
         Bitmap bmpItem = null;

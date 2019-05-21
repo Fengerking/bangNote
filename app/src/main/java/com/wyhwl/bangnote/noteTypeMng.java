@@ -12,8 +12,9 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class noteTypeMng {
-    public String                      m_strFile = null;
-    public ArrayList<noteTypeItem>     m_lstType = null;
+    public String                       m_strFile = null;
+    public ArrayList<noteTypeItem>      m_lstType = null;
+    public String                       m_strLaji = "垃圾笔记";
 
     private int[]  m_nTypeImage = {R.drawable.notetype_a, R.drawable.notetype_b,
                                    R.drawable.notetype_c, R.drawable.notetype_d,
@@ -28,6 +29,11 @@ public class noteTypeMng {
 
     public int getCount () {
         return m_lstType.size();
+    }
+    public noteTypeItem getItem (int nIndex) {
+        if (nIndex < 0 || nIndex >= m_lstType.size())
+            return null;
+        return m_lstType.get(nIndex);
     }
     public String getName (int nIndex) {
         if (nIndex < 0 || nIndex >= m_lstType.size())
@@ -46,6 +52,10 @@ public class noteTypeMng {
     }
 
     public int addType (String strName, int nLevel) {
+        for (int i = 0; i < m_lstType.size(); i++) {
+            if (m_lstType.get(i).m_strName.compareTo(strName) == 0)
+                return -1;
+        }
         noteTypeItem itemType = new noteTypeItem();
         itemType.m_strName = strName;
         itemType.m_nLevel = nLevel;
@@ -87,6 +97,10 @@ public class noteTypeMng {
                 noteTypeItem itemType = new noteTypeItem ();
                 itemType.m_strName = "默认笔记";
                 itemType.m_nUsing = 1;
+                itemType.m_nImage = m_nTypeImage[0];
+                m_lstType.add(itemType);
+                itemType = new noteTypeItem ();
+                itemType.m_strName = m_strLaji;
                 m_lstType.add(itemType);
                 return;
             }

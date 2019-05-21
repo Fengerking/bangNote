@@ -78,14 +78,18 @@
                 </RelativeLayout>
 
 
-
-                <ListView
-                    android:id="@+id/lstNoteType"
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent">
+                    <ListView
+                        android:id="@+id/lstNoteTypeSel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginBottom="16dp">
 
-                </ListView>
-
+                    </ListView>
+                </RelativeLayout>
 
             </LinearLayout>
 
@@ -100,6 +104,18 @@
                 android:layout_height="match_parent"
                 android:background="@color/colorPrimaryDark"
                 android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <ListView
+                        android:id="@+id/lstNoteTypeMng"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginBottom="16dp">
+                    </ListView>
+                </RelativeLayout>
 
             </LinearLayout>
         </com.wyhwl.bangnote.noteListSlider>
