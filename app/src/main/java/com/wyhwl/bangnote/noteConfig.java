@@ -30,6 +30,7 @@ public class noteConfig {
     public static String        m_strNoteFile = null;
 
     public static noteTypeMng   m_noteTypeMng = null;
+    public static int           m_nShowSecurity = 1;
 
     public static String        m_strTagNotePrev    = "[note";
     public static String        m_strTagNoteTitle   = "[noteTitle]";

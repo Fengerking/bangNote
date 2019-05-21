@@ -196,6 +196,9 @@ public class noteListActivity extends AppCompatActivity
                     public AlertDialog show() {
                         RadioButton rbnNormal = (RadioButton)noteTypeView.findViewById(R.id.noteTypeNormal);
                         rbnNormal.setChecked(true);
+                        if (noteConfig.m_nShowSecurity == 0) {
+                            noteTypeView.findViewById(R.id.laySecurity).setVisibility(View.INVISIBLE);
+                        }
                         return super.show();
                     }
                 };
