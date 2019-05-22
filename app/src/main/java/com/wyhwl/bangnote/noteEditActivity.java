@@ -30,11 +30,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
+import android.widget.SpinnerAdapter;
 import android.view.ViewGroup;
 import android.util.Log;
 
@@ -47,12 +46,7 @@ import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
-import java.io.FileInputStream;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 public class noteEditActivity extends AppCompatActivity
         implements  noteEditText.onNoteEditListener,
@@ -390,6 +384,7 @@ public class noteEditActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id) {
             case android.R.id.home:
+                writeToFile();
                 finish();
                 break;
 
@@ -462,9 +457,13 @@ public class noteEditActivity extends AppCompatActivity
         m_edtTitle.setText(m_dataItem.m_strTitle);
         m_txtDate.setText(m_dataItem.m_strDate);
         m_txtTime.setText(m_dataItem.m_strTime);
-        for (int i = 0; i < noteConfig.m_noteTypeMng.getCount(); i++) {
-            if (m_dataItem.m_strType.compareTo(noteConfig.m_noteTypeMng.getName(i)) == 0) {
-                m_spnType.setSelection(i-2);
+
+        String          strType = null;
+        SpinnerAdapter  adapter = m_spnType.getAdapter();
+        for (int i = 0; i < adapter.getCount(); i++) {
+            strType = (String)adapter.getItem(i);
+            if (strType.compareTo(m_dataItem.m_strType) == 0) {
+                m_spnType.setSelection(i);
                 break;
             }
         }
@@ -499,12 +498,10 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     private void writeToFile () {
-        int nSel = m_spnType.getSelectedItemPosition();
-        String strNoteType = noteConfig.m_noteTypeMng.getName(nSel+2);
+        int     nSel = m_spnType.getSelectedItemPosition();
+        String  strNoteType = (String)m_spnType.getAdapter().getItem(nSel);
         if (noteConfig.m_bNoteModified == false) {
-            if (strNoteType.compareTo(m_dataItem.m_strType) != 0)
-                noteConfig.m_bNoteModified = true;
-            else
+            if (strNoteType.compareTo(m_dataItem.m_strType) == 0)
                 return;
         }
 

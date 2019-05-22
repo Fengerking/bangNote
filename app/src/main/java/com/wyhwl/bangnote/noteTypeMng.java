@@ -89,6 +89,16 @@ public class noteTypeMng {
         return 0;
     }
 
+    public int delType (String strType) {
+        for (int i = 0; i < m_lstType.size(); i++) {
+            if (m_lstType.get(i).m_strName.compareTo(strType) == 0) {
+                m_lstType.remove(i);
+                return 1;
+            }
+        }
+        return -1;
+    }
+
     public String getCurType () {
         for (int i = 0; i < m_lstType.size(); i++) {
             if (m_lstType.get(i).m_nUsing > 0)
@@ -141,6 +151,12 @@ public class noteTypeMng {
                 itemType.m_nLevel = Integer.parseInt(strLine.substring(2));
 
                 itemType.m_nImage = m_nTypeImage[m_lstType.size()%6];
+                if (itemType.m_nLevel == -1)
+                    itemType.m_nImage = R.drawable.notetype_aa;
+                else if (itemType.m_nLevel == -2)
+                    itemType.m_nImage = R.drawable.lajitong;
+                else if (itemType.m_nLevel == -3)
+                    itemType.m_nImage = m_nTypeImage[0];
                 m_lstType.add(itemType);
             }
             fis.close();
@@ -156,16 +172,17 @@ public class noteTypeMng {
             m_lstType.add(itemType);
 
             itemType = new noteTypeItem ();
-            itemType.m_strName = m_strRubbish;
-            itemType.m_nLevel = -2;
+            itemType.m_strName = m_strTotal;
+            itemType.m_nLevel = -1;
+            itemType.m_nUsing = 1;
             itemType.m_nImage = R.drawable.notetype_aa;
             m_lstType.add(itemType);
 
             itemType = new noteTypeItem ();
-            itemType.m_strName = m_strTotal;
-            itemType.m_nLevel = -1;
-            itemType.m_nUsing = 1;
+            itemType.m_strName = m_strRubbish;
+            itemType.m_nLevel = -2;
             itemType.m_nImage = R.drawable.lajitong;
+
             m_lstType.add(itemType);
         }
     }

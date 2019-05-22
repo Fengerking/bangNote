@@ -71,8 +71,8 @@ public class noteListSlider extends ViewGroup {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        m_nLeftWidth = getWidth() / 2;
-        m_nRightWidth = getWidth() / 2;
+        m_nLeftWidth = getWidth() * 2 / 5;
+        m_nRightWidth = getWidth() * 2 / 5;
         View child = getChildAt(0);
         child.layout(0, t, m_nLeftWidth, b);
         child = getChildAt(1);

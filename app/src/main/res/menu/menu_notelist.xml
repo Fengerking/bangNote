@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".noteListActivity">
 
+    <item android:id="@+id/menu_newnote"
+        android:icon="@drawable/note_new"
+        android:title="@string/new_note"
+        app:showAsAction="always"  />
+
     <item android:id="@+id/menu_deletenote"
         android:icon="@drawable/note_delete"
         android:title="@string/note_delete"

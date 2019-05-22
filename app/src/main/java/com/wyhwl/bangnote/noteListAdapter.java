@@ -21,7 +21,7 @@ import java.util.Collections;
 
 public class noteListAdapter extends BaseAdapter {
     private Context                     m_context       = null;
-    private ArrayList<dataNoteItem>     m_lstAllItem    = null;
+    public  ArrayList<dataNoteItem>     m_lstAllItem    = null;
     private ArrayList<dataNoteItem>     m_lstSelItem    = null;
 
     public noteListAdapter (Context context) {

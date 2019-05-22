@@ -1,10 +1,14 @@
 package com.wyhwl.bangnote;
 
 import android.content.Context;
+import android.view.View;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,6 +27,8 @@ public class dataNoteItem {
     public String               m_strFirstLine = "";
     public String               m_strImgFile = null;
 
+    private boolean             m_bSelect = false;
+
     public ArrayList<dataContent>    m_lstItem = null;
 
     public dataNoteItem () {
@@ -34,6 +40,15 @@ public class dataNoteItem {
         SimpleDateFormat fmtTime = new SimpleDateFormat("HH:mm:ss");
         m_strTime = fmtTime.format(date);
         m_strType = noteConfig.m_noteTypeMng.getCurType();
+    }
+
+
+    public void setSelect () {
+        m_bSelect = !m_bSelect;
+    }
+
+    public boolean isSelect () {
+        return m_bSelect;
     }
 
     public int readFromFile (String strFile) {
@@ -100,6 +115,41 @@ public class dataNoteItem {
         }catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public int writeToFile () {
+        try {
+            FileOutputStream fos = new FileOutputStream (m_strFile);
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+
+            bw.write((noteConfig.m_strTagNoteTitle +"\n").toCharArray());
+            bw.write((m_strTitle +"\n").toCharArray());
+
+            bw.write((noteConfig.m_strTagNoteDate +"\n").toCharArray());
+            bw.write((m_strDate +"\n").toCharArray());
+            bw.write((noteConfig.m_strTagNoteTime +"\n").toCharArray());
+            bw.write((m_strTime +"\n").toCharArray());
+            bw.write((noteConfig.m_strTagNoteType +"\n").toCharArray());
+            bw.write((m_strType +"\n").toCharArray());
+
+            dataContent itemData = null;
+            int nCount = m_lstItem.size();
+            for (int i = 0; i < nCount; i++) {
+                itemData = m_lstItem.get(i);
+                if (itemData.m_nType == m_nItemTypeText) {
+                    bw.write((noteConfig.m_strTagNoteText +"\n").toCharArray());
+                    bw.write((itemData.m_strItem +"\n").toCharArray());
+                } else if (itemData.m_nType == m_nItemTypePict) {
+                    bw.write((noteConfig.m_strTagNotePict +"\n").toCharArray());
+                    bw.write((itemData.m_strItem +"\n").toCharArray());
+                }
+            }
+            bw.flush();
+            fos.close();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     public class dataContent {

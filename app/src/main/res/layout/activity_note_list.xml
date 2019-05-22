@@ -19,7 +19,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorView"
-            android:divider="@null"></com.wyhwl.bangnote.noteListListView>
+            android:divider="@null">
+
+        </com.wyhwl.bangnote.noteListListView>
 
 
         <com.wyhwl.bangnote.noteListSlider
@@ -42,8 +44,8 @@
 
                     <ImageView
                         android:id="@+id/imgViewNote"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
                         android:background="@drawable/ic_launcher_round" />
 
                     <TextView
@@ -51,7 +53,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_marginTop="4dp"
-                        android:layout_marginLeft="4dp"
+                        android:layout_marginLeft="10dp"
                         android:layout_toRightOf="@id/imgViewNote"
                         android:text="丰耳笔记"
                         android:textColor="@color/colorWhite"
@@ -64,7 +66,7 @@
                         android:layout_marginLeft="4dp"
                         android:layout_toRightOf="@id/imgViewNote"
                         android:layout_marginTop="32dp"
-                        android:text="记录生活美好时光"
+                        android:text="记录美好生活"
                         android:textColor="@color/colorWhite"
                         android:textSize="16dp" />
 
@@ -73,7 +75,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_alignParentBottom="true"
-                        android:background="@color/colorBlack" />
+                        android:background="@color/colorWhite" />
 
                 </RelativeLayout>
 
@@ -93,10 +95,21 @@
 
             </LinearLayout>
 
-            <LinearLayout
+            <RelativeLayout
                 android:id="@+id/layListItem"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"></LinearLayout>
+                android:layout_height="match_parent">
+
+                <ImageButton
+                    android:id="@+id/btnNewNote"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/newnote" />
+
+            </RelativeLayout>
 
             <LinearLayout
                 android:id="@+id/layListSetting"
@@ -108,6 +121,23 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
+                    <TextView
+                        android:id="@+id/txtNoteTypeMng"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginLeft="36dp"
+                        android:text="类型管理"
+                        android:textSize="20dp"
+                        android:textColor="@color/colorWhite"/>
+                    <View
+                        android:id="@+id/right_divider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/txtNoteTypeMng"
+                        android:layout_marginTop="4dp"
+                        android:background="@color/colorBlack" />
+
                     <ListView
                         android:id="@+id/lstNoteTypeMng"
                         android:layout_width="match_parent"
@@ -115,20 +145,11 @@
                         android:layout_alignParentBottom="true"
                         android:layout_marginBottom="16dp">
                     </ListView>
+
                 </RelativeLayout>
 
             </LinearLayout>
         </com.wyhwl.bangnote.noteListSlider>
-
-        <ImageButton
-            android:id="@+id/btnNewNote"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            android:background="@drawable/newnote" />
 
     </RelativeLayout>
 

@@ -29,8 +29,6 @@ public class noteListItemView extends TextView {
     private Paint           m_pntRect;
     private Paint           m_pntSelect;
 
-    private boolean         m_bSelect = false;
-
     public noteListItemView(Context context) {
         super(context);
         init (context);
@@ -77,15 +75,6 @@ public class noteListItemView extends TextView {
         return m_dataItem;
     }
 
-    public void setSelect () {
-        m_bSelect = !m_bSelect;
-        invalidate();
-    }
-
-    public boolean isSelect () {
-        return m_bSelect;
-    }
-
     protected void onDraw(Canvas canvas) {
         if (m_dataItem == null)
             return;
@@ -97,7 +86,7 @@ public class noteListItemView extends TextView {
         int nY = 90;
         int nC = 45;
 
-        if (m_bSelect) {
+        if (m_dataItem.isSelect()) {
             Rect rcView = new Rect(4, 4, nW - 4, nH - 4);
             canvas.drawRect(rcView, m_pntSelect);
         }

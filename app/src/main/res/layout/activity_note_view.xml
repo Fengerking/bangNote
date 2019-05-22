@@ -54,12 +54,14 @@
                 android:textSize="24dp"
                 android:layout_alignParentRight="true"/>
 
+            <View
+                android:id="@+id/noteView_divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/textDate"
+                android:background="@color/colorBlack" />
         </RelativeLayout>
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="?android:attr/listDivider" />
+
 
     </LinearLayout>
 
