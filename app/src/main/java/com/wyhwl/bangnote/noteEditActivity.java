@@ -36,6 +36,8 @@ import android.widget.TimePicker;
 import android.widget.SpinnerAdapter;
 import android.view.ViewGroup;
 import android.util.Log;
+import android.graphics.Bitmap;
+import android.os.StrictMode;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -52,7 +54,8 @@ public class noteEditActivity extends AppCompatActivity
         implements  noteEditText.onNoteEditListener,
                     noteImageView.onNoteImageListener,
                     OnClickListener {
-    private static int      RESULT_LOAD_IMAGE = 10;
+    private static int      RESULT_LOAD_IMAGE       = 10;
+    private static int      RESULT_CAPTURE_IMAGE    = 20;
     private noteEditText    m_edtTitle = null;
     private TextView        m_txtDate = null;
     private TextView        m_txtTime = null;
@@ -66,6 +69,7 @@ public class noteEditActivity extends AppCompatActivity
 
     private int             m_nFocusID = 0;
     private String          m_strNoteFile = null;
+    private String          m_strImageFile = null;
     private dataNoteItem    m_dataItem = null;
     private boolean         m_bNewNote = true;
     private boolean         m_bReadFromFile = false;
@@ -101,6 +105,10 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     private void initViews () {
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+        builder.detectFileUriExposure();
+
         DisplayMetrics dm = this.getResources().getDisplayMetrics();
         m_nDispH = dm.heightPixels;
         m_edtTitle = (noteEditText) findViewById(R.id.editTitle);
@@ -389,6 +397,7 @@ public class noteEditActivity extends AppCompatActivity
                 break;
 
             case R.id.menu_camera:
+                captureImage();
                 break;
 
             case R.id.menu_newpic:
@@ -399,8 +408,7 @@ public class noteEditActivity extends AppCompatActivity
             case R.id.menu_delpic:
                 deleteImageView ();
                 break;
-            case R.id.menu_notecount:
-                break;
+
             default:
                 break;
         }
@@ -409,6 +417,15 @@ public class noteEditActivity extends AppCompatActivity
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RESULT_CAPTURE_IMAGE) {
+            File file = new File(m_strImageFile);
+            if (!file.exists())
+                return;
+            addImageView(m_strImageFile);
+            noteConfig.m_bNoteModified = true;
+            return;
+        }
+
         if (data == null)
             return;
         String imagePath = null;
@@ -448,6 +465,21 @@ public class noteEditActivity extends AppCompatActivity
             cursor.close();
         }
         return path;
+    }
+
+    private void captureImage () {
+        Intent intent = new Intent();
+        intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        m_strImageFile = noteConfig.getNotePictFile();
+        File file = new File(m_strImageFile);
+        if (file.exists()) {
+              file.delete();
+        }
+        Uri uri = Uri.fromFile(file);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
+        startActivityForResult(intent, RESULT_CAPTURE_IMAGE);
     }
 
     private void readFromFile () {

@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
         //actionBar.setDisplayShowHomeEnabled(true);
         //actionBar.setDisplayUseLogoEnabled(true);
 
-        noteConfig.CheckWritePermission(this, true);
         noteConfig.initConfig(this);
 
         m_btnTest = (Button)findViewById(R.id.btnTest);

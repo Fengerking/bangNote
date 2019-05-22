@@ -15,7 +15,6 @@ import java.util.Date;
 import java.util.List;
 
 public class noteConfig {
-    public static final int     REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     public static boolean       m_bNoteModified = false;
     public static int           m_nNoteID = 10;
     public static int           m_nImagID = 10001;
@@ -80,28 +79,4 @@ public class noteConfig {
         return m_strNoteFile;
     }
 
-    public static boolean CheckWritePermission (Activity activity, boolean bInit) {
-        if (bInit) {
-            //检查权限（NEED_PERMISSION）是否被授权 PackageManager.PERMISSION_GRANTED表示同意授权
-            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-                //用户已经拒绝过一次，再次弹出权限申请对话框需要给用户一个解释
-                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    Toast.makeText(activity, "请开通文件读写权限，否则无法正常使用本应用！", Toast.LENGTH_SHORT).show();
-                }
-                //申请权限
-                ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_EXTERNAL_STORAGE);
-
-            } else {
-                //Toast.makeText(this, "授权成功！", Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        } else {
-            if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                //Toast.makeText(this, "请开通文件读写权限，否则无法正常使用本应用！", Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        }
-        return true;
-    }
 }
