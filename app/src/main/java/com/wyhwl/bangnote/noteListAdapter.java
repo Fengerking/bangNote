@@ -75,7 +75,14 @@ public class noteListAdapter extends BaseAdapter {
                 dataNoteItem noteItem = new dataNoteItem();
                 noteItem.readFromFile(file.getPath());
                 m_lstAllItem.add(noteItem);
-                if (noteItem.m_strType.compareTo(noteConfig.m_noteTypeMng.getCurType()) == 0) {
+                if (noteConfig.m_noteTypeMng.getCurType().compareTo(noteConfig.m_noteTypeMng.m_strTotal) == 0) {
+                    if (noteConfig.m_nShowSecurity > 0) {
+                        m_lstSelItem.add(noteItem);
+                    } else {
+                        if (noteConfig.m_noteTypeMng.getLevel(noteItem.m_strType) < 10)
+                             m_lstSelItem.add(noteItem);
+                    }
+                } else if (noteItem.m_strType.compareTo(noteConfig.m_noteTypeMng.getCurType()) == 0) {
                     m_lstSelItem.add(noteItem);
                 }
             }

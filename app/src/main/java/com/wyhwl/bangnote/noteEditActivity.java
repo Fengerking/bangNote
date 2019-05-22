@@ -464,7 +464,7 @@ public class noteEditActivity extends AppCompatActivity
         m_txtTime.setText(m_dataItem.m_strTime);
         for (int i = 0; i < noteConfig.m_noteTypeMng.getCount(); i++) {
             if (m_dataItem.m_strType.compareTo(noteConfig.m_noteTypeMng.getName(i)) == 0) {
-                m_spnType.setSelection(i);
+                m_spnType.setSelection(i-2);
                 break;
             }
         }
@@ -500,7 +500,7 @@ public class noteEditActivity extends AppCompatActivity
 
     private void writeToFile () {
         int nSel = m_spnType.getSelectedItemPosition();
-        String strNoteType = noteConfig.m_noteTypeMng.getName(nSel);
+        String strNoteType = noteConfig.m_noteTypeMng.getName(nSel+2);
         if (noteConfig.m_bNoteModified == false) {
             if (strNoteType.compareTo(m_dataItem.m_strType) != 0)
                 noteConfig.m_bNoteModified = true;

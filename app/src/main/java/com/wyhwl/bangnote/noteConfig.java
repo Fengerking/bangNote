@@ -31,6 +31,9 @@ public class noteConfig {
 
     public static noteTypeMng   m_noteTypeMng = null;
     public static int           m_nShowSecurity = 0;
+    public static int           m_nMoveCount    = 0;
+    public static long          m_nMoveLastTime = 0;
+    public static long          m_nMoveNeedTime = 5;
 
     public static String        m_strTagNotePrev    = "[note";
     public static String        m_strTagNoteTitle   = "[noteTitle]";

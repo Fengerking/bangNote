@@ -12,13 +12,31 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class noteTypeMng {
-    public String                       m_strFile = null;
-    public ArrayList<noteTypeItem>      m_lstType = null;
-    public String                       m_strLaji = "垃圾笔记";
+    public String                       m_strFile       = null;
+    public ArrayList<noteTypeItem>      m_lstType       = null;
+    public String                       m_strRubbish    = "垃圾笔记";
+    public String                       m_strDefault    = "默认笔记";
+    public String                       m_strTotal      = "所有笔记";
 
     private int[]  m_nTypeImage = {R.drawable.notetype_a, R.drawable.notetype_b,
                                    R.drawable.notetype_c, R.drawable.notetype_d,
                                    R.drawable.notetype_e, R.drawable.notetype_f};
+
+    public class noteTypeItem  {
+        public String   m_strName = null;
+        public int      m_nUsing = 0;
+        // -1 Total , -2, rubbish, -3 default. 0 - 9 normal. > 10 security
+        public int      m_nLevel = 0;  // < 0 system,
+        public int      m_nImage = 0;
+
+
+        public noteTypeItem () {
+            m_strName = "丰耳笔记";
+            m_nUsing = 0;
+            m_nLevel = 0;
+            m_nImage = m_nTypeImage[0];
+        }
+    }
 
     public noteTypeMng () {
         File file = Environment.getExternalStorageDirectory();
@@ -44,6 +62,13 @@ public class noteTypeMng {
         if (nIndex < 0 || nIndex >= m_lstType.size())
             return -1;
         return m_lstType.get(nIndex).m_nLevel;
+    }
+    public int getLevel (String strName) {
+        for (int i = 0; i < m_lstType.size(); i++) {
+            if (m_lstType.get(i).m_strName.compareTo(strName) == 0)
+                return m_lstType.get(i).m_nLevel;
+        }
+        return 0;
     }
     public int getImage (int nIndex) {
         if (nIndex < 0 || nIndex >= m_lstType.size())
@@ -84,30 +109,21 @@ public class noteTypeMng {
     public ArrayList<String> getListName () {
         ArrayList<String> lstName = new ArrayList<String> ();
         for (int i = 0; i < m_lstType.size(); i++) {
+            if (m_lstType.get(i).m_nLevel == -1)
+                continue;
+            if (noteConfig.m_nShowSecurity == 0) {
+                if (m_lstType.get(i).m_nLevel >= 10)
+                    continue;
+            }
             lstName.add(m_lstType.get(i).m_strName);
         }
         return lstName;
     }
 
     private void readFromFile () {
+        noteTypeItem    itemType = null;
+
         m_lstType.clear();
-        try {
-            File file = new File (m_strFile);
-            if (!file.exists()) {
-                noteTypeItem itemType = new noteTypeItem ();
-                itemType.m_strName = "默认笔记";
-                itemType.m_nUsing = 1;
-                itemType.m_nImage = m_nTypeImage[0];
-                m_lstType.add(itemType);
-                itemType = new noteTypeItem ();
-                itemType.m_strName = m_strLaji;
-                m_lstType.add(itemType);
-                return;
-            }
-        }catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
 
         try {
             FileInputStream fis = new FileInputStream (m_strFile);
@@ -115,7 +131,6 @@ public class noteTypeMng {
 
             String          strLine = null;
             int             nNextPos = 0;
-            noteTypeItem    itemType = null;
             while((strLine = br.readLine())!=null) {
                 itemType = new noteTypeItem();
                 nNextPos = strLine.indexOf(',', 0);
@@ -131,6 +146,27 @@ public class noteTypeMng {
             fis.close();
         }catch (Exception e) {
             e.printStackTrace();
+        }
+
+        if (m_lstType.size() == 0) {
+            itemType = new noteTypeItem ();
+            itemType.m_strName = m_strDefault;
+            itemType.m_nLevel = -3;
+            itemType.m_nImage = m_nTypeImage[0];
+            m_lstType.add(itemType);
+
+            itemType = new noteTypeItem ();
+            itemType.m_strName = m_strRubbish;
+            itemType.m_nLevel = -2;
+            itemType.m_nImage = R.drawable.notetype_aa;
+            m_lstType.add(itemType);
+
+            itemType = new noteTypeItem ();
+            itemType.m_strName = m_strTotal;
+            itemType.m_nLevel = -1;
+            itemType.m_nUsing = 1;
+            itemType.m_nImage = R.drawable.lajitong;
+            m_lstType.add(itemType);
         }
     }
 
@@ -158,19 +194,6 @@ public class noteTypeMng {
 
     }
 
-    public class noteTypeItem  {
-        public String   m_strName = null;
-        public int      m_nUsing = 0;
-        public int      m_nLevel = 0;
-        public int      m_nImage = 0;
 
-
-        public noteTypeItem () {
-            m_strName = "丰耳笔记";
-            m_nUsing = 0;
-            m_nLevel = 0;
-            m_nImage = m_nTypeImage[0];
-        }
-    }
 
 }

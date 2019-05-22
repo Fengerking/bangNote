@@ -95,6 +95,10 @@ public class noteListSlider extends ViewGroup {
                 mLastY = y;
                 m_nLastMov = 0;
                 m_nMovCount = 0;
+                if (noteConfig.m_nMoveLastTime > 0) {
+                    if (System.currentTimeMillis() - noteConfig.m_nMoveLastTime > 20000)
+                        noteConfig.m_nMoveLastTime = 0;
+                }
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -133,15 +137,18 @@ public class noteListSlider extends ViewGroup {
                     else if (m_nLastMov < 0 && nMov > 0)
                         m_nMovCount++;
                     m_nLastMov = nMov;
-                    if (m_nMovCount == 5) {
-                        noteConfig.m_nShowSecurity = 1;
-                    }
                 }
                 mLastX = x;
                 mLastY = y;
                 break;
 
             case MotionEvent.ACTION_UP:
+                if (noteConfig.m_nMoveLastTime == 0)
+                    noteConfig.m_nMoveCount = m_nMovCount;
+                if (noteConfig.m_nMoveCount == noteConfig.m_nMoveNeedTime)
+                    noteConfig.m_nMoveLastTime = System.currentTimeMillis();
+                else
+                    noteConfig.m_nMoveLastTime = 0;
                 scrollToPage(-1);
                 break;
         }

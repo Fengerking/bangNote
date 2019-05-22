@@ -8,6 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
 
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -50,7 +51,7 @@ public class noteListActivity extends AppCompatActivity
         setContentView(R.layout.activity_note_list);
 
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        //actionBar.setDisplayHomeAsUpEnabled(true);
 
         noteConfig.CheckWritePermission(this, true);
         noteConfig.initConfig(this);
@@ -64,7 +65,13 @@ public class noteListActivity extends AppCompatActivity
 
     protected void onStop() {
         super.onStop();
-        noteConfig.m_noteTypeMng.writeToFile();
+    }
+
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            noteConfig.m_nShowSecurity = 0;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     protected void initViews () {
@@ -78,12 +85,14 @@ public class noteListActivity extends AppCompatActivity
 
         m_lstViewLeft = (ListView)findViewById(R.id.lstNoteTypeSel);
         m_lstViewLeft.setOnItemClickListener(this);
+        m_lstViewLeft.setOnItemLongClickListener(this);
         fillLeftList();
         m_lstViewRight = (ListView)findViewById(R.id.lstNoteTypeMng);
         m_lstViewRight.setOnItemClickListener(this);
         fillRightList();
 
         m_btnNewNote = (ImageButton) findViewById(R.id.btnNewNote);
+        m_btnNewNote.setVisibility(View.INVISIBLE);
         m_btnNewNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,12 +111,16 @@ public class noteListActivity extends AppCompatActivity
             intent.setData(Uri.parse(noteItem.m_strFile));
             startActivityForResult(intent, 1);
         } else if (parent == (View)m_lstViewRight) {
-            if (position == 0)
+            if (position == 0)          // new note type
                 addNoteTypeDialog();
-            else if (position == 1)
-                addNoteTypeDialog();
-            else
-                addNoteTypeDialog();
+            else if (position == 1)     // delete note type
+                mngNoteTypeDialog();
+            else if (position == 2)     // delete note item
+                deleteSelectedNote();
+            else if (position == 3) {     // laji note type
+                noteConfig.m_noteTypeMng.setCurType(noteConfig.m_noteTypeMng.m_strRubbish);
+                updateList();
+            }
 
         } else if (parent == (View)m_lstViewLeft) {
             TextView tvType = (TextView)view.findViewById(R.id.name);
@@ -118,8 +131,21 @@ public class noteListActivity extends AppCompatActivity
     }
 
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        noteListItemView noteView = (noteListItemView) view;
-        noteView.setSelect();
+        if (parent == (View)m_lstView) {
+            noteListItemView noteView = (noteListItemView) view;
+            noteView.setSelect();
+        } else if (parent == (View)m_lstViewLeft) {
+            TextView tvType = (TextView)view.findViewById(R.id.name);
+            String strType = tvType.getText().toString();
+            if (strType.compareTo(noteConfig.m_noteTypeMng.m_strTotal) == 0) {
+                long lTimeNow = System.currentTimeMillis();
+                if (lTimeNow - noteConfig.m_nMoveLastTime < 5000 && noteConfig.m_nMoveCount == noteConfig.m_nMoveNeedTime) {
+                    noteConfig.m_nShowSecurity = 1;
+                    fillLeftList();
+                    Toast.makeText(this,"开启秘密笔记！",Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
         return true;
     }
 
@@ -156,11 +182,24 @@ public class noteListActivity extends AppCompatActivity
 
         noteTypeMng.noteTypeItem itemType;
         int nCount = noteConfig.m_noteTypeMng.getCount();
+        if (noteConfig.m_nShowSecurity > 0) {
+            for (int i = 0; i < nCount; i++) {
+                itemType = noteConfig.m_noteTypeMng.getItem(i);
+                if (itemType.m_strName.compareTo(noteConfig.m_noteTypeMng.m_strRubbish) == 0)
+                    continue;
+                if (itemType.m_nLevel < 10)
+                    continue;
+                mapItem = new HashMap<String, Object>();
+                mapItem.put("name", itemType.m_strName);
+                mapItem.put("img", R.drawable.notetype_lock);
+                listItem.add(mapItem);
+            }
+        }
         for (int i = 0; i < nCount; i++) {
             itemType = noteConfig.m_noteTypeMng.getItem(i);
-            if (itemType.m_strName.compareTo(noteConfig.m_noteTypeMng.m_strLaji) == 0)
+            if (itemType.m_strName.compareTo(noteConfig.m_noteTypeMng.m_strRubbish) == 0)
                 continue;
-            if (itemType.m_nLevel >= 10 && noteConfig.m_nShowSecurity == 0)
+            if (itemType.m_nLevel >= 10)
                 continue;
             mapItem = new HashMap<String, Object>();
             mapItem.put("name", itemType.m_strName);
@@ -170,6 +209,7 @@ public class noteListActivity extends AppCompatActivity
         SimpleAdapter adapter = new SimpleAdapter(this, listItem, R.layout.menu_list_item,
                 new String[]{"name","img"}, new int[]{R.id.name, R.id.img});
         m_lstViewLeft.setAdapter(adapter);
+        noteConfig.m_noteTypeMng.writeToFile();
     }
 
     protected void updateList () {
@@ -177,6 +217,17 @@ public class noteListActivity extends AppCompatActivity
         m_lstView.setAdapter(m_lstData);
         m_lstView.invalidate();
         m_sldList.scrollToPage (1);
+    }
+
+    protected void deleteSelectedNote () {
+        int nCount = m_lstView.getCount();
+        for (int i = 0; i < nCount; i++) {
+            noteListItemView noteView = (noteListItemView) m_lstView.getChildAt(i);
+            if (noteView.isSelect()) {
+                noteView.getDataList().m_strType = noteConfig.m_noteTypeMng.m_strRubbish;
+            }
+        }
+        m_lstView.postDelayed(()->updateList(), 200);
     }
 
     @Override
@@ -224,18 +275,7 @@ public class noteListActivity extends AppCompatActivity
                 break;
 
             case R.id.menu_deletenote:
-                addNoteTypeDialog ();
-              /*
-                int nCount = m_lstView.getCount();
-                for (int i = 0; i < nCount; i++) {
-                    noteListItemView noteView = (noteListItemView) m_lstView.getChildAt(i);
-                    if (noteView.isSelect()) {
-                        File file = new File(noteView.getDataList().m_strFile);
-                        file.delete();
-                    }
-                }
-                m_lstView.postDelayed(()->updateList(), 200);
-                */
+                deleteSelectedNote ();
                 break;
 
             case R.id.menu_notesave:
@@ -269,7 +309,7 @@ public class noteListActivity extends AppCompatActivity
 
     private void addNoteTypeDialog() {
         final View noteTypeView = LayoutInflater.from(noteListActivity.this)
-                                    .inflate(R.layout.note_type_input,null);
+                .inflate(R.layout.note_type_input,null);
         AlertDialog.Builder dlgNoteType =
                 new AlertDialog.Builder(noteListActivity.this){
                     public AlertDialog create() {
@@ -278,6 +318,8 @@ public class noteListActivity extends AppCompatActivity
                     public AlertDialog show() {
                         RadioButton rbnNormal = (RadioButton)noteTypeView.findViewById(R.id.noteTypeNormal);
                         rbnNormal.setChecked(true);
+                        RadioButton rbnSecurity = (RadioButton)noteTypeView.findViewById(R.id.noteTypeSecurity);
+                        rbnSecurity.setChecked(false);
                         if (noteConfig.m_nShowSecurity == 0) {
                             noteTypeView.findViewById(R.id.laySecurity).setVisibility(View.INVISIBLE);
                         }
@@ -289,20 +331,72 @@ public class noteListActivity extends AppCompatActivity
         dlgNoteType.setTitle("输入笔记类型名称：");
         dlgNoteType.setView(noteTypeView);
         dlgNoteType.setNeutralButton("取消",
-                    new DialogInterface.OnClickListener() {
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        m_sldList.scrollToPage (1);
+                    }
+                });
+        dlgNoteType.setPositiveButton("确定",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        String strType = ((EditText)noteTypeView.findViewById(R.id.noteType)).getText().toString();
+                        RadioButton rtbSecurity = (RadioButton)noteTypeView.findViewById(R.id.noteTypeSecurity);
+                        if (strType.length() > 0) {
+                            int nRC = 0;
+                            if (rtbSecurity.isChecked())
+                                nRC = noteConfig.m_noteTypeMng.addType(strType, 10);
+                            else
+                                nRC = noteConfig.m_noteTypeMng.addType(strType, 0);
+                            if (nRC < 0)
+                                Toast.makeText(noteListActivity.this, "增加笔记类型失败了！", Toast.LENGTH_SHORT).show();
+                            else {
+                                m_sldList.scrollToPage (1);
+                                fillLeftList();
+                            }
+                        }
+                    }
+                });
+        dlgNoteType.show();
+    }
+
+    private void mngNoteTypeDialog() {
+        final View noteTypeView = LayoutInflater.from(noteListActivity.this)
+                .inflate(R.layout.note_type_input,null);
+        AlertDialog.Builder dlgNoteType =
+                new AlertDialog.Builder(noteListActivity.this){
+                    public AlertDialog create() {
+                        return super.create();
+                    }
+                    public AlertDialog show() {
+                        RadioButton rbnNormal = (RadioButton)noteTypeView.findViewById(R.id.noteTypeNormal);
+                        rbnNormal.setChecked(true);
+                        RadioButton rbnSecurity = (RadioButton)noteTypeView.findViewById(R.id.noteTypeSecurity);
+                        rbnSecurity.setChecked(false);
+                        if (noteConfig.m_nShowSecurity == 0) {
+                            noteTypeView.findViewById(R.id.laySecurity).setVisibility(View.INVISIBLE);
+                        }
+                        return super.show();
+                    }
+                };
+
+        dlgNoteType.setIcon(R.drawable.notetype_aa);
+        dlgNoteType.setTitle("输入笔记类型名称：");
+        dlgNoteType.setView(noteTypeView);
+        dlgNoteType.setNeutralButton("取消",
+                new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                     }
                 });
         dlgNoteType.setPositiveButton("确定",
-                    new DialogInterface.OnClickListener() {
+                new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         String strType = ((EditText)noteTypeView.findViewById(R.id.noteType)).getText().toString();
                         RadioButton rtbSecurity = (RadioButton)noteTypeView.findViewById(R.id.noteTypeSecurity);
                         int nRC = 0;
                         if (rtbSecurity.isChecked())
-                            nRC = noteConfig.m_noteTypeMng.addType(strType, 0);
-                        else
                             nRC = noteConfig.m_noteTypeMng.addType(strType, 10);
+                        else
+                            nRC = noteConfig.m_noteTypeMng.addType(strType, 0);
                         if (nRC < 0)
                             Toast.makeText(noteListActivity.this, "增加笔记类型失败了！", Toast.LENGTH_SHORT).show();
                         fillLeftList();
