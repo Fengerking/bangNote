@@ -43,6 +43,7 @@ public class noteTypeMng {
         m_strFile = file.getPath() + "/bangNote/setting/notetype.bns";
         m_lstType = new ArrayList<noteTypeItem>();
         readFromFile();
+        checkSecurity();
     }
 
     public int getCount () {
@@ -114,6 +115,13 @@ public class noteTypeMng {
                 m_lstType.get(i).m_nUsing = 1;
         }
         return 0;
+    }
+
+    public void checkSecurity () {
+        String  strCurType = getCurType();
+        int     nLevel = getLevel(strCurType);
+        if (nLevel >= 10)
+            setCurType(m_strDefault);
     }
 
     public ArrayList<String> getListName () {

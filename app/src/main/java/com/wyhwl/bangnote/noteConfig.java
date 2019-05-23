@@ -53,8 +53,9 @@ public class noteConfig {
         file = new File(m_strNotePictPath);
         file.mkdir();
 
-        if (m_noteTypeMng == null)
+        if (m_noteTypeMng == null) {
             m_noteTypeMng = new noteTypeMng();
+        }
     }
 
     public static int       getNoteEditID () {

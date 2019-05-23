@@ -85,6 +85,7 @@ public class noteListActivity extends AppCompatActivity
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             noteConfig.m_nShowSecurity = 0;
+            noteConfig.m_noteTypeMng.checkSecurity();
         }
         return super.onKeyDown(keyCode, event);
     }
