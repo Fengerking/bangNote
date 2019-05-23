@@ -31,6 +31,8 @@ public class noteImageShow extends ImageView {
     private PointF      m_ptStart   = new PointF();
     private PointF      m_ptMid     = new PointF();
 
+    private long        m_nLastClickTime = 0;
+
     private boolean     m_bCanZoom  = false;
     public int          m_nBmpWidth = 0;
     public int          m_nBmpHeight= 0;
@@ -149,10 +151,25 @@ public class noteImageShow extends ImageView {
                     m_nMode = MODE_ZOOM;
                 }
                 break;
+
             case MotionEvent.ACTION_UP:
+                m_nMode = MODE_NONE;
+                if (System.currentTimeMillis() - m_nLastClickTime < 250) {
+                    m_nowMatrix.setScale(1, 1);
+                    DisplayMetrics dm = this.getResources().getDisplayMetrics();
+                    int nX = (m_nBmpWidth - dm.widthPixels) / 2;
+                    int nY = (m_nBmpHeight - dm.heightPixels) / 2;
+                    m_nowMatrix.setTranslate (-nX, -nY);
+                    setImageMatrix(m_nowMatrix);
+                    invalidate();
+                }
+                m_nLastClickTime = System.currentTimeMillis();
+                break;
+
             case MotionEvent.ACTION_POINTER_UP:
                 m_nMode = MODE_NONE;
                 break;
+
             case MotionEvent.ACTION_MOVE:
                 if (m_nMode == MODE_DRAG) {
                     m_nowMatrix.set(m_oldMatrix);

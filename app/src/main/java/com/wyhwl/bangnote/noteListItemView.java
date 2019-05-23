@@ -117,7 +117,7 @@ public class noteListItemView extends TextView {
                 e.printStackTrace();
             }
         } else {
-            bmpItem = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.ic_launcher);
+            bmpItem = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.noteitem_icon);
         }
         if (bmpItem != null) {
             int nOff = 12;

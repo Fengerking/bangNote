@@ -11,7 +11,9 @@ import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
@@ -37,9 +39,15 @@ public class noteViewActivity extends AppCompatActivity
     private dataNoteItem    m_dataItem = null;
     private noteImageShow   m_noteImage = null;
 
+    private String[]        m_strFileList = null;
+    private int             m_nFileCount = 0;
+
     private int             m_nLastY = 0;
     private int             m_nLastYPos = 0;
     private int             m_nDispH = 0;
+
+    private VelocityTracker mVelocityTracker;
+    private int             mMaxVelocity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,13 +59,27 @@ public class noteViewActivity extends AppCompatActivity
         actionBar.setDisplayHomeAsUpEnabled(true);
         noteConfig.initConfig(this);
 
-        Uri uri = getIntent().getData();
+        Intent intent = getIntent();
+        Uri uri = intent.getData();
         if (uri != null)
             m_strNoteFile = uri.toString();
         else
             m_strNoteFile = "/sdcard/bangNote/text/txt_2019-05-18-21-34-19.bnt";
 
+        m_nFileCount = intent.getIntExtra("FileCount", 0);
+        if(m_nFileCount > 0) {
+            m_strFileList = intent.getStringArrayExtra("FileList");
+        }
+
         initViews();
+    }
+
+    protected void onStop () {
+        super.onStop();
+        if (mVelocityTracker != null) {
+            mVelocityTracker.recycle();
+            mVelocityTracker = null;
+        }
     }
 
     private void initViews () {
@@ -70,6 +92,9 @@ public class noteViewActivity extends AppCompatActivity
         m_txtType = (TextView)findViewById(R.id.textType);
         m_layView = (LinearLayout)findViewById(R.id.layView);
 
+        ViewConfiguration config = ViewConfiguration.get(this);
+        mMaxVelocity = config.getScaledMinimumFlingVelocity();
+
         m_layView.postDelayed(() -> readFromFile(), 10);
     }
 
@@ -79,6 +104,10 @@ public class noteViewActivity extends AppCompatActivity
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
+        if(mVelocityTracker == null)
+            mVelocityTracker = VelocityTracker.obtain();
+        mVelocityTracker.addMovement(ev);
+
         int y = (int) ev.getY();
         switch (ev.getAction()){
             case MotionEvent.ACTION_DOWN:
@@ -108,6 +137,19 @@ public class noteViewActivity extends AppCompatActivity
             case MotionEvent.ACTION_UP:
                 if (Math.abs(m_nLastYPos - y) > 20)
                     m_noteImage = null;
+                if (Math.abs(m_nLastYPos - y) < 60) {
+                    mVelocityTracker.computeCurrentVelocity(1000);
+                    int initVelocity = (int) mVelocityTracker.getXVelocity() / 2;
+                    setTitle("Move " + initVelocity);
+                    mVelocityTracker.clear();
+                    if (initVelocity > mMaxVelocity) {
+                        // Left ?  -1
+                        openNextFile(false);
+                    } else if (initVelocity < -mMaxVelocity) {
+                        // right ? +1
+                        openNextFile(true);
+                    }
+                }
                 break;
         }
         return true;
@@ -128,6 +170,30 @@ public class noteViewActivity extends AppCompatActivity
         startActivity(intent);
     }
 
+    private void openNextFile (boolean bNext) {
+        if (m_nFileCount <= 1)
+            return;
+
+        int     nIndex = 0;
+        for (int i = 0; i < m_nFileCount; i++) {
+            if (m_strFileList[i].compareTo(m_strNoteFile) == 0) {
+                nIndex = i;
+                break;
+            }
+        }
+        if (bNext) {
+            nIndex++;
+            if (nIndex == m_nFileCount)
+                nIndex = 0;
+        }
+        if (!bNext) {
+            nIndex--;
+            if (nIndex < 0)
+                nIndex = m_nFileCount - 1;
+        }
+        m_strNoteFile = m_strFileList[nIndex];
+        readFromFile ();
+    }
     private void readFromFile () {
         if (m_strNoteFile == null)
             return;
@@ -218,10 +284,6 @@ public class noteViewActivity extends AppCompatActivity
                 startActivityForResult(intent, 1);
                 break;
 
-            case R.id.menu_notesave:
-                break;
-            case R.id.menu_notecount:
-                break;
             default:
                 break;
         }

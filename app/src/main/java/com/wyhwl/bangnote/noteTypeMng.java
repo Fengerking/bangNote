@@ -69,7 +69,7 @@ public class noteTypeMng {
             if (m_lstType.get(i).m_strName.compareTo(strName) == 0)
                 return m_lstType.get(i).m_nLevel;
         }
-        return 0;
+        return -101;
     }
     public int getImage (int nIndex) {
         if (nIndex < 0 || nIndex >= m_lstType.size())
@@ -122,6 +122,20 @@ public class noteTypeMng {
         int     nLevel = getLevel(strCurType);
         if (nLevel >= 10)
             setCurType(m_strDefault);
+    }
+
+    public int changeType (String strOld, String strNew) {
+        if (strOld.length() <= 0 || strNew.length() <= 0)
+            return -1;
+        if (getLevel(strOld) < -100)
+            return -1;
+        for (int i = 0; i < m_lstType.size(); i++) {
+            if (m_lstType.get(i).m_strName.compareTo(strOld) == 0) {
+                m_lstType.get(i).m_strName = strNew;
+                return 1;
+            }
+        }
+        return -1;
     }
 
     public ArrayList<String> getListName () {

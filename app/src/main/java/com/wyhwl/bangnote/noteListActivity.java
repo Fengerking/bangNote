@@ -29,6 +29,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.TextView;
 
@@ -43,7 +44,7 @@ public class noteListActivity extends AppCompatActivity
                                             AdapterView.OnItemClickListener,
                                             AdapterView.OnItemLongClickListener {
     public static final int     REQUEST_STORAGE     = 1;
-    public static final int     REQUEST_CAMERA      = 2;
+
     private noteListListView    m_lstView = null;
     private noteListSlider      m_sldList = null;
     private noteListAdapter     m_lstData = null;
@@ -61,11 +62,10 @@ public class noteListActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_list);
 
-        //ActionBar actionBar = getSupportActionBar();
-        //actionBar.setLogo(R.drawable.note_icon);
+        ActionBar actionBar = getSupportActionBar();
+        //actionBar.setLogo(R.drawable.app_menu_icon);
         //actionBar.setDisplayShowHomeEnabled(true);
         //actionBar.setDisplayUseLogoEnabled(true);
-
         //actionBar.setDisplayHomeAsUpEnabled(true);
 
         CheckWritePermission();
@@ -125,6 +125,15 @@ public class noteListActivity extends AppCompatActivity
             dataNoteItem noteItem = m_lstData.getNoteItem(position);
             Intent intent = new Intent(noteListActivity.this, noteViewActivity.class);
             intent.setData(Uri.parse(noteItem.m_strFile));
+
+            int nSize = m_lstData.getCount();
+            String[] strFileList = new String[nSize];
+            for (int i = 0; i < nSize; i++) {
+                strFileList[nSize-i-1] = ((dataNoteItem)m_lstData.getItem(i)).m_strFile;
+            }
+            intent.putExtra("FileList", strFileList);
+            intent.putExtra("FileCount", nSize);
+
             startActivityForResult(intent, 1);
         } else if (parent == (View)m_lstViewLeft) {
             TextView tvType = (TextView) view.findViewById(R.id.name);
@@ -134,21 +143,31 @@ public class noteListActivity extends AppCompatActivity
                 startActivityForResult(intent, 1);
             } else {
                 noteConfig.m_noteTypeMng.setCurType(strType);
-                fillLeftList (false);
+                fillLeftList (true);
                 updateList();
             }
         }else if (parent == (View)m_lstViewRight) {
-            if (position == 0)          // new note type
+            TextView tvText = (TextView) view.findViewById(R.id.name);
+            String strCommand = tvText.getText().toString();
+            if (strCommand.compareTo("增加类型") == 0) {
                 addNoteTypeDialog();
-            else if (position == 1)     // delete note type
-                mngNoteTypeDialog();
-            else if (position == 2)     // delete note item
+            } else if (strCommand.compareTo("删除类型") == 0) {
+                delNoteTypeDialog();
+            } else if (strCommand.compareTo("修改类型") == 0) {
+                chgNoteTypeDialog();
+            } else if (strCommand.compareTo("转移类型") == 0) {
+                movNoteTypeDialog();
+            } else if (strCommand.compareTo("删除笔记") == 0) {
                 deleteSelectedNote();
-            else if (position == 3)  {  // clean rubbish
+            } else if (strCommand.compareTo("清除垃圾") == 0) {
                 delNoteItemDialog();
-            } else if (position == 4) { // setting
+            } else if (strCommand.compareTo("全部选中") == 0) {
+                selectAllItems (true);
+            } else if (strCommand.compareTo("清除选择") == 0) {
+                selectAllItems (false);
+            } else if (strCommand.compareTo("笔记设置") == 0) {
 
-            } else if (position == 5) { // exit
+            } else if (strCommand.compareTo("退出笔记") == 0) {
                 System.exit(0);
             }
         }
@@ -182,7 +201,7 @@ public class noteListActivity extends AppCompatActivity
         addNoteType (listItem, 4);
 
         SimpleAdapter adapter = new SimpleAdapter(this, listItem, R.layout.menu_list_item,
-                new String[]{"name","img"}, new int[]{R.id.name, R.id.img});
+                new String[]{"name","count","img"}, new int[]{R.id.name, R.id.count,R.id.img});
         m_lstViewLeft.setAdapter(adapter);
 
         if (bSave)
@@ -217,6 +236,7 @@ public class noteListActivity extends AppCompatActivity
             }
             mapItem = new HashMap<String, Object>();
             mapItem.put("name", itemType.m_strName);
+            mapItem.put("count", getItemCount4Type(itemType.m_strName));
             if (itemType.m_nUsing > 0) {
                 mapItem.put("img", R.drawable.notetype_sel);
             } else {
@@ -229,42 +249,58 @@ public class noteListActivity extends AppCompatActivity
         }
     }
 
+    protected String getItemCount4Type (String strType) {
+        int nCount = 0;
+        dataNoteItem itemData = null;
+        int nAllCount = m_lstData.m_lstAllItem.size();
+        if (strType.compareTo(noteConfig.m_noteTypeMng.m_strTotal) == 0) {
+            if (noteConfig.m_nShowSecurity == 0) {
+                for (int j = 0; j < nAllCount; j++) {
+                    itemData = m_lstData.m_lstAllItem.get(j);
+                    if (noteConfig.m_noteTypeMng.getLevel(itemData.m_strType) < 10) {
+                        nCount++;
+                    }
+                }
+            } else {
+                nCount = nAllCount;
+            }
+        } else {
+            for (int j = 0; j < nAllCount; j++) {
+                itemData = m_lstData.m_lstAllItem.get(j);
+                if (itemData.m_strType.compareTo(strType) == 0) {
+                    nCount++;
+                }
+            }
+        }
+        String strCount = " (" + nCount + ")";
+        return strCount;
+    }
+
     protected void fillRightList () {
         ArrayList<Map<String, Object>> listItem = new ArrayList<Map<String, Object>>();
         HashMap<String, Object> mapItem;
-        mapItem = new HashMap<String, Object>();
-        mapItem.put("name", "增加类型");
-        mapItem.put("img", R.drawable.notetype_new);
-        listItem.add(mapItem);
-
-        mapItem = new HashMap<String, Object>();
-        mapItem.put("name", "管理类型");
-        mapItem.put("img", R.drawable.notetype_del);
-        listItem.add(mapItem);
-
-        mapItem = new HashMap<String, Object>();
-        mapItem.put("name", "删除笔记");
-        mapItem.put("img", R.drawable.note_delete);
-        listItem.add(mapItem);
-
-        mapItem = new HashMap<String, Object>();
-        mapItem.put("name", "清除垃圾");
-        mapItem.put("img", R.drawable.lajitong);
-        listItem.add(mapItem);
-
-        mapItem = new HashMap<String, Object>();
-        mapItem.put("name", "笔记设置");
-        mapItem.put("img", R.drawable.note_setting);
-        listItem.add(mapItem);
-
-        mapItem = new HashMap<String, Object>();
-        mapItem.put("name", "退出笔记");
-        mapItem.put("img", R.drawable.note_exit);
-        listItem.add(mapItem);
+        addRightCommand (listItem, "增加类型", R.drawable.notetype_new);
+        addRightCommand (listItem, "删除类型", R.drawable.notetype_del);
+        addRightCommand (listItem, "修改类型", R.drawable.notetype_modify);
+        addRightCommand (listItem, "转移类型", R.drawable.notetype_move);
+        addRightCommand (listItem, "删除笔记", R.drawable.note_delete);
+        addRightCommand (listItem, "清除垃圾", R.drawable.lajitong);
+        addRightCommand (listItem, "全部选中", R.drawable.notetype_selall);
+        addRightCommand (listItem, "清除选择", R.drawable.notetype_selnone);
+        addRightCommand (listItem, "笔记设置", R.drawable.note_setting);
+        addRightCommand (listItem, "退出笔记", R.drawable.note_exit);
 
         SimpleAdapter adapter = new SimpleAdapter(this, listItem, R.layout.menu_list_item,
                 new String[]{"name","img"}, new int[]{R.id.name, R.id.img});
         m_lstViewRight.setAdapter(adapter);
+    }
+
+    private void addRightCommand (ArrayList<Map<String, Object>> listItem, String strName, int nIcon) {
+        HashMap<String, Object> mapItem;
+        mapItem = new HashMap<String, Object>();
+        mapItem.put("name", strName);
+        mapItem.put("img", nIcon);
+        listItem.add(mapItem);
     }
 
     protected void updateList () {
@@ -285,6 +321,24 @@ public class noteListActivity extends AppCompatActivity
             }
         }
         m_lstView.postDelayed(()->updateList(), 200);
+    }
+
+    protected void selectAllItems (boolean bSelect) {
+        dataNoteItem    dataItem = null;
+        int             nCount = m_lstData.getCount();
+        for (int i = 0; i < nCount; i++) {
+            dataItem = (dataNoteItem)m_lstData.getItem(i);
+            if (bSelect) {
+                if (!dataItem.isSelect())
+                    dataItem.setSelect();
+            } else {
+                if (dataItem.isSelect())
+                    dataItem.setSelect();
+            }
+        }
+        m_lstView.setAdapter(m_lstData);
+        m_lstView.invalidate();
+        m_sldList.scrollToPage (1);
     }
 
     @Override
@@ -417,7 +471,7 @@ public class noteListActivity extends AppCompatActivity
         dlgNoteType.show();
     }
 
-    private void mngNoteTypeDialog() {
+    private void delNoteTypeDialog() {
         final View noteDelView = LayoutInflater.from(noteListActivity.this)
                 .inflate(R.layout.note_type_delete,null);
         AlertDialog.Builder dlgNoteTDel =
@@ -509,6 +563,11 @@ public class noteListActivity extends AppCompatActivity
                             m_lstRubbish.add(itemData);
                             layItems.addView(chkNoteType);
                         }
+                        if (layItems.getChildCount() <= 0) {
+                            TextView tvText = new TextView(noteListActivity.this);
+                            tvText.setText("没有垃圾笔记！");
+                            layItems.addView(tvText);
+                        }
                         return super.show();
                     }
                 };
@@ -524,7 +583,7 @@ public class noteListActivity extends AppCompatActivity
         dlgNoteTDel.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 LinearLayout    layItems = (LinearLayout)noteDelView.findViewById(R.id.layItems);
-                int             nCount = layItems.getChildCount();
+                int             nCount = m_lstRubbish.size();
                 CheckBox        chkNoteType = null;
                 for (int i = 0; i < nCount; i++) {
                     chkNoteType = (CheckBox)layItems.getChildAt(i);
@@ -542,7 +601,101 @@ public class noteListActivity extends AppCompatActivity
                     }
                 }
                 m_sldList.scrollToPage (1);
-                updateList();
+                if (nCount > 0)
+                    updateList();
+            }
+        });
+        dlgNoteTDel.show();
+    }
+
+    private void chgNoteTypeDialog() {
+        final View noteChgView = LayoutInflater.from(noteListActivity.this)
+                .inflate(R.layout.note_type_modify,null);
+        AlertDialog.Builder dlgNoteTDel =
+                new AlertDialog.Builder(noteListActivity.this){
+                    public AlertDialog create() {
+                        return super.create();
+                    }
+                    public AlertDialog show() {
+                        EditText edtType = (EditText)noteChgView.findViewById(R.id.edtOldType);
+                        edtType.setText(noteConfig.m_noteTypeMng.getCurType());
+                        edtType.setEnabled(false);
+                        return super.show();
+                    }
+                };
+
+        dlgNoteTDel.setIcon(R.drawable.notetype_del);
+        dlgNoteTDel.setTitle("修改笔记类型名称");
+        dlgNoteTDel.setView(noteChgView);
+        dlgNoteTDel.setNeutralButton("取消", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                m_sldList.scrollToPage (1);
+            }
+        });
+        dlgNoteTDel.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                String strOldType = ((EditText)noteChgView.findViewById(R.id.edtOldType)).getText().toString();
+                String strNewType = ((EditText)noteChgView.findViewById(R.id.edtNewType)).getText().toString();
+                if (noteConfig.m_noteTypeMng.changeType(strOldType, strNewType) < 0) {
+                    return;
+                }
+                dataNoteItem itemData = null;
+                int nAllCount = m_lstData.m_lstAllItem.size();
+                for (int j = 0; j < nAllCount; j++) {
+                    itemData = m_lstData.m_lstAllItem.get(j);
+                    if (itemData.m_strType.compareTo(strOldType) == 0) {
+                        itemData.m_strType = strNewType;
+                        itemData.writeToFile();
+                    }
+                }
+                m_sldList.scrollToPage (1);
+                fillLeftList(true);
+            }
+        });
+        dlgNoteTDel.show();
+    }
+
+    private void movNoteTypeDialog() {
+        final View noteMovView = LayoutInflater.from(noteListActivity.this)
+                .inflate(R.layout.note_type_move,null);
+        AlertDialog.Builder dlgNoteTDel =
+                new AlertDialog.Builder(noteListActivity.this){
+                    public AlertDialog create() {
+                        return super.create();
+                    }
+                    public AlertDialog show() {
+                        Spinner spnType = (Spinner)noteMovView.findViewById(R.id.spinNoteType);
+                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                                noteListActivity.this, R.layout.spn_note_type, noteConfig.m_noteTypeMng.getListName());
+                        spnType.setAdapter(adapter);
+                        return super.show();
+                    }
+                };
+
+        dlgNoteTDel.setIcon(R.drawable.notetype_del);
+        dlgNoteTDel.setTitle("把选中笔记移到新的类型");
+        dlgNoteTDel.setView(noteMovView);
+        dlgNoteTDel.setNeutralButton("取消", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                m_sldList.scrollToPage (1);
+            }
+        });
+        dlgNoteTDel.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                Spinner spnType = (Spinner)noteMovView.findViewById(R.id.spinNoteType);
+                int     nSel = spnType.getSelectedItemPosition();
+                String  strNoteType = (String)spnType.getAdapter().getItem(nSel);
+                dataNoteItem    dataItem = null;
+                int             nCount = m_lstData.getCount();
+                for (int i = 0; i < nCount; i++) {
+                    dataItem = (dataNoteItem)m_lstData.getItem(i);
+                    if (dataItem.isSelect()) {
+                        dataItem.m_strType = strNoteType;
+                        dataItem.writeToFile();
+                    }
+                }
+                m_sldList.scrollToPage (1);
+                m_lstView.postDelayed(()->updateList(), 200);
             }
         });
         dlgNoteTDel.show();
@@ -572,7 +725,7 @@ public class noteListActivity extends AppCompatActivity
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //成功
                     //Toast.makeText(this, "用户授权相机权限", Toast.LENGTH_SHORT).show();
-                    m_lstView.postDelayed(()->updateList(), 100);
+                    m_lstView.postDelayed(()->updateList(), 500);
                 } else {
                     // 勾选了不再询问
                     Toast.makeText(this, "用户拒绝相机权限", Toast.LENGTH_SHORT).show();
