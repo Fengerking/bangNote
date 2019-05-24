@@ -79,6 +79,7 @@ public class noteViewActivity extends AppCompatActivity
     private void initViews () {
         ((ImageButton)findViewById(R.id.imbBack)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbEditNote)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbShareNote)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbCount)).setOnClickListener(this);
 
         DisplayMetrics dm = this.getResources().getDisplayMetrics();
@@ -101,15 +102,34 @@ public class noteViewActivity extends AppCompatActivity
     }
 
     public void onClick(View v) {
+        Intent intent = null;
         switch (v.getId()) {
             case R.id.imbBack:
                 finish();
                 break;
 
             case R.id.imbEditNote:
-                Intent intent = new Intent(noteViewActivity.this, noteEditActivity.class);
+                intent = new Intent(noteViewActivity.this, noteEditActivity.class);
                 intent.setData(Uri.parse(m_strNoteFile));
                 startActivityForResult(intent, 1);
+                break;
+
+            case R.id.imbShareNote:
+                String strShareText = "";
+                dataNoteItem.dataContent dataItem = null;
+                for (int i = 0; i < m_dataItem.m_lstItem.size(); i++) {
+                    dataItem = m_dataItem.m_lstItem.get(i);
+                    if (dataItem.m_nType == dataNoteItem.m_nItemTypeText) {
+                        strShareText += dataItem.m_strItem;
+                    }
+                }
+
+                intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("text/plain");
+                intent.putExtra(Intent.EXTRA_SUBJECT, "分享笔记");
+                intent.putExtra(Intent.EXTRA_TEXT, strShareText);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(Intent.createChooser(intent, getTitle()));
                 break;
 
             case R.id.imbCount:

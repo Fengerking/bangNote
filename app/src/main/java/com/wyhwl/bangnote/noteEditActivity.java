@@ -104,6 +104,7 @@ public class noteEditActivity extends AppCompatActivity
         ((ImageButton)findViewById(R.id.imbNewPic)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbSaveNote)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbDelPic)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbAudio)).setOnClickListener(this);
 
         m_txtBarTitle = (TextView)findViewById(R.id.txtBarTitle);
 
@@ -296,6 +297,10 @@ public class noteEditActivity extends AppCompatActivity
 
             case R.id.imbDelPic:
                 deleteImageView ();
+                break;
+
+            case R.id.imbAudio:
+
                 break;
 
             case R.id.imbSaveNote:

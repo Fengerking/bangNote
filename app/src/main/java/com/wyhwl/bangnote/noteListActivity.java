@@ -184,6 +184,8 @@ public class noteListActivity extends AppCompatActivity
                     showMsgDlg ("备份笔记失败", null);
             } else if (strCommand.compareTo("恢复备份") == 0) {
                 restoreNoteDialog ();
+            } else if (strCommand.compareTo("发送备份") == 0) {
+                sendBackupNote ();
             } else if (strCommand.compareTo("笔记设置") == 0) {
 
             } else if (strCommand.compareTo("退出笔记") == 0) {
@@ -308,6 +310,7 @@ public class noteListActivity extends AppCompatActivity
         addRightCommand (listItem, "清除选择", R.drawable.notetype_selnone);
         addRightCommand (listItem, "备份笔记", R.drawable.note_backup);
         addRightCommand (listItem, "恢复备份", R.drawable.note_restore);
+        //addRightCommand (listItem, "发送备份", R.drawable.note_send);
         addRightCommand (listItem, "笔记设置", R.drawable.note_setting);
         addRightCommand (listItem, "退出笔记", R.drawable.note_exit);
 
@@ -767,7 +770,7 @@ public class noteListActivity extends AppCompatActivity
             //创建文件
             File file = new File(noteConfig.m_strNotePath);
             //压缩
-            if (ZipFiles(file.getParent() + File.separator, file.getName(), outZip) < 0) {
+            if (ZipFiles(file.getParent() + File.separator, file.getName(), outZip, true) < 0) {
                 return -1;
             }
             //完成和关闭
@@ -780,7 +783,28 @@ public class noteListActivity extends AppCompatActivity
         return 1;
     }
 
-    private int ZipFiles(String folderString, String fileString, ZipOutputStream zipOutputSteam)throws Exception{
+    private void sendBackupNote () {
+        String strZipFile = noteConfig.getNoteZipFile();
+        strZipFile = strZipFile.substring(0, strZipFile.length() - 3);
+        strZipFile += "zip";
+        try {
+            ZipOutputStream outZip = new ZipOutputStream(new FileOutputStream(strZipFile));
+            File file = new File(noteConfig.m_strNotePath);
+            ZipFiles(file.getParent() + File.separator, file.getName(), outZip, false);
+            outZip.finish();
+            outZip.close();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("*/*");
+        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(strZipFile)));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(Intent.createChooser(intent, getTitle()));
+    }
+
+    private int ZipFiles(String folderString, String fileString, ZipOutputStream zipOutputSteam, boolean bAll)throws Exception{
         if(zipOutputSteam == null)
             return -1;
         File file = new File(folderString+fileString);
@@ -805,7 +829,7 @@ public class noteListActivity extends AppCompatActivity
             }
             //子文件和递归
             for (int i = 0; i < fileList.length; i++) {
-                ZipFiles(folderString, fileString+ File.separator+fileList[i], zipOutputSteam);
+                ZipFiles(folderString, fileString+ File.separator+fileList[i], zipOutputSteam, bAll);
             }
         }
         return 1;
@@ -861,6 +885,7 @@ public class noteListActivity extends AppCompatActivity
 
     public void CheckWritePermission () {
         String[] permissions = new String[]{Manifest.permission.CAMERA,
+                                            Manifest.permission.RECORD_AUDIO,
                                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                             Manifest.permission.READ_EXTERNAL_STORAGE};
         //检查权限
