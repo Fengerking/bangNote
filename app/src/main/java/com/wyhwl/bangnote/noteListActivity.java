@@ -1,20 +1,15 @@
 package com.wyhwl.bangnote;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.SearchView;
 
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -33,7 +28,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.TextView;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -42,7 +36,8 @@ import java.io.File;
 public class noteListActivity extends AppCompatActivity
                               implements noteListSlider.switchListener,
                                             AdapterView.OnItemClickListener,
-                                            AdapterView.OnItemLongClickListener {
+                                            AdapterView.OnItemLongClickListener,
+                                            View.OnClickListener {
     public static final int     REQUEST_STORAGE     = 1;
 
     private noteListListView    m_lstView = null;
@@ -63,10 +58,8 @@ public class noteListActivity extends AppCompatActivity
         setContentView(R.layout.activity_note_list);
 
         ActionBar actionBar = getSupportActionBar();
-        //actionBar.setLogo(R.drawable.app_menu_icon);
-        //actionBar.setDisplayShowHomeEnabled(true);
-        //actionBar.setDisplayUseLogoEnabled(true);
-        //actionBar.setDisplayHomeAsUpEnabled(true);
+        if (actionBar != null)
+            actionBar.hide();
 
         CheckWritePermission();
         noteConfig.initConfig(this);
@@ -91,6 +84,9 @@ public class noteListActivity extends AppCompatActivity
     }
 
     protected void initViews () {
+        ((ImageButton)findViewById(R.id.imbNewNote)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbDelNote)).setOnClickListener(this);
+
         m_sldList = (noteListSlider) findViewById(R.id.sldList);
         m_sldList.setSwitchListener(this);
 
@@ -118,6 +114,18 @@ public class noteListActivity extends AppCompatActivity
         });
 
         m_lstView.postDelayed(()->updateList(), 20);
+    }
+
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.imbNewNote:
+                Intent intent = new Intent(noteListActivity.this, noteEditActivity.class);
+                startActivityForResult(intent, 1);
+                break;
+            case R.id.imbDelNote:
+                deleteSelectedNote();
+                break;
+        }
     }
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -339,65 +347,6 @@ public class noteListActivity extends AppCompatActivity
         m_lstView.setAdapter(m_lstData);
         m_lstView.invalidate();
         m_sldList.scrollToPage (1);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_notelist, menu);
-
-        MenuItem searchItem = menu.findItem(R.id.menu_search);
-        SearchView searchView = (SearchView) searchItem.getActionView();
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String s) {
-                //Toast.makeText(MainActivity.this,"提交文本："+s,Toast.LENGTH_SHORT).show();
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String s) {
-                //Toast.makeText(MainActivity.this,"当前文本："+s,Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override // show the icon on menu
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        if (menu != null) {
-            if (menu.getClass().getSimpleName().equals("MenuBuilder")) {
-                try {
-                    Method m = menu.getClass().getDeclaredMethod("setOptionalIconsVisible", Boolean.TYPE);
-                    m.setAccessible(true);
-                    m.invoke(menu, true);
-                } catch (Exception e) {
-                }
-            }
-        }
-        return super.onMenuOpened(featureId, menu);
-    }
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case android.R.id.home:
-                finish();
-                break;
-
-            case R.id.menu_deletenote:
-                deleteSelectedNote ();
-                break;
-
-            case R.id.menu_newnote:
-                Intent intent = new Intent(noteListActivity.this, noteEditActivity.class);
-                startActivityForResult(intent, 1);
-                break;
-
-            default:
-                break;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     public int onSwitchStart(int nView) {

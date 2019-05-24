@@ -1,11 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/colorView"
     tools:context=".noteViewActivity">
+
+    <com.wyhwl.bangnote.noteToolBar
+        android:id="@+id/ntlView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/colorPrimary">
+
+        <ImageButton
+            android:id="@+id/imbBack"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginLeft="2dp"
+            android:background="@drawable/app_back"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/colorWhite"
+            android:textSize="24dp"
+            android:text="笔记详情"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageButton
+                android:id="@+id/imbCount"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="4dp"
+                android:layout_marginBottom="2dp"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/note_count"/>
+            <ImageButton
+                android:id="@+id/imbEditNote"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="2dp"
+                android:layout_toLeftOf="@+id/imbCount"
+                android:background="@drawable/noteedit"/>
+        </RelativeLayout>
+
+    </com.wyhwl.bangnote.noteToolBar>
 
     <LinearLayout
         android:id="@+id/layView"
@@ -65,4 +116,4 @@
 
     </LinearLayout>
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

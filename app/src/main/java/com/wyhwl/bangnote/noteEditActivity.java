@@ -13,20 +13,12 @@ import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.SearchView;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.DisplayMetrics;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -34,21 +26,16 @@ import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 import android.widget.SpinnerAdapter;
-import android.view.ViewGroup;
 import android.util.Log;
 import android.graphics.Bitmap;
 import android.os.StrictMode;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.lang.reflect.Method;
-
 
 public class noteEditActivity extends AppCompatActivity
         implements  noteEditText.onNoteEditListener,
@@ -56,6 +43,7 @@ public class noteEditActivity extends AppCompatActivity
                     OnClickListener {
     private static int      RESULT_LOAD_IMAGE       = 10;
     private static int      RESULT_CAPTURE_IMAGE    = 20;
+    private TextView        m_txtBarTitle = null;
     private noteEditText    m_edtTitle = null;
     private TextView        m_txtDate = null;
     private TextView        m_txtTime = null;
@@ -81,21 +69,23 @@ public class noteEditActivity extends AppCompatActivity
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        noteConfig.initConfig(this);
+        if (actionBar != null)
+            actionBar.hide();
+
+        initViews();
 
         Uri uri = getIntent().getData();
         if (uri != null) {
             m_strNoteFile = uri.toString();
             m_bNewNote = false;
-            setTitle(R.string.note_edit);
+            m_txtBarTitle.setText(R.string.note_edit);
         }
         else {
             m_strNoteFile = noteConfig.getNoteTextFile();
             m_bNewNote = true;
-            setTitle(R.string.new_note);
+            m_txtBarTitle.setText(R.string.new_note);
         }
 
-        initViews();
         m_layView.postDelayed(()->readFromFile(), 100);
     }
 
@@ -108,6 +98,14 @@ public class noteEditActivity extends AppCompatActivity
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
         builder.detectFileUriExposure();
+
+        ((ImageButton)findViewById(R.id.imbBack)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbCamera)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbNewPic)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbSaveNote)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbDelPic)).setOnClickListener(this);
+
+        m_txtBarTitle = (TextView)findViewById(R.id.txtBarTitle);
 
         DisplayMetrics dm = this.getResources().getDisplayMetrics();
         m_nDispH = dm.heightPixels;
@@ -281,6 +279,28 @@ public class noteEditActivity extends AppCompatActivity
                 }, nHour, nMinute, true);
                 dlgTime.show();
                 break;
+
+            case R.id.imbBack:
+                finish();;
+                break;
+
+            case R.id.imbCamera:
+                captureImage();
+                break;
+
+            case R.id.imbNewPic:
+                Intent intent = new Intent("android.intent.action.GET_CONTENT");
+                intent.setType("image/*");
+                startActivityForResult(intent, RESULT_LOAD_IMAGE);//打开系统相册
+                break;
+
+            case R.id.imbDelPic:
+                deleteImageView ();
+                break;
+
+            case R.id.imbSaveNote:
+                finish();
+                break;
         }
     }
 
@@ -365,54 +385,6 @@ public class noteEditActivity extends AppCompatActivity
     public boolean onTouchEvent(MotionEvent ev) {
         onMontionEvent (ev, 0);
         return true;
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_noteedit, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override // show the icon on menu
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        if (menu != null) {
-            if (menu.getClass().getSimpleName().equals("MenuBuilder")) {
-                try {
-                    Method m = menu.getClass().getDeclaredMethod("setOptionalIconsVisible", Boolean.TYPE);
-                    m.setAccessible(true);
-                    m.invoke(menu, true);
-                } catch (Exception e) {
-                }
-            }
-        }
-        return super.onMenuOpened(featureId, menu);
-    }
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case android.R.id.home:
-                writeToFile();
-                finish();
-                break;
-
-            case R.id.menu_camera:
-                captureImage();
-                break;
-
-            case R.id.menu_newpic:
-                Intent intent = new Intent("android.intent.action.GET_CONTENT");
-                intent.setType("image/*");
-                startActivityForResult(intent, RESULT_LOAD_IMAGE);//打开系统相册
-                break;
-            case R.id.menu_delpic:
-                deleteImageView ();
-                break;
-
-            default:
-                break;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -530,15 +502,31 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     private void writeToFile () {
+        View    vwItem = null;
+        int     nCount = m_layView.getChildCount();
+        String  strName = "";
+        String  strText = "";
         int     nSel = m_spnType.getSelectedItemPosition();
         String  strNoteType = (String)m_spnType.getAdapter().getItem(nSel);
         if (noteConfig.m_bNoteModified == false) {
             if (strNoteType.compareTo(m_dataItem.m_strType) == 0)
                 return;
+            if (m_edtTitle.getText().toString().length() <= 0) {
+                for (int i = 2; i < nCount; i++) {
+                    vwItem = m_layView.getChildAt(i);
+                    if (vwItem.getId() < noteConfig.m_nImagIdStart) {
+                        noteEditText noteText = (noteEditText)vwItem;
+                        strText = noteText.getText().toString();
+                        if (strText.length() > 0) {
+                            break;
+                        }
+                    }
+                }
+                if (strText.length() <= 0)
+                    return;
+            }
         }
 
-        String strName = "";
-        String strText = "";
         try {
             FileOutputStream fos = new FileOutputStream (m_strNoteFile);
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
@@ -555,8 +543,6 @@ public class noteEditActivity extends AppCompatActivity
             strName = noteConfig.m_strTagNoteType; bw.write((strName+"\n").toCharArray());
             strText = strNoteType; bw.write((strText+"\n").toCharArray());
 
-            View vwItem = null;
-            int nCount = m_layView.getChildCount();
             for (int i = 2; i < nCount; i++) {
                 vwItem = m_layView.getChildAt(i);
                 if (vwItem.getId() < noteConfig.m_nImagIdStart) {

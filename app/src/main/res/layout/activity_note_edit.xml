@@ -1,11 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/colorView"
     tools:context=".noteEditActivity">
+
+    <com.wyhwl.bangnote.noteToolBar
+        android:id="@+id/ntlView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/colorPrimary">
+
+        <ImageButton
+            android:id="@+id/imbBack"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginLeft="2dp"
+            android:background="@drawable/app_back"/>
+
+        <TextView
+            android:id="@+id/txtBarTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/colorWhite"
+            android:textSize="24dp"
+            android:text="新建笔记"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageButton
+                android:id="@+id/imbSaveNote"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="4dp"
+                android:layout_marginBottom="2dp"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/notesave"/>
+            <ImageButton
+                android:id="@+id/imbDelPic"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="2dp"
+                android:layout_toLeftOf="@+id/imbSaveNote"
+                android:background="@drawable/delpic"/>
+            <ImageButton
+                android:id="@+id/imbNewPic"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="2dp"
+                android:layout_toLeftOf="@+id/imbDelPic"
+                android:background="@drawable/newpic"/>
+            <ImageButton
+                android:id="@+id/imbCamera"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="2dp"
+                android:layout_toLeftOf="@+id/imbNewPic"
+                android:background="@drawable/notecamera"/>
+        </RelativeLayout>
+
+    </com.wyhwl.bangnote.noteToolBar>
 
     <LinearLayout
         android:id="@+id/layView"
@@ -78,4 +149,4 @@
 
     </LinearLayout>
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

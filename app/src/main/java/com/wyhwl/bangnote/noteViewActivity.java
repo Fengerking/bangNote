@@ -1,34 +1,23 @@
 package com.wyhwl.bangnote;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.io.FileInputStream;
-import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 public class noteViewActivity extends AppCompatActivity
-                            implements noteImageShow.noteImageShowListener {
+                            implements noteImageShow.noteImageShowListener,
+                                        View.OnClickListener {
     private String          m_strNoteFile = null;
     private TextView        m_txtTitle = null;
     private TextView        m_txtDate = null;
@@ -57,6 +46,8 @@ public class noteViewActivity extends AppCompatActivity
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.hide();
+
         noteConfig.initConfig(this);
 
         Intent intent = getIntent();
@@ -83,6 +74,10 @@ public class noteViewActivity extends AppCompatActivity
     }
 
     private void initViews () {
+        ((ImageButton)findViewById(R.id.imbBack)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbEditNote)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbCount)).setOnClickListener(this);
+
         DisplayMetrics dm = this.getResources().getDisplayMetrics();
         m_nDispH = dm.heightPixels;
 
@@ -100,6 +95,23 @@ public class noteViewActivity extends AppCompatActivity
 
     protected void onResume () {
         super.onResume();
+    }
+
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.imbBack:
+                finish();
+                break;
+
+            case R.id.imbEditNote:
+                Intent intent = new Intent(noteViewActivity.this, noteEditActivity.class);
+                intent.setData(Uri.parse(m_strNoteFile));
+                startActivityForResult(intent, 1);
+                break;
+
+            case R.id.imbCount:
+                break;
+        }
     }
 
     @Override
@@ -137,7 +149,7 @@ public class noteViewActivity extends AppCompatActivity
             case MotionEvent.ACTION_UP:
                 if (Math.abs(m_nLastYPos - y) > 20)
                     m_noteImage = null;
-                if (Math.abs(m_nLastYPos - y) < 60) {
+                if (Math.abs(m_nLastYPos - y) < 200) {
                     mVelocityTracker.computeCurrentVelocity(1000);
                     int initVelocity = (int) mVelocityTracker.getXVelocity() / 2;
                     setTitle("Move " + initVelocity);
@@ -242,6 +254,7 @@ public class noteViewActivity extends AppCompatActivity
         ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)m_layView.getLayoutParams();
         param.height = nHeight + 200;
         m_layView.setLayoutParams(param);
+        m_layView.scrollTo(0, 0);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -250,43 +263,4 @@ public class noteViewActivity extends AppCompatActivity
             m_layView.postDelayed(()->readFromFile(), 500);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_noteview, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override // show the icon on menu
-    public boolean onMenuOpened(int featureId, Menu menu) {
-        if (menu != null) {
-            if (menu.getClass().getSimpleName().equals("MenuBuilder")) {
-                try {
-                    Method m = menu.getClass().getDeclaredMethod("setOptionalIconsVisible", Boolean.TYPE);
-                    m.setAccessible(true);
-                    m.invoke(menu, true);
-                } catch (Exception e) {
-                }
-            }
-        }
-        return super.onMenuOpened(featureId, menu);
-    }
-
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-            case android.R.id.home:
-                finish();
-                break;
-
-            case R.id.menu_edit:
-                Intent intent = new Intent(noteViewActivity.this, noteEditActivity.class);
-                intent.setData(Uri.parse(m_strNoteFile));
-                startActivityForResult(intent, 1);
-                break;
-
-            default:
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 }
