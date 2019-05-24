@@ -28,7 +28,7 @@ public class noteListAdapter extends BaseAdapter {
         m_context = context;
         m_lstAllItem = new ArrayList<dataNoteItem>();
         m_lstSelItem = new ArrayList<dataNoteItem>();
-        fillFileList(noteConfig.m_strNoteTextPath);
+        fillFileList(noteConfig.m_strNotePath);
     }
 
     public dataNoteItem getNoteItem (int nIndex) {
@@ -40,7 +40,7 @@ public class noteListAdapter extends BaseAdapter {
     public void updateNoteItem () {
         m_lstAllItem.clear();
         m_lstSelItem.clear();
-        fillFileList(noteConfig.m_strNoteTextPath);
+        fillFileList(noteConfig.m_strNotePath);
     }
 
     public int getCount() {
@@ -61,6 +61,7 @@ public class noteListAdapter extends BaseAdapter {
     }
 
     private void fillFileList(String strPath) {
+        String strExtName = null;
         File fPath = new File(strPath);
         File[] fList = fPath.listFiles();
         if (fList != null) {
@@ -70,6 +71,11 @@ public class noteListAdapter extends BaseAdapter {
                 if (file.isHidden())
                     continue;
                 if (file.isDirectory())
+                    continue;
+
+                strExtName = file.getPath();
+                strExtName = strExtName.substring(strExtName.length() - 4);
+                if (strExtName.compareTo(".bnt") != 0)
                     continue;
 
                 dataNoteItem noteItem = new dataNoteItem();

@@ -24,8 +24,9 @@ public class noteConfig {
     public static int           m_nTextSize = 24;
     public static int           m_nImageHeight = 300;
 
-    public static String        m_strNoteTextPath = null;
-    public static String        m_strNotePictPath = null;
+    public static String        m_strRootPath = null;
+    public static String        m_strNotePath = null;
+    public static String        m_strBackPath = null;
     public static String        m_strNoteFile = null;
 
     public static noteTypeMng   m_noteTypeMng = null;
@@ -44,13 +45,14 @@ public class noteConfig {
 
     public static void initConfig(Context context) {
         File file = Environment.getExternalStorageDirectory();
-        m_strNoteTextPath = file.getPath() + "/bangNote/text/";
-        m_strNotePictPath = file.getPath() + "/bangNote/picture/";
-        file = new File(file.getPath() + "/bangNote/");
+        m_strRootPath = file.getPath() + "/bangNote/";
+        m_strNotePath = file.getPath() + "/bangNote/.data/";
+        m_strBackPath = file.getPath() + "/bangNote/.backup/";
+        file = new File(m_strRootPath);
         file.mkdir();
-        file = new File(m_strNoteTextPath);
+        file = new File(m_strNotePath);
         file.mkdir();
-        file = new File(m_strNotePictPath);
+        file = new File(m_strBackPath);
         file.mkdir();
 
         if (m_noteTypeMng == null) {
@@ -69,15 +71,21 @@ public class noteConfig {
     public static String    getNoteTextFile () {
         Date dateNow = new Date(System.currentTimeMillis());
         SimpleDateFormat fmtDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        m_strNoteFile = m_strNoteTextPath + "txt_" + fmtDate.format(dateNow) + ".bnt";
+        m_strNoteFile = m_strNotePath + "txt_" + fmtDate.format(dateNow) + ".bnt";
         return m_strNoteFile;
     }
 
     public static String    getNotePictFile () {
         Date dateNow = new Date(System.currentTimeMillis());
         SimpleDateFormat fmtDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        m_strNoteFile = m_strNotePictPath + "pic_" + fmtDate.format(dateNow) + ".bnp";
+        m_strNoteFile = m_strNotePath + "pic_" + fmtDate.format(dateNow) + ".bnp";
         return m_strNoteFile;
     }
 
+    public static String    getNoteZipFile () {
+        Date dateNow = new Date(System.currentTimeMillis());
+        SimpleDateFormat fmtDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        m_strNoteFile = m_strBackPath + "bck_" + fmtDate.format(dateNow) + ".bnz";
+        return m_strNoteFile;
+    }
 }

@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AlertDialog;
+
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -26,6 +28,7 @@ public class noteViewActivity extends AppCompatActivity
     private LinearLayout    m_layView = null;
 
     private dataNoteItem    m_dataItem = null;
+    private int             m_nWordCount = 0;
     private noteImageShow   m_noteImage = null;
 
     private String[]        m_strFileList = null;
@@ -110,6 +113,7 @@ public class noteViewActivity extends AppCompatActivity
                 break;
 
             case R.id.imbCount:
+                showNormalDialog();
                 break;
         }
     }
@@ -206,6 +210,7 @@ public class noteViewActivity extends AppCompatActivity
         m_strNoteFile = m_strFileList[nIndex];
         readFromFile ();
     }
+
     private void readFromFile () {
         if (m_strNoteFile == null)
             return;
@@ -213,6 +218,7 @@ public class noteViewActivity extends AppCompatActivity
         while (m_layView.getChildCount() > 2)
             m_layView.removeView(m_layView.getChildAt((m_layView.getChildCount() - 1)));
 
+        m_nWordCount = 0;
         m_dataItem = new dataNoteItem();
         m_dataItem.readFromFile(m_strNoteFile);
         m_txtTitle.setText(m_dataItem.m_strTitle);
@@ -234,6 +240,7 @@ public class noteViewActivity extends AppCompatActivity
                 txtView.setText(dataItem.m_strItem);
                 txtView.setTextSize(noteConfig.m_nTextSize);
                 txtView.setTextColor(noteConfig.m_nTextColor);
+                m_nWordCount += dataItem.m_strItem.length();
             } else {
                 noteImageShow imgView = new noteImageShow(this);
                 m_layView.addView(imgView);
@@ -255,6 +262,15 @@ public class noteViewActivity extends AppCompatActivity
         param.height = nHeight + 200;
         m_layView.setLayoutParams(param);
         m_layView.scrollTo(0, 0);
+    }
+
+    private void showNormalDialog(){
+        final AlertDialog.Builder normalDialog =
+                new AlertDialog.Builder(noteViewActivity.this);
+        normalDialog.setIcon(R.drawable.note_count);
+        normalDialog.setTitle("字数统计信息, 一共 " + m_nWordCount + " 个字。");
+        normalDialog.setPositiveButton("确定", null);
+        normalDialog.show();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

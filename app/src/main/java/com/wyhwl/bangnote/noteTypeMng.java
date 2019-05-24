@@ -39,8 +39,7 @@ public class noteTypeMng {
     }
 
     public noteTypeMng () {
-        File file = Environment.getExternalStorageDirectory();
-        m_strFile = file.getPath() + "/bangNote/setting/notetype.bns";
+        m_strFile = noteConfig.m_strNotePath + "notetype.bns";
         m_lstType = new ArrayList<noteTypeItem>();
         readFromFile();
         checkSecurity();
@@ -152,7 +151,7 @@ public class noteTypeMng {
         return lstName;
     }
 
-    private void readFromFile () {
+    public void readFromFile () {
         noteTypeItem    itemType = null;
 
         m_lstType.clear();
@@ -210,12 +209,6 @@ public class noteTypeMng {
     }
 
     public void writeToFile () {
-        File file = Environment.getExternalStorageDirectory();
-        String strPath = file.getPath() + "/bangNote/setting/";
-        file = new File (strPath);
-        if (!file.exists())
-            file.mkdir();
-
         try {
             FileOutputStream fos = new FileOutputStream (m_strFile);
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
@@ -232,7 +225,4 @@ public class noteTypeMng {
         }
 
     }
-
-
-
 }

@@ -27,11 +27,15 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.TextView;
+import android.widget.RadioGroup;
 
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.zip.*;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class noteListActivity extends AppCompatActivity
                               implements noteListSlider.switchListener,
@@ -173,6 +177,13 @@ public class noteListActivity extends AppCompatActivity
                 selectAllItems (true);
             } else if (strCommand.compareTo("清除选择") == 0) {
                 selectAllItems (false);
+            } else if (strCommand.compareTo("备份笔记") == 0) {
+                if (backupNote () > 0)
+                    showMsgDlg ("备份笔记成功", null);
+                else
+                    showMsgDlg ("备份笔记失败", null);
+            } else if (strCommand.compareTo("恢复备份") == 0) {
+                restoreNoteDialog ();
             } else if (strCommand.compareTo("笔记设置") == 0) {
 
             } else if (strCommand.compareTo("退出笔记") == 0) {
@@ -295,6 +306,8 @@ public class noteListActivity extends AppCompatActivity
         addRightCommand (listItem, "清除垃圾", R.drawable.lajitong);
         addRightCommand (listItem, "全部选中", R.drawable.notetype_selall);
         addRightCommand (listItem, "清除选择", R.drawable.notetype_selnone);
+        addRightCommand (listItem, "备份笔记", R.drawable.note_backup);
+        addRightCommand (listItem, "恢复备份", R.drawable.note_restore);
         addRightCommand (listItem, "笔记设置", R.drawable.note_setting);
         addRightCommand (listItem, "退出笔记", R.drawable.note_exit);
 
@@ -371,22 +384,21 @@ public class noteListActivity extends AppCompatActivity
     private void addNoteTypeDialog() {
         final View noteTypeView = LayoutInflater.from(noteListActivity.this)
                 .inflate(R.layout.note_type_input,null);
-        AlertDialog.Builder dlgNoteType =
-                new AlertDialog.Builder(noteListActivity.this){
-                    public AlertDialog create() {
-                        return super.create();
-                    }
-                    public AlertDialog show() {
-                        RadioButton rbnNormal = (RadioButton)noteTypeView.findViewById(R.id.noteTypeNormal);
-                        rbnNormal.setChecked(true);
-                        RadioButton rbnSecurity = (RadioButton)noteTypeView.findViewById(R.id.noteTypeSecurity);
-                        rbnSecurity.setChecked(false);
-                        if (noteConfig.m_nShowSecurity == 0) {
-                            noteTypeView.findViewById(R.id.laySecurity).setVisibility(View.INVISIBLE);
-                        }
-                        return super.show();
-                    }
-                };
+        AlertDialog.Builder dlgNoteType = new AlertDialog.Builder(noteListActivity.this){
+            public AlertDialog create() {
+                RadioButton rbnNormal = (RadioButton)noteTypeView.findViewById(R.id.noteTypeNormal);
+                rbnNormal.setChecked(true);
+                RadioButton rbnSecurity = (RadioButton)noteTypeView.findViewById(R.id.noteTypeSecurity);
+                rbnSecurity.setChecked(false);
+                if (noteConfig.m_nShowSecurity == 0) {
+                    noteTypeView.findViewById(R.id.laySecurity).setVisibility(View.INVISIBLE);
+                }
+                return super.create();
+            }
+            public AlertDialog show() {
+                return super.show();
+            }
+        };
 
         dlgNoteType.setIcon(R.drawable.notetype_aa);
         dlgNoteType.setTitle("输入笔记类型名称：");
@@ -426,9 +438,6 @@ public class noteListActivity extends AppCompatActivity
         AlertDialog.Builder dlgNoteTDel =
                 new AlertDialog.Builder(noteListActivity.this){
                     public AlertDialog create() {
-                        return super.create();
-                    }
-                    public AlertDialog show() {
                         LinearLayout layItems = (LinearLayout)noteDelView.findViewById(R.id.layItems);
                         noteTypeMng.noteTypeItem    itemType = null;
                         int                         nCount = noteConfig.m_noteTypeMng.getCount();
@@ -454,6 +463,9 @@ public class noteListActivity extends AppCompatActivity
                                 }
                             }
                         }
+                        return super.create();
+                    }
+                    public AlertDialog show() {
                         return super.show();
                     }
                 };
@@ -491,9 +503,6 @@ public class noteListActivity extends AppCompatActivity
         AlertDialog.Builder dlgNoteTDel =
                 new AlertDialog.Builder(noteListActivity.this){
                     public AlertDialog create() {
-                        return super.create();
-                    }
-                    public AlertDialog show() {
                         m_lstRubbish.clear();
                         LinearLayout layItems = (LinearLayout)noteDelView.findViewById(R.id.layItems);
                         dataNoteItem itemData = null;
@@ -517,6 +526,9 @@ public class noteListActivity extends AppCompatActivity
                             tvText.setText("没有垃圾笔记！");
                             layItems.addView(tvText);
                         }
+                        return super.create();
+                    }
+                    public AlertDialog show() {
                         return super.show();
                     }
                 };
@@ -527,6 +539,26 @@ public class noteListActivity extends AppCompatActivity
         dlgNoteTDel.setNeutralButton("取消", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 m_sldList.scrollToPage (1);
+            }
+        });
+        dlgNoteTDel.setNegativeButton("全部删除", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                int             nCount = m_lstRubbish.size();
+                for (int i = 0; i < nCount; i++) {
+                    dataNoteItem dataItem = m_lstRubbish.get(i);
+                    for (int j = 0; j < dataItem.m_lstItem.size(); j++) {
+                        dataNoteItem.dataContent dataContent = dataItem.m_lstItem.get(j);
+                        if (dataContent.m_nType == dataNoteItem.m_nItemTypePict) {
+                            File filePic = new File (dataContent.m_strItem);
+                            filePic.delete();
+                        }
+                    }
+                    File fileDel = new File (dataItem.m_strFile);
+                    fileDel.delete();
+                }
+                m_sldList.scrollToPage (1);
+                if (nCount > 0)
+                    updateList();
             }
         });
         dlgNoteTDel.setPositiveButton("确定", new DialogInterface.OnClickListener() {
@@ -607,19 +639,18 @@ public class noteListActivity extends AppCompatActivity
     private void movNoteTypeDialog() {
         final View noteMovView = LayoutInflater.from(noteListActivity.this)
                 .inflate(R.layout.note_type_move,null);
-        AlertDialog.Builder dlgNoteTDel =
-                new AlertDialog.Builder(noteListActivity.this){
-                    public AlertDialog create() {
-                        return super.create();
-                    }
-                    public AlertDialog show() {
-                        Spinner spnType = (Spinner)noteMovView.findViewById(R.id.spinNoteType);
-                        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                                noteListActivity.this, R.layout.spn_note_type, noteConfig.m_noteTypeMng.getListName());
-                        spnType.setAdapter(adapter);
-                        return super.show();
-                    }
-                };
+        AlertDialog.Builder dlgNoteTDel = new AlertDialog.Builder(noteListActivity.this){
+            public AlertDialog create() {
+                Spinner spnType = (Spinner)noteMovView.findViewById(R.id.spinNoteType);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                        noteListActivity.this, R.layout.spn_note_type, noteConfig.m_noteTypeMng.getListName());
+                spnType.setAdapter(adapter);
+                return super.create();
+            }
+            public AlertDialog show() {
+                return super.show();
+            }
+        };
 
         dlgNoteTDel.setIcon(R.drawable.notetype_del);
         dlgNoteTDel.setTitle("把选中笔记移到新的类型");
@@ -648,6 +679,184 @@ public class noteListActivity extends AppCompatActivity
             }
         });
         dlgNoteTDel.show();
+    }
+
+    private void restoreNoteDialog() {
+        final View noteRestoreView = LayoutInflater.from(noteListActivity.this).inflate(R.layout.note_restore_dlg,null);
+        AlertDialog.Builder dlgNoteType = new AlertDialog.Builder(noteListActivity.this){
+            public AlertDialog create() {
+                RadioGroup rdgGroup = (RadioGroup)noteRestoreView.findViewById(R.id.rdgFiles);
+                File fPath = new File(noteConfig.m_strBackPath);
+                File[] fList = fPath.listFiles();
+                if (fList != null) {
+                    for (int i = 0; i < fList.length; i++) {
+                        File file = fList[i];
+                        if (file.isHidden())
+                            continue;
+                        if (file.isDirectory())
+                            continue;
+                        RadioButton rdbFile = new RadioButton(noteListActivity.this);
+                        rdbFile.setText(file.getName());
+                        rdbFile.setTextSize(20);
+                        rdgGroup.addView(rdbFile);
+                    }
+                }
+                return super.create();
+            }
+            public AlertDialog show() {
+                return super.show();
+            }
+        };
+
+        dlgNoteType.setIcon(R.drawable.notetype_aa);
+        dlgNoteType.setTitle("恢复备份笔记：");
+        dlgNoteType.setView(noteRestoreView);
+        dlgNoteType.setNeutralButton("取消",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        m_sldList.scrollToPage (1);
+                    }
+                });
+        dlgNoteType.setNegativeButton("删除",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        RadioGroup rdgGroup = (RadioGroup)noteRestoreView.findViewById(R.id.rdgFiles);
+                        int nCount = rdgGroup.getChildCount();
+                        RadioButton rdbFile = null;
+                        for (int i = 0; i < nCount; i++) {
+                            rdbFile = (RadioButton)rdgGroup.getChildAt(i);
+                            if (rdbFile.isChecked()) {
+                                String strZipFile = noteConfig.m_strBackPath + rdbFile.getText().toString();
+                                File fileDel = new File(strZipFile);
+                                fileDel.delete();
+                                showMsgDlg ("删除备份文件成功", null);
+                                break;
+                            }
+                        }
+                        m_sldList.scrollToPage (1);
+                    }
+                });
+        dlgNoteType.setPositiveButton("确定",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        RadioGroup rdgGroup = (RadioGroup)noteRestoreView.findViewById(R.id.rdgFiles);
+                        int nCount = rdgGroup.getChildCount();
+                        RadioButton rdbFile = null;
+                        for (int i = 0; i < nCount; i++) {
+                            rdbFile = (RadioButton)rdgGroup.getChildAt(i);
+                            if (rdbFile.isChecked()) {
+                                String strZipFile = noteConfig.m_strBackPath + rdbFile.getText().toString();
+                                UnZipFolder(strZipFile, noteConfig.m_strRootPath);
+                                showMsgDlg ("恢复笔记成功", null);
+                                break;
+                            }
+                        }
+                        noteConfig.m_noteTypeMng.readFromFile();
+                        fillLeftList(false);
+                        updateList();
+                        m_sldList.scrollToPage (1);
+                    }
+                });
+        dlgNoteType.show();
+    }
+
+    private int backupNote () {
+        String strZipFile = noteConfig.getNoteZipFile();
+        try {
+            ZipOutputStream outZip = new ZipOutputStream(new FileOutputStream(strZipFile));
+            //创建文件
+            File file = new File(noteConfig.m_strNotePath);
+            //压缩
+            if (ZipFiles(file.getParent() + File.separator, file.getName(), outZip) < 0) {
+                return -1;
+            }
+            //完成和关闭
+            outZip.finish();
+            outZip.close();
+        }catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+        return 1;
+    }
+
+    private int ZipFiles(String folderString, String fileString, ZipOutputStream zipOutputSteam)throws Exception{
+        if(zipOutputSteam == null)
+            return -1;
+        File file = new File(folderString+fileString);
+        if (file.isFile()) {
+            ZipEntry zipEntry =  new ZipEntry(fileString);
+            FileInputStream inputStream = new FileInputStream(file);
+            zipOutputSteam.putNextEntry(zipEntry);
+            int len;
+            byte[] buffer = new byte[4096];
+            while((len=inputStream.read(buffer)) != -1) {
+                zipOutputSteam.write(buffer, 0, len);
+            }
+            zipOutputSteam.closeEntry();
+        } else {
+            //文件夹
+            String fileList[] = file.list();
+            //没有子文件和压缩
+            if (fileList.length <= 0) {
+                ZipEntry zipEntry =  new ZipEntry(fileString+File.separator);
+                zipOutputSteam.putNextEntry(zipEntry);
+                zipOutputSteam.closeEntry();
+            }
+            //子文件和递归
+            for (int i = 0; i < fileList.length; i++) {
+                ZipFiles(folderString, fileString+ File.separator+fileList[i], zipOutputSteam);
+            }
+        }
+        return 1;
+    }
+
+    public void UnZipFolder(String zipFileString, String outPathString) {
+        try {
+            ZipInputStream inZip = new ZipInputStream(new FileInputStream(zipFileString));
+            ZipEntry zipEntry;
+            String szName = "";
+            while ((zipEntry = inZip.getNextEntry()) != null) {
+                szName = zipEntry.getName();
+                if (zipEntry.isDirectory()) {
+                    //获取部件的文件夹名
+                    szName = szName.substring(0, szName.length() - 1);
+                    File folder = new File(outPathString + File.separator + szName);
+                    folder.mkdirs();
+                } else {
+                    File file = new File(outPathString + File.separator + szName);
+                    if (!file.exists()) {
+                        file.getParentFile().mkdirs();
+                        file.createNewFile();
+                    }
+                    // 获取文件的输出流
+                    FileOutputStream out = new FileOutputStream(file);
+                    int len;
+                    byte[] buffer = new byte[1024];
+                    // 读取（字节）字节到缓冲区
+                    while ((len = inZip.read(buffer)) != -1) {
+                        // 从缓冲区（0）位置写入（字节）字节
+                        out.write(buffer, 0, len);
+                        out.flush();
+                    }
+                    out.close();
+                }
+            }
+            inZip.close();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showMsgDlg(String strTitle, String strMsg){
+        final AlertDialog.Builder msgDialog = new AlertDialog.Builder(noteListActivity.this);
+        msgDialog.setIcon(R.drawable.app_menu_icon);
+        if (strTitle != null)
+            msgDialog.setTitle(strTitle);
+        if (strMsg != null)
+            msgDialog.setMessage(strMsg);
+        msgDialog.setPositiveButton("确定", null);
+        msgDialog.show();
     }
 
     public void CheckWritePermission () {

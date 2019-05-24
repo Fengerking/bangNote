@@ -62,7 +62,7 @@ public class noteImageView extends ImageView {
     }
 
     public int setImageFile (String strFile) {
-        int nFind = strFile.indexOf(noteConfig.m_strNotePictPath);
+        int nFind = strFile.indexOf(noteConfig.m_strNotePath);
         if (nFind >= 0) {
             m_strFileName = strFile;
         } else {
