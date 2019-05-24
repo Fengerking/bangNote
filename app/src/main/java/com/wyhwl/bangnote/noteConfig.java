@@ -18,11 +18,15 @@ public class noteConfig {
     public static boolean       m_bNoteModified = false;
     public static int           m_nNoteID = 10;
     public static int           m_nImagID = 10001;
+    public static int           m_nAudoID = 20001;
+    public static int           m_nVidoID = 30001;
     public static int           m_nImagIdStart = 10000;
 
     public static int           m_nTextColor = 0XFF000000;
     public static int           m_nTextSize = 24;
     public static int           m_nImageHeight = 300;
+    public static int           m_nAudioHeight = 300;
+    public static int           m_nVideoHeight = 300;
 
     public static String        m_strRootPath = null;
     public static String        m_strNotePath = null;
@@ -42,6 +46,8 @@ public class noteConfig {
     public static String        m_strTagNoteType    = "[noteType]";
     public static String        m_strTagNoteText    = "[noteText]";
     public static String        m_strTagNotePict    = "[notePict]";
+    public static String        m_strTagNoteAudo    = "[noteAudo]";
+    public static String        m_strTagNoteVido    = "[noteVido]";
 
     public static void initConfig(Context context) {
         File file = Environment.getExternalStorageDirectory();
@@ -86,6 +92,13 @@ public class noteConfig {
         Date dateNow = new Date(System.currentTimeMillis());
         SimpleDateFormat fmtDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         m_strNoteFile = m_strBackPath + "bck_" + fmtDate.format(dateNow) + ".bnz";
+        return m_strNoteFile;
+    }
+
+    public static String    getNoteAudioFile () {
+        Date dateNow = new Date(System.currentTimeMillis());
+        SimpleDateFormat fmtDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        m_strNoteFile = m_strBackPath + "bck_" + fmtDate.format(dateNow) + ".bna";
         return m_strNoteFile;
     }
 }
