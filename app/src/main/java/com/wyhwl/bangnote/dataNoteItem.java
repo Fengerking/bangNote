@@ -14,11 +14,6 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class dataNoteItem {
-    public static int           m_nItemTypeText = 0;
-    public static int           m_nItemTypePict = 1;
-    public static int           m_nItemTypeAudo = 2;
-    public static int           m_nItemTypeVido = 3;
-
     public String               m_strFile = "";
     public String               m_strTitle = "";
     public String               m_strDate = "";
@@ -108,7 +103,7 @@ public class dataNoteItem {
                     strContent += strLine;
                 }
                 dataContent content = new dataContent();
-                content.m_nType = m_nItemTypeText;
+                content.m_nType = noteConfig.m_nItemTypeText;
                 content.m_strItem = strContent;
                 m_lstItem.add(content);
 
@@ -116,21 +111,21 @@ public class dataNoteItem {
                     parseLineText(strLine, br);
             } else if (strLine.compareTo(noteConfig.m_strTagNotePict) == 0) {
                 dataContent content = new dataContent();
-                content.m_nType = m_nItemTypePict;
+                content.m_nType = noteConfig.m_nItemTypePict;
                 content.m_strItem = br.readLine();
                 if (m_strImgFile == null)
                     m_strImgFile = content.m_strItem;
                 m_lstItem.add(content);
             } else if (strLine.compareTo(noteConfig.m_strTagNoteAudo) == 0) {
                 dataContent content = new dataContent();
-                content.m_nType = m_nItemTypeAudo;
+                content.m_nType = noteConfig.m_nItemTypeAudo;
                 content.m_strItem = br.readLine();
                 if (m_strAudFile == null)
                     m_strAudFile = content.m_strItem;
                 m_lstItem.add(content);
             } else if (strLine.compareTo(noteConfig.m_strTagNoteVido) == 0) {
                 dataContent content = new dataContent();
-                content.m_nType = m_nItemTypeVido;
+                content.m_nType = noteConfig.m_nItemTypeVido;
                 content.m_strItem = br.readLine();
                 if (m_strVidFile == null)
                     m_strVidFile = content.m_strItem;
@@ -160,16 +155,16 @@ public class dataNoteItem {
             int nCount = m_lstItem.size();
             for (int i = 0; i < nCount; i++) {
                 itemData = m_lstItem.get(i);
-                if (itemData.m_nType == m_nItemTypeText) {
+                if (itemData.m_nType == noteConfig.m_nItemTypeText) {
                     bw.write((noteConfig.m_strTagNoteText +"\n").toCharArray());
                     bw.write((itemData.m_strItem +"\n").toCharArray());
-                } else if (itemData.m_nType == m_nItemTypePict) {
+                } else if (itemData.m_nType == noteConfig.m_nItemTypePict) {
                     bw.write((noteConfig.m_strTagNotePict +"\n").toCharArray());
                     bw.write((itemData.m_strItem +"\n").toCharArray());
-                } else if (itemData.m_nType == m_nItemTypeAudo) {
+                } else if (itemData.m_nType == noteConfig.m_nItemTypeAudo) {
                     bw.write((noteConfig.m_strTagNoteAudo +"\n").toCharArray());
                     bw.write((itemData.m_strItem +"\n").toCharArray());
-                } else if (itemData.m_nType == m_nItemTypeVido) {
+                } else if (itemData.m_nType == noteConfig.m_nItemTypeVido) {
                     bw.write((noteConfig.m_strTagNoteVido +"\n").toCharArray());
                     bw.write((itemData.m_strItem +"\n").toCharArray());
                 }

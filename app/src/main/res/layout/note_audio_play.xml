@@ -3,15 +3,64 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimary">
 
     <ImageButton
         android:id="@+id/btnAudioPlay"
         android:layout_width="72dp"
         android:layout_height="72dp"
-        android:layout_marginLeft="16dp"
+        android:layout_marginLeft="4dp"
         android:layout_gravity="center_vertical"
         android:background="@drawable/note_audio_play"/>
+
+    <ImageButton
+        android:id="@+id/btnAudioPause"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_marginLeft="4dp"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/note_audio_pause"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/txtDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="4dp"
+            android:textSize="16dp"
+            android:textColor="@color/colorWhite"
+            android:text="2019-05-24"/>
+
+        <TextView
+            android:id="@+id/txtDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="18dp"
+            android:layout_marginRight="8dp"
+            android:layout_alignParentRight="true"
+            android:textSize="16dp"
+            android:textColor="@color/colorWhite"
+            android:text="10 / 20"/>
+
+        <SeekBar
+            android:id="@+id/sbPos"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_alignParentBottom="true"
+            android:maxHeight="4dp"
+            android:minHeight="4dp"
+            android:max="100"
+            android:paddingBottom="8dp"
+            android:paddingTop="4dp"
+            android:progress="0"
+            android:progressDrawable="@layout/seekbar_prog" />
+    </RelativeLayout>
 
 
 </LinearLayout>

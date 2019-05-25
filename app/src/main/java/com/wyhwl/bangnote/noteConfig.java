@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
+import android.view.View;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -15,12 +16,16 @@ import java.util.Date;
 import java.util.List;
 
 public class noteConfig {
+    public static int           m_nItemTypeText = 0;
+    public static int           m_nItemTypePict = 1;
+    public static int           m_nItemTypeAudo = 2;
+    public static int           m_nItemTypeVido = 3;
+
     public static boolean       m_bNoteModified = false;
     public static int           m_nNoteID = 10;
     public static int           m_nImagID = 10001;
     public static int           m_nAudoID = 20001;
     public static int           m_nVidoID = 30001;
-    public static int           m_nImagIdStart = 10000;
 
     public static int           m_nTextColor = 0XFF000000;
     public static int           m_nTextSize = 24;
@@ -69,9 +74,40 @@ public class noteConfig {
     public static int       getNoteEditID () {
         return m_nNoteID++;
     }
-
     public static int       getImagViewID () {
         return m_nImagID++;
+    }
+    public static int       getAudoViewID () {
+        return m_nAudoID++;
+    }
+    public static int       getVidoViewID () {
+        return m_nVidoID++;
+    }
+
+    public static int       getNoteviewType (View vwNote) {
+        int nID = vwNote.getId();
+        if (nID < 10000)
+            return m_nItemTypeText;
+        else if (nID < 20000)
+            return m_nItemTypePict;
+        else if (nID < 30000)
+            return m_nItemTypeAudo;
+        else if (nID < 40000)
+            return m_nItemTypeVido;
+        else
+            return -1;
+    }
+    public static int       getNoteviewType (int nID) {
+        if (nID < 10000)
+            return m_nItemTypeText;
+        else if (nID < 20000)
+            return m_nItemTypePict;
+        else if (nID < 30000)
+            return m_nItemTypeAudo;
+        else if (nID < 40000)
+            return m_nItemTypeVido;
+        else
+            return -1;
     }
 
     public static String    getNoteTextFile () {
@@ -98,7 +134,7 @@ public class noteConfig {
     public static String    getNoteAudioFile () {
         Date dateNow = new Date(System.currentTimeMillis());
         SimpleDateFormat fmtDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        m_strNoteFile = m_strBackPath + "bck_" + fmtDate.format(dateNow) + ".bna";
+        m_strNoteFile = m_strNotePath + "aud_" + fmtDate.format(dateNow) + ".bna";
         return m_strNoteFile;
     }
 }

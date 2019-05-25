@@ -551,7 +551,8 @@ public class noteListActivity extends AppCompatActivity
                     dataNoteItem dataItem = m_lstRubbish.get(i);
                     for (int j = 0; j < dataItem.m_lstItem.size(); j++) {
                         dataNoteItem.dataContent dataContent = dataItem.m_lstItem.get(j);
-                        if (dataContent.m_nType == dataNoteItem.m_nItemTypePict) {
+                        if (dataContent.m_nType == noteConfig.m_nItemTypePict ||
+                                dataContent.m_nType == noteConfig.m_nItemTypeAudo) {
                             File filePic = new File (dataContent.m_strItem);
                             filePic.delete();
                         }
@@ -575,7 +576,8 @@ public class noteListActivity extends AppCompatActivity
                         dataNoteItem dataItem = m_lstRubbish.get(i);
                         for (int j = 0; j < dataItem.m_lstItem.size(); j++) {
                             dataNoteItem.dataContent dataContent = dataItem.m_lstItem.get(j);
-                            if (dataContent.m_nType == dataNoteItem.m_nItemTypePict) {
+                            if (dataContent.m_nType == noteConfig.m_nItemTypePict ||
+                                    dataContent.m_nType == noteConfig.m_nItemTypeAudo) {
                                 File filePic = new File (dataContent.m_strItem);
                                 filePic.delete();
                             }

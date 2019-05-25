@@ -119,7 +119,7 @@ public class noteViewActivity extends AppCompatActivity
                 dataNoteItem.dataContent dataItem = null;
                 for (int i = 0; i < m_dataItem.m_lstItem.size(); i++) {
                     dataItem = m_dataItem.m_lstItem.get(i);
-                    if (dataItem.m_nType == dataNoteItem.m_nItemTypeText) {
+                    if (dataItem.m_nType == noteConfig.m_nItemTypeText) {
                         strShareText += dataItem.m_strItem;
                     }
                 }
@@ -173,7 +173,7 @@ public class noteViewActivity extends AppCompatActivity
             case MotionEvent.ACTION_UP:
                 if (Math.abs(m_nLastYPos - y) > 20)
                     m_noteImage = null;
-                if (Math.abs(m_nLastYPos - y) < 200) {
+                if (Math.abs(m_nLastYPos - y) < 300) {
                     mVelocityTracker.computeCurrentVelocity(1000);
                     int initVelocity = (int) mVelocityTracker.getXVelocity() / 2;
                     setTitle("Move " + initVelocity);
@@ -254,18 +254,22 @@ public class noteViewActivity extends AppCompatActivity
             m_layView.addView(txtView);
 
             dataItem = m_dataItem.m_lstItem.get(i);
-            if (dataItem.m_nType == dataNoteItem.m_nItemTypeText) {
+            if (dataItem.m_nType == noteConfig.m_nItemTypeText) {
                 txtView = new TextView(this);
                 m_layView.addView(txtView);
                 txtView.setText(dataItem.m_strItem);
                 txtView.setTextSize(noteConfig.m_nTextSize);
                 txtView.setTextColor(noteConfig.m_nTextColor);
                 m_nWordCount += dataItem.m_strItem.length();
-            } else {
+            } else if (dataItem.m_nType == noteConfig.m_nItemTypePict) {
                 noteImageShow imgView = new noteImageShow(this);
                 m_layView.addView(imgView);
                 imgView.setImageFile (dataItem.m_strItem, false);
                 imgView.setNoteImageShowListener(this);
+            } else if (dataItem.m_nType == noteConfig.m_nItemTypeAudo) {
+                noteAudioPlayView audView = new noteAudioPlayView(this);
+                m_layView.addView(audView);
+                audView.setAudioFile(dataItem.m_strItem);
             }
         }
 

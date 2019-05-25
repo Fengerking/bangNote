@@ -135,15 +135,20 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     private View addNoteView (View vwAfter, int nType) {
-        View vwNew;
-        if (nType == 0) {
+        View vwNew = null;
+        if (nType == noteConfig.m_nItemTypeText) {
             noteEditText noteEdit = new noteEditText(this);
             noteEdit.setOnNoteEditListener(this);
             vwNew = noteEdit;
-        } else {
+        } else if (nType == noteConfig.m_nItemTypePict){
             noteImageView noteImage = new noteImageView(this);
             noteImage.setNoteImageListener(this);
             vwNew = noteImage;
+        } else if (nType == noteConfig.m_nItemTypeAudo){
+            noteAudioEditView noteAudio = new noteAudioEditView(this);
+            vwNew = noteAudio;
+        } else {
+            return null;
         }
         if (vwAfter == null) {
             m_layView.addView(vwNew);
@@ -159,10 +164,10 @@ public class noteEditActivity extends AppCompatActivity
         return vwNew;
     }
 
-    private void addImageView (String strImage) {
+    private void addMediaView (String strFile, int nType) {
         View  vwAfter = null;
         // the focus view is edittext?
-        if (m_nFocusID >= 10 && m_nFocusID < noteConfig.m_nImagIdStart) {
+        if (noteConfig.getNoteviewType(m_nFocusID) != noteConfig.m_nItemTypeText) {
             View vwFocus = null, vwPrev = null;
             int nCount = m_layView.getChildCount();
             for (int i = 2; i < nCount; i++) {
@@ -176,10 +181,10 @@ public class noteEditActivity extends AppCompatActivity
                         String strNext = strText.substring(nEnd);
                         edtView.setText(strPrev);
                         vwAfter = edtView;
-                        noteEditText noteView = (noteEditText) addNoteView(vwAfter, 0);
+                        noteEditText noteView = (noteEditText) addNoteView(vwAfter, noteConfig.m_nItemTypeText);
                         noteView.setText(strNext);
                     } else if (strText.length() == 0) {
-                        if (vwPrev != null && vwPrev.getId() < noteConfig.m_nImagIdStart ) {
+                        if (vwPrev != null && noteConfig.getNoteviewType(vwPrev) == noteConfig.m_nItemTypeText ) {
                             m_layView.removeView(vwFocus);
                             vwAfter = vwPrev;
                         } else {
@@ -192,20 +197,26 @@ public class noteEditActivity extends AppCompatActivity
             }
         }
 
-        noteImageView imgView = (noteImageView) addNoteView (vwAfter, 1);
-        imgView.setImageFile (strImage);
+        View vwLast = null;
+        if (nType == noteConfig.m_nItemTypePict) {
+            noteImageView imgView = (noteImageView) addNoteView(vwAfter, noteConfig.m_nItemTypePict);
+            imgView.setImageFile(strFile);
+            vwLast = imgView;
+        } else if (nType == noteConfig.m_nItemTypeAudo) {
+            noteAudioEditView audView = (noteAudioEditView) addNoteView(vwAfter, noteConfig.m_nItemTypeAudo);
+            vwLast = audView;
+        }
 
-        View vwImage = (View)imgView;
         int nCount = m_layView.getChildCount();
-        if (m_layView.getChildAt(nCount - 1) == vwImage) {
-            addNoteView(null, 0);
+        if (m_layView.getChildAt(nCount - 1) == vwLast) {
+            addNoteView(null, noteConfig.m_nItemTypeText);
         } else {
             View vwNext = null;
             for (int i = 2; i < nCount; i++) {
-                if (m_layView.getChildAt(i) == vwImage) {
+                if (m_layView.getChildAt(i) == vwLast) {
                     vwNext = m_layView.getChildAt(i+1);
-                    if (vwNext.getId() >= noteConfig.m_nImagIdStart) {
-                        addNoteView(vwImage, 0);
+                    if (noteConfig.getNoteviewType(vwNext) != noteConfig.m_nItemTypeText) {
+                        addNoteView(vwLast, noteConfig.m_nItemTypeText);
                     }
                     break;
                 }
@@ -215,7 +226,7 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     private void deleteImageView () {
-        if (m_nFocusID < noteConfig.m_nImagIdStart)
+        if (noteConfig.getNoteviewType(m_nFocusID) == noteConfig.m_nItemTypeText)
             return;
         View    vwPrev = null;
         View    vwItem = null;
@@ -232,7 +243,8 @@ public class noteEditActivity extends AppCompatActivity
         }
 
         if (vwPrev != null && vwNext != null) {
-            if (vwPrev.getId() < noteConfig.m_nImagIdStart && vwNext.getId() < noteConfig.m_nImagIdStart) {
+            if (noteConfig.getNoteviewType(vwPrev) == noteConfig.m_nItemTypeText &&
+                    noteConfig.getNoteviewType(vwNext) == noteConfig.m_nItemTypeText) {
                 String strPrev = ((noteEditText)vwPrev).getText ().toString();
                 String strNext = ((noteEditText)vwNext).getText ().toString();
                 strPrev = strPrev + strNext;
@@ -297,10 +309,12 @@ public class noteEditActivity extends AppCompatActivity
 
             case R.id.imbDelPic:
                 deleteImageView ();
+                noteConfig.m_bNoteModified = true;
                 break;
 
             case R.id.imbAudio:
-
+                addMediaView(null, noteConfig.m_nItemTypeAudo);
+                noteConfig.m_bNoteModified = true;
                 break;
 
             case R.id.imbSaveNote:
@@ -319,7 +333,7 @@ public class noteEditActivity extends AppCompatActivity
                     View vwItem = null;
                     for (int i = 2; i < m_layView.getChildCount(); i++) {
                         vwItem = m_layView.getChildAt(i);
-                        if (vwItem.getId() > noteConfig.m_nImagIdStart) {
+                        if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypePict) {
                             ((noteImageView) vwItem).setSelected(false);
                         }
                     }
@@ -364,7 +378,7 @@ public class noteEditActivity extends AppCompatActivity
         int nCount = m_layView.getChildCount();
         for (int i = 2; i < nCount; i++) {
             vwItem = m_layView.getChildAt(i);
-            if (vwItem.getId() >= noteConfig.m_nImagIdStart) {
+            if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypePict) {
                 if (vwItem.getId() == m_nFocusID)
                     ((noteImageView)vwItem).setSelected(true);
                 else
@@ -398,7 +412,7 @@ public class noteEditActivity extends AppCompatActivity
             File file = new File(m_strImageFile);
             if (!file.exists())
                 return;
-            addImageView(m_strImageFile);
+            addMediaView(m_strImageFile, noteConfig.m_nItemTypePict);
             noteConfig.m_bNoteModified = true;
             return;
         }
@@ -427,7 +441,7 @@ public class noteEditActivity extends AppCompatActivity
             imagePath = uri.getPath();
         }
 
-        addImageView(imagePath);
+        addMediaView(imagePath, noteConfig.m_nItemTypePict);
         noteConfig.m_bNoteModified = true;
     }
 
@@ -480,27 +494,33 @@ public class noteEditActivity extends AppCompatActivity
         dataNoteItem.dataContent dataItem = null;
         for (int i = 0; i < m_dataItem.m_lstItem.size(); i++) {
             dataItem = m_dataItem.m_lstItem.get(i);
-            if (dataItem.m_nType == dataNoteItem.m_nItemTypeText) {
-                noteEditText noteEdit = (noteEditText)addNoteView(null, 0);
+            if (dataItem.m_nType == noteConfig.m_nItemTypeText) {
+                noteEditText noteEdit = (noteEditText)addNoteView(null, noteConfig.m_nItemTypeText);
                 noteEdit.setText(dataItem.m_strItem);
             } else {
                 if (m_layView.getChildCount() <= 2)
-                    addNoteView(null, 0);
+                    addNoteView(null, noteConfig.m_nItemTypeText);
                 else {
                     View vwLast = m_layView.getChildAt(m_layView.getChildCount() - 1);
-                    if (vwLast.getId() >= noteConfig.m_nImagIdStart)
-                        addNoteView(null, 0);
+                    if (noteConfig.getNoteviewType(vwLast) != noteConfig.m_nItemTypeText)
+                        addNoteView(null, noteConfig.m_nItemTypeText);
                 }
-                noteImageView noteImage = (noteImageView)addNoteView(null, 1);
-                noteImage.setImageFile(dataItem.m_strItem);
+
+                if (dataItem.m_nType == noteConfig.m_nItemTypePict) {
+                    noteImageView noteImage = (noteImageView)addNoteView(null, noteConfig.m_nItemTypePict);
+                    noteImage.setImageFile(dataItem.m_strItem);
+                } if (dataItem.m_nType == noteConfig.m_nItemTypeAudo) {
+                    noteAudioEditView noteAudio = (noteAudioEditView)addNoteView(null, noteConfig.m_nItemTypeAudo);
+                    noteAudio.setAudioFile(dataItem.m_strItem);
+                }
             }
         }
         if (m_layView.getChildCount() <= 2)
-            addNoteView(null, 0);
+            addNoteView(null, noteConfig.m_nItemTypeText);
         else {
             View vwLast = m_layView.getChildAt(m_layView.getChildCount() - 1);
-            if (vwLast.getId() >= noteConfig.m_nImagIdStart)
-                addNoteView(null, 0);
+            if (noteConfig.getNoteviewType(vwLast) != noteConfig.m_nItemTypeText)
+                addNoteView(null, noteConfig.m_nItemTypeText);
         }
         m_bReadFromFile = false;
         m_layView.postDelayed(()->onResizeView(), 100);
@@ -519,7 +539,7 @@ public class noteEditActivity extends AppCompatActivity
             if (m_edtTitle.getText().toString().length() <= 0) {
                 for (int i = 2; i < nCount; i++) {
                     vwItem = m_layView.getChildAt(i);
-                    if (vwItem.getId() < noteConfig.m_nImagIdStart) {
+                    if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypeText) {
                         noteEditText noteText = (noteEditText)vwItem;
                         strText = noteText.getText().toString();
                         if (strText.length() > 0) {
@@ -550,7 +570,7 @@ public class noteEditActivity extends AppCompatActivity
 
             for (int i = 2; i < nCount; i++) {
                 vwItem = m_layView.getChildAt(i);
-                if (vwItem.getId() < noteConfig.m_nImagIdStart) {
+                if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypeText) {
                     noteEditText noteText = (noteEditText)vwItem;
                     strText = noteText.getText().toString();
                     if (strText.length() > 0) {
@@ -558,10 +578,20 @@ public class noteEditActivity extends AppCompatActivity
                         bw.write((strName + "\n").toCharArray());
                         bw.write((strText + "\n").toCharArray());
                     }
-                } else if (vwItem.getId() >= noteConfig.m_nImagIdStart) {
+                } else if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypePict) {
                     noteImageView noteImage = (noteImageView)vwItem;
                     strName = noteConfig.m_strTagNotePict; bw.write((strName+"\n").toCharArray());
                     strText = noteImage.getImageFileName(); bw.write((strText+"\n").toCharArray());
+                } else if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypeAudo) {
+                    noteAudioEditView noteAudio = (noteAudioEditView)vwItem;
+                    String strAudioFile = noteAudio.getAudioFile();
+                    if (strAudioFile != null) {
+                        File fileAudio = new File (strAudioFile);
+                        if (fileAudio.exists()) {
+                            strName = noteConfig.m_strTagNoteAudo; bw.write((strName+"\n").toCharArray());
+                            strText = strAudioFile; bw.write((strText+"\n").toCharArray());
+                        }
+                    }
                 }
             }
             bw.flush();
