@@ -5,7 +5,8 @@
     <color name="colorAccent">#D81B60</color>
     <!-- user define color -->
     <color name="colorView">#666666</color>
-    <color name="colorText">#000000</color>
+    <color name="colorText">#AAAAAA</color>
+    <color name="colorTitle">#CCCCCC</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
     <color name="colorBlueLight">#000088</color>

@@ -47,13 +47,23 @@
                 android:background="@drawable/note_count"/>
 
             <ImageButton
-                android:id="@+id/imbShareNote"
+                android:id="@+id/imbDeleteNote"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginTop="2dp"
                 android:layout_marginRight="12dp"
                 android:layout_marginBottom="2dp"
                 android:layout_toLeftOf="@+id/imbCount"
+                android:background="@drawable/lajitong"/>
+
+            <ImageButton
+                android:id="@+id/imbShareNote"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="2dp"
+                android:layout_toLeftOf="@+id/imbDeleteNote"
                 android:background="@drawable/note_share"/>
 
             <ImageButton
@@ -78,51 +88,61 @@
         android:background="@color/colorView"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/colorText"
-            android:gravity="center_horizontal"
-            android:textSize="24dp"/>
-
         <RelativeLayout
             android:id="@+id/layDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/textDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorText"
-                android:textSize="24dp"/>
-
-            <TextView
                 android:id="@+id/textTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorText"
-                android:layout_marginLeft="12dp"
-                android:textSize="24dp"
-                android:layout_toRightOf="@id/textDate"/>
+                android:textSize="20dp"/>
+
+            <TextView
+                android:id="@+id/textDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textTime"
+                android:textColor="@color/colorText"
+                android:textSize="20dp"/>
+
+            <TextView
+                android:id="@+id/textWeather"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:layout_alignParentRight="true"
+                android:textSize="20dp"
+                android:textColor="@color/colorText"/>
 
             <TextView
                 android:id="@+id/textType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/colorText"
-                android:layout_marginRight="12dp"
-                android:textSize="24dp"
-                android:layout_alignParentRight="true"/>
+                android:layout_marginRight="8dp"
+                android:layout_below="@id/textWeather"
+                android:layout_alignParentRight="true"
+                android:textSize="20dp"
+                android:textColor="@color/colorText"/>
 
             <View
                 android:id="@+id/noteView_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_below="@id/textDate"
+                android:layout_below="@id/textType"
                 android:background="@color/colorBlack" />
         </RelativeLayout>
+
+        <TextView
+            android:id="@+id/textTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:textColor="@color/colorTitle"
+            android:gravity="center_horizontal"
+            android:textSize="28dp"/>
 
 
     </LinearLayout>

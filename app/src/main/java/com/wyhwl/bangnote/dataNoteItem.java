@@ -19,6 +19,8 @@ public class dataNoteItem {
     public String               m_strDate = "";
     public String               m_strTime = "";
     public String               m_strType = "";
+    public String               m_strCity = "";
+    public String               m_strWeat = "";
 
     public String               m_strDateTime = "";
     public String               m_strFirstLine = "";
@@ -88,6 +90,10 @@ public class dataNoteItem {
                 m_strTime = br.readLine();
             } else if (strLine.compareTo(noteConfig.m_strTagNoteType) == 0) {
                 m_strType = br.readLine();
+            } else if (strLine.compareTo(noteConfig.m_strTagNoteCity) == 0) {
+                m_strCity = br.readLine();
+            } else if (strLine.compareTo(noteConfig.m_strTagNoteWeat) == 0) {
+                m_strWeat = br.readLine();
             } else if (strLine.compareTo(noteConfig.m_strTagNoteText) == 0) {
                 String strContent = "";
                 while ((strLine = br.readLine()) != null) {
@@ -148,6 +154,10 @@ public class dataNoteItem {
             bw.write((m_strDate +"\n").toCharArray());
             bw.write((noteConfig.m_strTagNoteTime +"\n").toCharArray());
             bw.write((m_strTime +"\n").toCharArray());
+            bw.write((noteConfig.m_strTagNoteCity +"\n").toCharArray());
+            bw.write((m_strCity +"\n").toCharArray());
+            bw.write((noteConfig.m_strTagNoteWeat +"\n").toCharArray());
+            bw.write((m_strWeat +"\n").toCharArray());
             bw.write((noteConfig.m_strTagNoteType +"\n").toCharArray());
             bw.write((m_strType +"\n").toCharArray());
 

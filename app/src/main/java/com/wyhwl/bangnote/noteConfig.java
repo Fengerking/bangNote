@@ -12,8 +12,11 @@ import android.view.View;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
+import java.util.Locale;
 
 public class noteConfig {
     public static int           m_nItemTypeText = 0;
@@ -27,7 +30,7 @@ public class noteConfig {
     public static int           m_nAudoID = 20001;
     public static int           m_nVidoID = 30001;
 
-    public static int           m_nTextColor = 0XFF000000;
+    public static int           m_nTextColor = 0XFFCCCCCC;
     public static int           m_nTextSize = 24;
     public static int           m_nImageHeight = 300;
     public static int           m_nAudioHeight = 300;
@@ -49,10 +52,17 @@ public class noteConfig {
     public static String        m_strTagNoteDate    = "[noteDate]";
     public static String        m_strTagNoteTime    = "[noteTime]";
     public static String        m_strTagNoteType    = "[noteType]";
+    public static String        m_strTagNoteCity    = "[noteCity]";
+    public static String        m_strTagNoteWeat    = "[noteWeat]";
     public static String        m_strTagNoteText    = "[noteText]";
     public static String        m_strTagNotePict    = "[notePict]";
     public static String        m_strTagNoteAudo    = "[noteAudo]";
     public static String        m_strTagNoteVido    = "[noteVido]";
+
+    public static String[]      m_lstWeekDays       = {"一", "二", "三", "四", "五", "六", "日"};
+
+    public static String        m_strCityName       = "未知";
+    public static String        m_strWeather        = "未知";
 
     public static void initConfig(Context context) {
         File file = Environment.getExternalStorageDirectory();
@@ -69,6 +79,8 @@ public class noteConfig {
         if (m_noteTypeMng == null) {
             m_noteTypeMng = new noteTypeMng();
         }
+
+        //baseSystemUtil.getCNBylocation(context);
     }
 
     public static int       getNoteEditID () {
@@ -136,5 +148,29 @@ public class noteConfig {
         SimpleDateFormat fmtDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         m_strNoteFile = m_strNotePath + "aud_" + fmtDate.format(dateNow) + ".bna";
         return m_strNoteFile;
+    }
+
+    public static Date parseServerTime(String serverTime, String format) {
+        if (format == null || format.isEmpty()) {
+            format = "yyyy-MM-dd HH:mm:ss";
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.CHINESE);
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
+        Date date = null;
+        try {
+            date = sdf.parse(serverTime);
+        } catch (Exception e) {
+        }
+        return date;
+    }
+
+    public static String getWeekDay (String serverTime) {
+        String strFormat = "yyyy-MM-dd";
+        Date date = parseServerTime (serverTime, strFormat);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        int dayIndex = calendar.get(Calendar.DAY_OF_WEEK);
+        String strWeekDay = "周" + m_lstWeekDays[dayIndex-1];
+        return strWeekDay;
     }
 }

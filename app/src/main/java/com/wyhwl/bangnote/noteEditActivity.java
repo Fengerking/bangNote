@@ -271,7 +271,7 @@ public class noteEditActivity extends AppCompatActivity
                 int nYear = dateNow.getYear() + 1900, nMonth = dateNow.getMonth() + 1, nDate = dateNow.getDate();
                 DatePickerDialog dlgDate = new DatePickerDialog(this, themeId, new DatePickerDialog.OnDateSetListener() {
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        String strDate = String.format("%d-%02d-%02d", year, month, dayOfMonth);
+                        String strDate = String.format("%d-%02d-%02d", year, month+1, dayOfMonth);
                         m_txtDate.setText(strDate);
                         noteConfig.m_bNoteModified = true;
                     }
@@ -476,6 +476,10 @@ public class noteEditActivity extends AppCompatActivity
     private void readFromFile () {
         m_bReadFromFile = true;
         m_dataItem = new dataNoteItem();
+        if (m_bNewNote) {
+            m_dataItem.m_strCity = noteConfig.m_strCityName;
+            m_dataItem.m_strWeat = noteConfig.m_strWeather;
+        }
         m_dataItem.readFromFile(m_strNoteFile);
         m_edtTitle.setText(m_dataItem.m_strTitle);
         m_txtDate.setText(m_dataItem.m_strDate);
@@ -564,6 +568,13 @@ public class noteEditActivity extends AppCompatActivity
 
             strName = noteConfig.m_strTagNoteTime; bw.write((strName+"\n").toCharArray());
             strText = m_txtTime.getText().toString(); bw.write((strText+"\n").toCharArray());
+
+            if (m_bNewNote) {
+                strName = noteConfig.m_strTagNoteCity; bw.write((strName+"\n").toCharArray());
+                strText = noteConfig.m_strCityName; bw.write((strText+"\n").toCharArray());
+                strName = noteConfig.m_strTagNoteWeat; bw.write((strName+"\n").toCharArray());
+                strText = noteConfig.m_strWeather; bw.write((strText+"\n").toCharArray());
+            }
 
             strName = noteConfig.m_strTagNoteType; bw.write((strName+"\n").toCharArray());
             strText = strNoteType; bw.write((strText+"\n").toCharArray());

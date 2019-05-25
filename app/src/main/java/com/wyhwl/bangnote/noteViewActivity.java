@@ -17,6 +17,9 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.Date;
+import java.util.Calendar;
+
 public class noteViewActivity extends AppCompatActivity
                             implements noteImageShow.noteImageShowListener,
                                         View.OnClickListener {
@@ -25,6 +28,7 @@ public class noteViewActivity extends AppCompatActivity
     private TextView        m_txtDate = null;
     private TextView        m_txtTime = null;
     private TextView        m_txtType = null;
+    private TextView        m_txtWeather = null;
     private LinearLayout    m_layView = null;
 
     private dataNoteItem    m_dataItem = null;
@@ -80,6 +84,7 @@ public class noteViewActivity extends AppCompatActivity
         ((ImageButton)findViewById(R.id.imbBack)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbEditNote)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbShareNote)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbDeleteNote)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbCount)).setOnClickListener(this);
 
         DisplayMetrics dm = this.getResources().getDisplayMetrics();
@@ -88,6 +93,7 @@ public class noteViewActivity extends AppCompatActivity
         m_txtTitle = (TextView)findViewById(R.id.textTitle);
         m_txtDate = (TextView)findViewById(R.id.textDate);
         m_txtTime = (TextView)findViewById(R.id.textTime);
+        m_txtWeather = (TextView)findViewById(R.id.textWeather);
         m_txtType = (TextView)findViewById(R.id.textType);
         m_layView = (LinearLayout)findViewById(R.id.layView);
 
@@ -130,6 +136,34 @@ public class noteViewActivity extends AppCompatActivity
                 intent.putExtra(Intent.EXTRA_TEXT, strShareText);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(Intent.createChooser(intent, getTitle()));
+                break;
+
+            case R.id.imbDeleteNote:
+                if (m_dataItem == null)
+                    break;
+                if (m_dataItem.m_strType.compareTo(noteConfig.m_noteTypeMng.m_strRubbish) != 0) {
+                    m_dataItem.m_strType = noteConfig.m_noteTypeMng.m_strRubbish;
+                    m_dataItem.writeToFile();
+                    if (m_nFileCount == 1) {
+                        finish();
+                        return;
+                    }
+
+                    String[] strNewFiles = new String[m_nFileCount-1];
+                    int nIndex = 0;
+                    for (int i = 0; i < m_nFileCount; i++) {
+                        if (m_strFileList[i].compareTo(m_dataItem.m_strFile) == 0)
+                            continue;
+                        strNewFiles[nIndex++] = m_strFileList[i];
+                    }
+                    m_nFileCount -= 1;
+                    m_strFileList = new String[m_nFileCount];
+                    for (int i = 0; i < m_nFileCount; i++) {
+                        m_strFileList[i] = strNewFiles[i];
+                    }
+                    noteConfig.m_bNoteModified = true;
+                    openNextFile(true);
+                }
                 break;
 
             case R.id.imbCount:
@@ -207,8 +241,11 @@ public class noteViewActivity extends AppCompatActivity
     }
 
     private void openNextFile (boolean bNext) {
-        if (m_nFileCount <= 1)
+        if (m_nFileCount <= 1) {
+            m_strNoteFile = m_strFileList[0];
+            readFromFile ();
             return;
+        }
 
         int     nIndex = 0;
         for (int i = 0; i < m_nFileCount; i++) {
@@ -244,7 +281,11 @@ public class noteViewActivity extends AppCompatActivity
         m_txtTitle.setText(m_dataItem.m_strTitle);
         m_txtDate.setText(m_dataItem.m_strDate);
         m_txtTime.setText(m_dataItem.m_strTime);
+        m_txtWeather.setText(m_dataItem.m_strCity + " " + m_dataItem.m_strWeat);
         m_txtType.setText(m_dataItem.m_strType);
+
+        String strDate = m_dataItem.m_strDate + " " + noteConfig.getWeekDay(m_dataItem.m_strDate);
+        m_txtDate.setText(strDate);
 
         dataNoteItem.dataContent dataItem = null;
         for (int i = 0; i < m_dataItem.m_lstItem.size(); i++) {
@@ -283,7 +324,7 @@ public class noteViewActivity extends AppCompatActivity
             nHeight += m_layView.getChildAt(i).getHeight();
         }
         ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)m_layView.getLayoutParams();
-        param.height = nHeight + 200;
+        param.height = nHeight + 600;
         m_layView.setLayoutParams(param);
         m_layView.scrollTo(0, 0);
     }

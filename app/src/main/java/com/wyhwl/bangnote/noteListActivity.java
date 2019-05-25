@@ -37,6 +37,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
+import okhttp3.Call;
+
 public class noteListActivity extends AppCompatActivity
                               implements noteListSlider.switchListener,
                                             AdapterView.OnItemClickListener,
@@ -117,6 +124,7 @@ public class noteListActivity extends AppCompatActivity
             }
         });
 
+        getTodayWeather();
         m_lstView.postDelayed(()->updateList(), 20);
     }
 
@@ -331,6 +339,7 @@ public class noteListActivity extends AppCompatActivity
         m_lstData.updateNoteItem();
         m_lstView.setAdapter(m_lstData);
         m_lstView.invalidate();
+        fillLeftList (false);
         m_sldList.scrollToPage (1);
     }
 
@@ -380,8 +389,9 @@ public class noteListActivity extends AppCompatActivity
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (noteConfig.m_bNoteModified)
-            m_lstView.postDelayed(()->updateList(), 1000);
+        if (noteConfig.m_bNoteModified) {
+            m_lstView.postDelayed(() -> updateList(), 1000);
+        }
     }
 
     private void addNoteTypeDialog() {
@@ -889,7 +899,8 @@ public class noteListActivity extends AppCompatActivity
         String[] permissions = new String[]{Manifest.permission.CAMERA,
                                             Manifest.permission.RECORD_AUDIO,
                                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                            Manifest.permission.READ_EXTERNAL_STORAGE};
+                                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                                            Manifest.permission.ACCESS_COARSE_LOCATION};
         //检查权限
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             // 之前拒绝了权限，但没有点击 不再询问 这个时候让它继续请求权限
@@ -916,6 +927,31 @@ public class noteListActivity extends AppCompatActivity
                     Toast.makeText(this, "用户拒绝相机权限", Toast.LENGTH_SHORT).show();
                 }
                 break;
+        }
+    }
+
+    public void getTodayWeather () {
+        String strURL = "https://www.tianqiapi.com/api/?version=v1";
+        OkHttpUtils
+                .get().url(strURL).id(101)
+                .build().execute(new httpDataCallBack());
+    }
+
+    public class httpDataCallBack extends StringCallback {
+        public void onError(Call call, Exception e, int id) {
+        }
+
+        public void onResponse(String response, int id) {
+            if (id == 101) {
+                JSONObject  jsnResult = JSON.parseObject(response);
+                noteConfig.m_strCityName = jsnResult.getString("city");
+                JSONArray   jsnData = jsnResult.getJSONArray("data");
+                JSONObject  jsnToday = jsnData.getJSONObject(0);
+                noteConfig.m_strWeather = jsnToday.getString("wea");
+                String strTemp1 = jsnToday.getString("tem2");
+                String strTemp2 = jsnToday.getString("tem1");
+                noteConfig.m_strWeather += " " + strTemp1 + "-" + strTemp2;
+            }
         }
     }
 
