@@ -310,6 +310,9 @@ public class noteViewActivity extends AppCompatActivity
             } else if (dataItem.m_nType == noteConfig.m_nItemTypeAudo) {
                 noteAudioPlayView audView = new noteAudioPlayView(this);
                 m_layView.addView(audView);
+                ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)audView.getLayoutParams();
+                param.width = -1;
+                audView.setLayoutParams(param);
                 audView.setAudioFile(dataItem.m_strItem);
             }
         }

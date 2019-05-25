@@ -204,6 +204,9 @@ public class noteEditActivity extends AppCompatActivity
             vwLast = imgView;
         } else if (nType == noteConfig.m_nItemTypeAudo) {
             noteAudioEditView audView = (noteAudioEditView) addNoteView(vwAfter, noteConfig.m_nItemTypeAudo);
+            ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)audView.getLayoutParams();
+            param.width = -1;
+            audView.setLayoutParams(param);
             vwLast = audView;
         }
 

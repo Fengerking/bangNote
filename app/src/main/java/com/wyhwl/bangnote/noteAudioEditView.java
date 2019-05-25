@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 
@@ -58,6 +59,7 @@ public class noteAudioEditView extends FrameLayout
         m_context = context;
         m_bCreate = bCreate;
         m_nID = noteConfig.getAudoViewID ();
+
 
         final View audioEditView = LayoutInflater.from(m_context).inflate(R.layout.note_audio_edit,null);
         addView(audioEditView);

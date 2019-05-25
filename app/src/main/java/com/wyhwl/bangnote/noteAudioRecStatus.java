@@ -57,12 +57,12 @@ public class noteAudioRecStatus extends View {
         m_fmtTime = new SimpleDateFormat("HH:mm:ss");
         m_fmtTime.setTimeZone(new SimpleTimeZone(0, "GMT"));
 
-        m_strStatus = "Rec: wait...";
+        m_strStatus = "Rec:     wait...";
     }
 
     public void startRecord () {
         m_lRecTime = System.currentTimeMillis();
-        m_strStatus = "Rec: start";
+        m_strStatus = "Rec:     start";
         invalidate();
     }
 
@@ -72,24 +72,24 @@ public class noteAudioRecStatus extends View {
         int nY = nH - (nAmp * nH / m_nMaxAmp);
         m_lstAmp.add (nY);
         Date date = new Date(System.currentTimeMillis() - m_lRecTime + m_lRecSave);
-        m_strStatus = "Rec: " + m_fmtTime.format(date);
+        m_strStatus = "Rec:     " + m_fmtTime.format(date);
         invalidate();
     }
 
     public void stopRecord () {
-        m_strStatus = "Rec: stop";
+        m_strStatus = "Rec:     stop";
         m_lRecSave += System.currentTimeMillis() - m_lRecTime;
         invalidate();
     }
 
     public void playRecord () {
-        m_strStatus = "Rec: playing";
+        m_strStatus = "Rec:     playing";
         invalidate();
     }
 
     public void playFinish () {
         m_lRecSave = 0;
-        m_strStatus = "Rec: wait...";
+        m_strStatus = "Rec:     wait...";
         invalidate();
     }
 
@@ -112,8 +112,8 @@ public class noteAudioRecStatus extends View {
         int nCount = m_lstAmp.size();
         int nSize = m_lstAmp.size();
         int nStepX = 10;
-        if (nSize > 25)
-            nSize = 25;
+        if (nSize > 40)
+            nSize = 40;
         float[] ftPos = new float[nSize * 4];
         for (int i = 0; i < nSize - 1; i++) {
             ftPos[i*4] = i * nStepX + 8;
@@ -124,8 +124,8 @@ public class noteAudioRecStatus extends View {
         canvas.drawLines(ftPos, m_pntRect);
 
         m_pntRect.setColor(0XFFFFFFFF);
-        canvas.drawLine(8, nH/2, nW, nH/2, m_pntRect);
+        canvas.drawLine(12, nH/2, nW - 4, nH/2, m_pntRect);
 
-        canvas.drawText(m_strStatus, 0, m_strStatus.length(), 16, nH - 40, m_pntText);
+        canvas.drawText(m_strStatus, 0, m_strStatus.length(), 32, nH - 24, m_pntText);
     }
 }

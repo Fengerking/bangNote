@@ -118,7 +118,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorText"
                  android:text="2019-05-15"
-                android:textSize="20dp"/>
+                android:textSize="22dp"/>
             <ImageButton
                 android:id="@+id/btnDate"
                 android:layout_width="18dp"
@@ -135,7 +135,7 @@
                 android:textColor="@color/colorText"
                 android:layout_marginLeft="4dp"
                 android:text="10:10:10"
-                android:textSize="20dp"
+                android:textSize="22dp"
                 android:layout_toRightOf="@id/btnDate"/>
             <ImageButton
                 android:id="@+id/btnTime"
@@ -151,7 +151,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorText"
-                android:textSize="20dp"
+                android:textSize="22dp"
                 android:layout_alignParentRight="true"/>
 
         </RelativeLayout>

@@ -8,6 +8,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 import android.widget.RelativeLayout;
@@ -40,6 +41,10 @@ public class MainActivity extends AppCompatActivity {
         RelativeLayout layMain = (RelativeLayout)findViewById(R.id.layMain);
         m_layAudio = new noteAudioEditView(this);
         layMain.addView(m_layAudio);
+
+        ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)m_layAudio.getLayoutParams();
+        param.width = -1;
+        m_layAudio.setLayoutParams(param);
     }
 
 
