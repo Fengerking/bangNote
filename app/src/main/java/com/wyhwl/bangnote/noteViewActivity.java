@@ -79,8 +79,9 @@ public class noteViewActivity extends AppCompatActivity
 
     protected void onResume () {
         super.onResume();
-        if (noteConfig.m_bNoteModified)
+        if (noteConfig.m_bNoteModified) {
             readFromFile();
+        }
     }
 
     protected void onStop () {

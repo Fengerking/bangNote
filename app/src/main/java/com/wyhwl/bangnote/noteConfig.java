@@ -60,7 +60,7 @@ public class noteConfig {
     public static String        m_strTagNoteAudo    = "[noteAudo]";
     public static String        m_strTagNoteVido    = "[noteVido]";
 
-    public static String[]      m_lstWeekDays       = {"一", "二", "三", "四", "五", "六", "日"};
+    public static String[]      m_lstWeekDays       = {"日", "一", "二", "三", "四", "五", "六"};
 
     public static String        m_strCityName       = "未知";
     public static String        m_strWeather        = "未知";

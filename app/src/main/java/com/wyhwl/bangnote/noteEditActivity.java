@@ -42,6 +42,7 @@ public class noteEditActivity extends AppCompatActivity
         implements  noteEditText.onNoteEditListener,
                     noteImageView.onNoteImageListener,
                     AdapterView.OnItemSelectedListener,
+                    noteAudioEditView.audioChangeListener,
                     OnClickListener {
     private static int      RESULT_LOAD_IMAGE       = 10;
     private static int      RESULT_CAPTURE_IMAGE    = 20;
@@ -209,6 +210,7 @@ public class noteEditActivity extends AppCompatActivity
             noteConfig.m_bNoteModified = true;
         } else if (nType == noteConfig.m_nItemTypeAudo) {
             noteAudioEditView audView = (noteAudioEditView) addNoteView(vwAfter, noteConfig.m_nItemTypeAudo);
+            audView.setAudioChangeListener(this);
             ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)audView.getLayoutParams();
             param.width = -1;
             audView.setLayoutParams(param);
@@ -405,6 +407,10 @@ public class noteEditActivity extends AppCompatActivity
         }
     }
 
+    public void onAudioChange (String strFile) {
+        noteConfig.m_bNoteModified = true;
+    }
+
     public void onResizeView () {
         int nHeight = 0;
         int nCount = m_layView.getChildCount();
@@ -532,6 +538,7 @@ public class noteEditActivity extends AppCompatActivity
                 } if (dataItem.m_nType == noteConfig.m_nItemTypeAudo) {
                     noteAudioEditView noteAudio = (noteAudioEditView)addNoteView(null, noteConfig.m_nItemTypeAudo);
                     noteAudio.setAudioFile(dataItem.m_strItem);
+                    noteAudio.setAudioChangeListener(this);
                 }
             }
         }

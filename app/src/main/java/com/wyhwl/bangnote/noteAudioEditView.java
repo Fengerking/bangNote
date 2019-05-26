@@ -42,6 +42,17 @@ public class noteAudioEditView extends FrameLayout
 
     private noteAudioRecStatus    m_vwRecStatus = null;
 
+    private audioChangeListener m_audioListener = null;
+
+    // The event listener function
+    public interface audioChangeListener {
+        public void onAudioChange (String strAudioFile);
+    }
+
+    public void setAudioChangeListener (audioChangeListener listener) {
+        m_audioListener = listener;
+    }
+
     public noteAudioEditView(Context context) {
         super(context);
         initView(context, true);
@@ -153,6 +164,10 @@ public class noteAudioEditView extends FrameLayout
         m_btnStart.setEnabled(false);
         m_btnPlay.setEnabled(false);
         m_btnDelete.setEnabled(false);
+
+        if (m_audioListener != null)
+            m_audioListener.onAudioChange(m_strRecFile);
+
         return 1;
     }
 
