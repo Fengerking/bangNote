@@ -99,7 +99,7 @@ public class noteListAdapter extends BaseAdapter {
                 break;
             }
         }
-        if (bFound) {
+        if (!bFound) {
             dataItem = new dataNoteItem();
             m_lstAllItem.add(dataItem);
         }
