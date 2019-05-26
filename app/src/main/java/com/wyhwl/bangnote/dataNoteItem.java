@@ -1,8 +1,5 @@
 package com.wyhwl.bangnote;
 
-import android.content.Context;
-import android.view.View;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -28,7 +25,10 @@ public class dataNoteItem {
     public String               m_strAudFile = null;
     public String               m_strVidFile = null;
 
+    public boolean              m_bModified = false;
+
     private boolean             m_bSelect = false;
+
 
     public ArrayList<dataContent>    m_lstItem = null;
 
@@ -60,6 +60,7 @@ public class dataNoteItem {
 
     public int readFromFile (String strFile) {
         m_strFile = strFile;
+        m_lstItem.clear();
         try {
             FileInputStream fis = new FileInputStream (strFile);
             BufferedReader br = new BufferedReader(new InputStreamReader(fis));
@@ -74,7 +75,7 @@ public class dataNoteItem {
         }
 
         m_strDateTime = m_strDate + " " + m_strTime;
-
+        m_bModified = false;
         return 0;
     }
 
@@ -184,6 +185,7 @@ public class dataNoteItem {
         }catch (Exception e) {
             e.printStackTrace();
         }
+        m_bModified = true;
         return 0;
     }
 

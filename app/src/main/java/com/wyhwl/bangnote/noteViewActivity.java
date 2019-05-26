@@ -13,21 +13,24 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-import java.util.Date;
-import java.util.Calendar;
 
 public class noteViewActivity extends AppCompatActivity
                             implements noteImageShow.noteImageShowListener,
+                                        AdapterView.OnItemSelectedListener,
                                         View.OnClickListener {
     private String          m_strNoteFile = null;
     private TextView        m_txtTitle = null;
     private TextView        m_txtDate = null;
     private TextView        m_txtTime = null;
-    private TextView        m_txtType = null;
+    private Spinner         m_spnType = null;
     private TextView        m_txtWeather = null;
     private LinearLayout    m_layView = null;
 
@@ -44,6 +47,7 @@ public class noteViewActivity extends AppCompatActivity
 
     private VelocityTracker mVelocityTracker;
     private int             mMaxVelocity;
+    private boolean         m_bReadFromFile = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +73,14 @@ public class noteViewActivity extends AppCompatActivity
             m_strFileList = intent.getStringArrayExtra("FileList");
         }
 
+        m_dataItem = new dataNoteItem();
         initViews();
+    }
+
+    protected void onResume () {
+        super.onResume();
+        if (noteConfig.m_bNoteModified)
+            readFromFile();
     }
 
     protected void onStop () {
@@ -94,17 +105,19 @@ public class noteViewActivity extends AppCompatActivity
         m_txtDate = (TextView)findViewById(R.id.textDate);
         m_txtTime = (TextView)findViewById(R.id.textTime);
         m_txtWeather = (TextView)findViewById(R.id.textWeather);
-        m_txtType = (TextView)findViewById(R.id.textType);
         m_layView = (LinearLayout)findViewById(R.id.layView);
+        m_spnType = (Spinner)findViewById(R.id.spinNoteType);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                noteViewActivity.this, R.layout.spn_note_type, noteConfig.m_noteTypeMng.getListName());
+        m_spnType.setAdapter(adapter);
+        m_spnType.setOnItemSelectedListener(this);
+
+        noteConfig.m_bNoteModified = false;
 
         ViewConfiguration config = ViewConfiguration.get(this);
         mMaxVelocity = config.getScaledMinimumFlingVelocity();
 
         m_layView.postDelayed(() -> readFromFile(), 10);
-    }
-
-    protected void onResume () {
-        super.onResume();
     }
 
     public void onClick(View v) {
@@ -144,6 +157,7 @@ public class noteViewActivity extends AppCompatActivity
                 if (m_dataItem.m_strType.compareTo(noteConfig.m_noteTypeMng.m_strRubbish) != 0) {
                     m_dataItem.m_strType = noteConfig.m_noteTypeMng.m_strRubbish;
                     m_dataItem.writeToFile();
+                    noteConfig.m_lstData.updNoteFile(m_dataItem.m_strFile);
                     if (m_nFileCount == 1) {
                         finish();
                         return;
@@ -170,6 +184,20 @@ public class noteViewActivity extends AppCompatActivity
                 showNormalDialog();
                 break;
         }
+    }
+
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        if (m_bReadFromFile)
+            return;
+        TextView tvType = (TextView) view.findViewById(R.id.txtNoteType);
+        if (m_dataItem.m_strType.compareTo(tvType.getText().toString()) != 0) {
+            m_dataItem.m_strType = tvType.getText().toString();
+            m_dataItem.writeToFile();
+            noteConfig.m_lstData.updNoteFile(m_dataItem.m_strFile);
+            noteConfig.m_bNoteModified = true;
+        }
+    }
+    public void onNothingSelected(AdapterView<?> parent) {
     }
 
     @Override
@@ -242,8 +270,10 @@ public class noteViewActivity extends AppCompatActivity
 
     private void openNextFile (boolean bNext) {
         if (m_nFileCount <= 1) {
-            m_strNoteFile = m_strFileList[0];
-            readFromFile ();
+            if (m_strNoteFile.compareTo(m_strFileList[0]) != 0) {
+                m_strNoteFile = m_strFileList[0];
+                readFromFile();
+            }
             return;
         }
 
@@ -275,14 +305,22 @@ public class noteViewActivity extends AppCompatActivity
         while (m_layView.getChildCount() > 2)
             m_layView.removeView(m_layView.getChildAt((m_layView.getChildCount() - 1)));
 
+        m_bReadFromFile = true;
         m_nWordCount = 0;
-        m_dataItem = new dataNoteItem();
         m_dataItem.readFromFile(m_strNoteFile);
         m_txtTitle.setText(m_dataItem.m_strTitle);
         m_txtDate.setText(m_dataItem.m_strDate);
         m_txtTime.setText(m_dataItem.m_strTime);
         m_txtWeather.setText(m_dataItem.m_strCity + " " + m_dataItem.m_strWeat);
-        m_txtType.setText(m_dataItem.m_strType);
+        String          strType = null;
+        SpinnerAdapter adapter = m_spnType.getAdapter();
+        for (int i = 0; i < adapter.getCount(); i++) {
+            strType = (String)adapter.getItem(i);
+            if (strType.compareTo(m_dataItem.m_strType) == 0) {
+                m_spnType.setSelection(i);
+                break;
+            }
+        }
 
         String strDate = m_dataItem.m_strDate + " " + noteConfig.getWeekDay(m_dataItem.m_strDate);
         m_txtDate.setText(strDate);
@@ -316,6 +354,7 @@ public class noteViewActivity extends AppCompatActivity
                 audView.setAudioFile(dataItem.m_strItem);
             }
         }
+        m_bReadFromFile = false;
 
         m_layView.post(()->onResizeView());
     }
@@ -343,8 +382,5 @@ public class noteViewActivity extends AppCompatActivity
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (noteConfig.m_bNoteModified)
-            m_layView.postDelayed(()->readFromFile(), 500);
     }
-
 }

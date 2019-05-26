@@ -117,21 +117,20 @@
                 android:textSize="22dp"
                 android:textColor="@color/colorText"/>
 
-            <TextView
-                android:id="@+id/textType"
+            <Spinner
+                android:id="@+id/spinNoteType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="8dp"
-                android:layout_below="@id/textWeather"
                 android:layout_alignParentRight="true"
-                android:textSize="22dp"
-                android:textColor="@color/colorText"/>
+                android:layout_below="@id/textWeather"
+                android:textColor="@color/colorText"
+                android:textSize="22dp"/>
 
             <View
                 android:id="@+id/noteView_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_below="@id/textType"
+                android:layout_below="@id/textDate"
                 android:background="@color/colorBlack" />
         </RelativeLayout>
 

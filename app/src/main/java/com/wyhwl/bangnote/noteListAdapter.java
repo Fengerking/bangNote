@@ -38,15 +38,149 @@ public class noteListAdapter extends BaseAdapter {
     }
 
     public void updateNoteItem () {
-        m_lstAllItem.clear();
+        int             i = 0;
+        dataNoteItem    dataItem = null;
+        for (i = 0; i < m_lstAllItem.size(); i++) {
+            dataItem = m_lstAllItem.get(i);
+            if (dataItem.m_bModified) {
+                dataItem.readFromFile(dataItem.m_strFile);
+            }
+        }
+        updNoteType (noteConfig.m_noteTypeMng.getCurType());
+    }
+
+    public void updNoteType (String strType) {
+        int             i = 0;
+        dataNoteItem    dataItem = null;
         m_lstSelItem.clear();
-        fillFileList(noteConfig.m_strNotePath);
+        if (strType.compareTo(noteConfig.m_noteTypeMng.m_strTotal) == 0) {
+            for (i = 0; i < m_lstAllItem.size(); i++) {
+                dataItem = m_lstAllItem.get(i);
+                if (noteConfig.m_nShowSecurity == 0) {
+                    if (noteConfig.m_noteTypeMng.getLevel(dataItem.m_strType) >= 10) {
+                        continue;
+                    }
+                    m_lstSelItem.add(dataItem);
+                }
+            }
+        } else {
+            for (i = 0; i < m_lstAllItem.size(); i++) {
+                dataItem = m_lstAllItem.get(i);
+                if (dataItem.m_strType.compareTo(strType) == 0) {
+                    m_lstSelItem.add(dataItem);
+                }
+            }
+        }
+        Comparator comp = new dateComparator();
+        Collections.sort(m_lstSelItem, comp);
+    }
+
+    public void updNoteFile (String strFile) {
+        int             i = 0;
+        dataNoteItem    dataItem = null;
+        for (i = 0; i < m_lstAllItem.size(); i++) {
+            dataItem = m_lstAllItem.get(i);
+            if (dataItem.m_strFile.compareTo(strFile) == 0) {
+                dataItem.readFromFile(dataItem.m_strFile);
+                updateDataItem4Sel (dataItem);
+                break;
+            }
+        }
+    }
+
+    public void newNoteFile (String strFile) {
+        int             i = 0;
+        boolean         bFound = false;
+        dataNoteItem    dataItem = null;
+        for (i = 0; i < m_lstAllItem.size(); i++) {
+            dataItem = m_lstAllItem.get(i);
+            if (dataItem.m_strFile.compareTo(strFile) == 0) {
+                bFound = true;
+                break;
+            }
+        }
+        if (bFound) {
+            dataItem = new dataNoteItem();
+            m_lstAllItem.add(dataItem);
+        }
+        dataItem.readFromFile(strFile);
+        updateDataItem4Sel (dataItem);
+    }
+
+    public void delNoteFile (String strFile) {
+        int i = 0;
+        for (i = 0; i < m_lstAllItem.size(); i++) {
+            if (m_lstAllItem.get(i).m_strFile.compareTo(strFile) == 0) {
+                m_lstAllItem.remove(i);
+                break;
+            }
+        }
+        for (i = 0; i < m_lstSelItem.size(); i++) {
+            if (m_lstSelItem.get(i).m_strFile.compareTo(strFile) == 0) {
+                m_lstSelItem.remove(i);
+                break;
+            }
+        }
+    }
+
+    private void updateDataItem4Sel (dataNoteItem updItem) {
+        boolean         bFound = false;
+        dataNoteItem    selItem = null;
+        for (int i = 0; i < m_lstSelItem.size(); i++) {
+            selItem = m_lstSelItem.get(i);
+            if (selItem.m_strFile.compareTo(updItem.m_strFile) == 0) {
+                bFound = true;
+                break;
+            }
+        }
+        if (noteConfig.m_noteTypeMng.isSelTotalType()) {
+            if (!bFound)
+                m_lstSelItem.add(updItem);
+        } else {
+            if (updItem.m_strType.compareTo(noteConfig.m_noteTypeMng.getCurType()) == 0) {
+                if(!bFound)
+                    m_lstSelItem.add(updItem);
+            } else {
+                if (bFound)
+                    m_lstSelItem.remove(selItem);
+            }
+        }
+        Comparator comp = new dateComparator();
+        Collections.sort(m_lstSelItem, comp);
+    }
+
+    public int getItemCount (String strType) {
+        int nCount = 0;
+        dataNoteItem itemData = null;
+        int nAllCount = m_lstAllItem.size();
+        if (strType.compareTo(noteConfig.m_noteTypeMng.m_strTotal) == 0) {
+            if (noteConfig.m_nShowSecurity == 0) {
+                for (int j = 0; j < nAllCount; j++) {
+                    itemData = m_lstAllItem.get(j);
+                    if (noteConfig.m_noteTypeMng.getLevel(itemData.m_strType) < 10) {
+                        nCount++;
+                    }
+                }
+            } else {
+                nCount = nAllCount;
+            }
+        } else {
+            for (int j = 0; j < nAllCount; j++) {
+                itemData = m_lstAllItem.get(j);
+                if (itemData.m_strType.compareTo(strType) == 0) {
+                    nCount++;
+                }
+            }
+        }
+        return nCount;
     }
 
     public int getCount() {
         return m_lstSelItem.size();
     }
     public Object getItem(int arg0) {
+        if (m_lstSelItem.size() <= 0 || arg0 >= m_lstSelItem.size())
+            return null;
         return m_lstSelItem.get(arg0);
     }
     public long getItemId(int position) {

@@ -18,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -40,6 +41,7 @@ import java.util.Date;
 public class noteEditActivity extends AppCompatActivity
         implements  noteEditText.onNoteEditListener,
                     noteImageView.onNoteImageListener,
+                    AdapterView.OnItemSelectedListener,
                     OnClickListener {
     private static int      RESULT_LOAD_IMAGE       = 10;
     private static int      RESULT_CAPTURE_IMAGE    = 20;
@@ -86,12 +88,13 @@ public class noteEditActivity extends AppCompatActivity
             m_txtBarTitle.setText(R.string.new_note);
         }
 
+        m_dataItem = new dataNoteItem();
         m_layView.postDelayed(()->readFromFile(), 100);
     }
 
-    protected void onStop() {
-        super.onStop();
+    protected void onPause() {
         writeToFile();
+        super.onPause();
     }
 
     private void initViews () {
@@ -129,6 +132,7 @@ public class noteEditActivity extends AppCompatActivity
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
                 noteEditActivity.this, R.layout.spn_note_type, noteConfig.m_noteTypeMng.getListName());
         m_spnType.setAdapter(adapter);
+        m_spnType.setOnItemSelectedListener(this);
 
         m_layView = (LinearLayout)findViewById(R.id.layView);
         noteConfig.m_bNoteModified = false;
@@ -202,12 +206,14 @@ public class noteEditActivity extends AppCompatActivity
             noteImageView imgView = (noteImageView) addNoteView(vwAfter, noteConfig.m_nItemTypePict);
             imgView.setImageFile(strFile);
             vwLast = imgView;
+            noteConfig.m_bNoteModified = true;
         } else if (nType == noteConfig.m_nItemTypeAudo) {
             noteAudioEditView audView = (noteAudioEditView) addNoteView(vwAfter, noteConfig.m_nItemTypeAudo);
             ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)audView.getLayoutParams();
             param.width = -1;
             audView.setLayoutParams(param);
             vwLast = audView;
+            noteConfig.m_bNoteModified = true;
         }
 
         int nCount = m_layView.getChildCount();
@@ -255,6 +261,7 @@ public class noteEditActivity extends AppCompatActivity
                 m_layView.removeView(vwNext);
             }
         }
+        noteConfig.m_bNoteModified = true;
     }
 
     public void onClick(View v) {
@@ -312,18 +319,26 @@ public class noteEditActivity extends AppCompatActivity
 
             case R.id.imbDelPic:
                 deleteImageView ();
-                noteConfig.m_bNoteModified = true;
                 break;
 
             case R.id.imbAudio:
                 addMediaView(null, noteConfig.m_nItemTypeAudo);
-                noteConfig.m_bNoteModified = true;
                 break;
 
             case R.id.imbSaveNote:
                 finish();
                 break;
         }
+    }
+
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        TextView tvType = (TextView) view.findViewById(R.id.txtNoteType);
+        if (m_dataItem.m_strType.compareTo(tvType.getText().toString()) != 0) {
+            m_dataItem.m_strType = tvType.getText().toString();
+            noteConfig.m_bNoteModified = true;
+        }
+    }
+    public void onNothingSelected(AdapterView<?> parent) {
     }
 
     public void onMontionEvent (MotionEvent ev, int nID) {
@@ -416,7 +431,6 @@ public class noteEditActivity extends AppCompatActivity
             if (!file.exists())
                 return;
             addMediaView(m_strImageFile, noteConfig.m_nItemTypePict);
-            noteConfig.m_bNoteModified = true;
             return;
         }
 
@@ -445,7 +459,6 @@ public class noteEditActivity extends AppCompatActivity
         }
 
         addMediaView(imagePath, noteConfig.m_nItemTypePict);
-        noteConfig.m_bNoteModified = true;
     }
 
     private String getImagePath(Uri uri, String selection) {
@@ -478,12 +491,12 @@ public class noteEditActivity extends AppCompatActivity
 
     private void readFromFile () {
         m_bReadFromFile = true;
-        m_dataItem = new dataNoteItem();
+        m_dataItem.readFromFile(m_strNoteFile);
         if (m_bNewNote) {
             m_dataItem.m_strCity = noteConfig.m_strCityName;
             m_dataItem.m_strWeat = noteConfig.m_strWeather;
+            m_dataItem.m_strType = noteConfig.m_noteTypeMng.getCurType();
         }
-        m_dataItem.readFromFile(m_strNoteFile);
         m_edtTitle.setText(m_dataItem.m_strTitle);
         m_txtDate.setText(m_dataItem.m_strDate);
         m_txtTime.setText(m_dataItem.m_strTime);
@@ -534,31 +547,13 @@ public class noteEditActivity extends AppCompatActivity
     }
 
     private void writeToFile () {
+        if (noteConfig.m_bNoteModified == false) {
+            return;
+        }
         View    vwItem = null;
         int     nCount = m_layView.getChildCount();
         String  strName = "";
         String  strText = "";
-        int     nSel = m_spnType.getSelectedItemPosition();
-        String  strNoteType = (String)m_spnType.getAdapter().getItem(nSel);
-        if (noteConfig.m_bNoteModified == false) {
-            if (strNoteType.compareTo(m_dataItem.m_strType) == 0)
-                return;
-            if (m_edtTitle.getText().toString().length() <= 0) {
-                for (int i = 2; i < nCount; i++) {
-                    vwItem = m_layView.getChildAt(i);
-                    if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypeText) {
-                        noteEditText noteText = (noteEditText)vwItem;
-                        strText = noteText.getText().toString();
-                        if (strText.length() > 0) {
-                            break;
-                        }
-                    }
-                }
-                if (strText.length() <= 0)
-                    return;
-            }
-        }
-
         try {
             FileOutputStream fos = new FileOutputStream (m_strNoteFile);
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
@@ -572,7 +567,7 @@ public class noteEditActivity extends AppCompatActivity
             strName = noteConfig.m_strTagNoteTime; bw.write((strName+"\n").toCharArray());
             strText = m_txtTime.getText().toString(); bw.write((strText+"\n").toCharArray());
 
-            if (m_bNewNote) {
+            if (m_dataItem.m_strCity != null && m_dataItem.m_strCity.length() > 0) {
                 strName = noteConfig.m_strTagNoteCity; bw.write((strName+"\n").toCharArray());
                 strText = noteConfig.m_strCityName; bw.write((strText+"\n").toCharArray());
                 strName = noteConfig.m_strTagNoteWeat; bw.write((strName+"\n").toCharArray());
@@ -580,7 +575,7 @@ public class noteEditActivity extends AppCompatActivity
             }
 
             strName = noteConfig.m_strTagNoteType; bw.write((strName+"\n").toCharArray());
-            strText = strNoteType; bw.write((strText+"\n").toCharArray());
+            strText = m_dataItem.m_strType; bw.write((strText+"\n").toCharArray());
 
             for (int i = 2; i < nCount; i++) {
                 vwItem = m_layView.getChildAt(i);
@@ -613,6 +608,9 @@ public class noteEditActivity extends AppCompatActivity
         }catch (Exception e) {
             e.printStackTrace();
         }
-        noteConfig.m_bNoteModified = true;
+        if (m_bNewNote)
+            noteConfig.m_lstData.newNoteFile(m_dataItem.m_strFile);
+        else
+            noteConfig.m_lstData.updNoteFile(m_dataItem.m_strFile);
     }
 }

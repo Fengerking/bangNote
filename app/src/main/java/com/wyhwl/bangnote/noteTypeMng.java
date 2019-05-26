@@ -137,6 +137,12 @@ public class noteTypeMng {
         return -1;
     }
 
+    public boolean isSelTotalType () {
+        if (m_strTotal.compareTo(getCurType()) == 0)
+            return true;
+        return false;
+    }
+
     public ArrayList<String> getListName () {
         ArrayList<String> lstName = new ArrayList<String> ();
         for (int i = 0; i < m_lstType.size(); i++) {

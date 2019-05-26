@@ -24,6 +24,7 @@ public class noteConfig {
     public static int           m_nItemTypeAudo = 2;
     public static int           m_nItemTypeVido = 3;
 
+    public static noteListAdapter     m_lstData = null;
     public static boolean       m_bNoteModified = false;
     public static int           m_nNoteID = 10;
     public static int           m_nImagID = 10001;
@@ -78,6 +79,9 @@ public class noteConfig {
 
         if (m_noteTypeMng == null) {
             m_noteTypeMng = new noteTypeMng();
+        }
+        if (m_lstData == null) {
+            m_lstData = new noteListAdapter(context);
         }
 
         //baseSystemUtil.getCNBylocation(context);

@@ -53,7 +53,6 @@ public class noteListActivity extends AppCompatActivity
 
     private noteListListView    m_lstView = null;
     private noteListSlider      m_sldList = null;
-    private noteListAdapter     m_lstData = null;
 
     private ImageButton         m_btnNewNote = null;
 
@@ -74,12 +73,18 @@ public class noteListActivity extends AppCompatActivity
 
         CheckWritePermission();
         noteConfig.initConfig(this);
+        noteConfig.m_lstData = noteConfig.m_lstData;
 
         initViews();
     }
 
     protected void onResume() {
         super.onResume();
+        if (noteConfig.m_bNoteModified) {
+            m_lstView.setAdapter(noteConfig.m_lstData);
+            m_lstView.invalidate();
+            fillLeftList(false);
+        }
     }
 
     protected void onStop() {
@@ -101,10 +106,11 @@ public class noteListActivity extends AppCompatActivity
         m_sldList = (noteListSlider) findViewById(R.id.sldList);
         m_sldList.setSwitchListener(this);
 
-        m_lstData = new noteListAdapter(this);
+        noteConfig.m_lstData = new noteListAdapter(this);
         m_lstView = (noteListListView) findViewById(R.id.vwNoteList);
         m_lstView.setOnItemClickListener(this);
         m_lstView.setOnItemLongClickListener(this);
+        m_lstView.setAdapter(noteConfig.m_lstData);
 
         m_lstViewLeft = (ListView)findViewById(R.id.lstNoteTypeSel);
         m_lstViewLeft.setOnItemClickListener(this);
@@ -125,7 +131,6 @@ public class noteListActivity extends AppCompatActivity
         });
 
         getTodayWeather();
-        m_lstView.postDelayed(()->updateList(), 20);
     }
 
     public void onClick(View v) {
@@ -142,14 +147,14 @@ public class noteListActivity extends AppCompatActivity
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (parent == (View)m_lstView) {
-            dataNoteItem noteItem = m_lstData.getNoteItem(position);
+            dataNoteItem noteItem = noteConfig.m_lstData.getNoteItem(position);
             Intent intent = new Intent(noteListActivity.this, noteViewActivity.class);
             intent.setData(Uri.parse(noteItem.m_strFile));
 
-            int nSize = m_lstData.getCount();
+            int nSize = noteConfig.m_lstData.getCount();
             String[] strFileList = new String[nSize];
             for (int i = 0; i < nSize; i++) {
-                strFileList[nSize-i-1] = ((dataNoteItem)m_lstData.getItem(i)).m_strFile;
+                strFileList[nSize-i-1] = ((dataNoteItem)noteConfig.m_lstData.getItem(i)).m_strFile;
             }
             intent.putExtra("FileList", strFileList);
             intent.putExtra("FileCount", nSize);
@@ -163,6 +168,7 @@ public class noteListActivity extends AppCompatActivity
                 startActivityForResult(intent, 1);
             } else {
                 noteConfig.m_noteTypeMng.setCurType(strType);
+                noteConfig.m_lstData.updNoteType(strType);
                 fillLeftList (true);
                 updateList();
             }
@@ -265,7 +271,7 @@ public class noteListActivity extends AppCompatActivity
             }
             mapItem = new HashMap<String, Object>();
             mapItem.put("name", itemType.m_strName);
-            mapItem.put("count", getItemCount4Type(itemType.m_strName));
+            mapItem.put("count", "{" + noteConfig.m_lstData.getItemCount(itemType.m_strName) + "}");
             if (itemType.m_nUsing > 0) {
                 mapItem.put("img", R.drawable.notetype_sel);
             } else {
@@ -276,33 +282,6 @@ public class noteListActivity extends AppCompatActivity
             }
             listItem.add(mapItem);
         }
-    }
-
-    protected String getItemCount4Type (String strType) {
-        int nCount = 0;
-        dataNoteItem itemData = null;
-        int nAllCount = m_lstData.m_lstAllItem.size();
-        if (strType.compareTo(noteConfig.m_noteTypeMng.m_strTotal) == 0) {
-            if (noteConfig.m_nShowSecurity == 0) {
-                for (int j = 0; j < nAllCount; j++) {
-                    itemData = m_lstData.m_lstAllItem.get(j);
-                    if (noteConfig.m_noteTypeMng.getLevel(itemData.m_strType) < 10) {
-                        nCount++;
-                    }
-                }
-            } else {
-                nCount = nAllCount;
-            }
-        } else {
-            for (int j = 0; j < nAllCount; j++) {
-                itemData = m_lstData.m_lstAllItem.get(j);
-                if (itemData.m_strType.compareTo(strType) == 0) {
-                    nCount++;
-                }
-            }
-        }
-        String strCount = " (" + nCount + ")";
-        return strCount;
     }
 
     protected void fillRightList () {
@@ -336,31 +315,32 @@ public class noteListActivity extends AppCompatActivity
     }
 
     protected void updateList () {
-        m_lstData.updateNoteItem();
-        m_lstView.setAdapter(m_lstData);
+        noteConfig.m_lstData.updateNoteItem();
+        m_lstView.setAdapter(noteConfig.m_lstData);
         m_lstView.invalidate();
-        fillLeftList (false);
+        fillLeftList(false);
+        selectAllItems (false);
         m_sldList.scrollToPage (1);
     }
 
     protected void deleteSelectedNote () {
         dataNoteItem    dataItem = null;
-        int             nCount = m_lstData.getCount();
+        int             nCount = noteConfig.m_lstData.getCount();
         for (int i = 0; i < nCount; i++) {
-            dataItem = (dataNoteItem)m_lstData.getItem(i);
+            dataItem = (dataNoteItem)noteConfig.m_lstData.getItem(i);
             if (dataItem.isSelect()) {
                 dataItem.m_strType = noteConfig.m_noteTypeMng.m_strRubbish;
                 dataItem.writeToFile();
             }
         }
-        m_lstView.postDelayed(()->updateList(), 200);
+        updateList();
     }
 
     protected void selectAllItems (boolean bSelect) {
         dataNoteItem    dataItem = null;
-        int             nCount = m_lstData.getCount();
+        int             nCount = noteConfig.m_lstData.getCount();
         for (int i = 0; i < nCount; i++) {
-            dataItem = (dataNoteItem)m_lstData.getItem(i);
+            dataItem = (dataNoteItem)noteConfig.m_lstData.getItem(i);
             if (bSelect) {
                 if (!dataItem.isSelect())
                     dataItem.setSelect();
@@ -369,7 +349,7 @@ public class noteListActivity extends AppCompatActivity
                     dataItem.setSelect();
             }
         }
-        m_lstView.setAdapter(m_lstData);
+        m_lstView.setAdapter(noteConfig.m_lstData);
         m_lstView.invalidate();
         m_sldList.scrollToPage (1);
     }
@@ -389,9 +369,6 @@ public class noteListActivity extends AppCompatActivity
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (noteConfig.m_bNoteModified) {
-            m_lstView.postDelayed(() -> updateList(), 1000);
-        }
     }
 
     private void addNoteTypeDialog() {
@@ -467,9 +444,9 @@ public class noteListActivity extends AppCompatActivity
                             layItems.addView(chkNoteType);
 
                             dataNoteItem itemData = null;
-                            int nAllCount = m_lstData.m_lstAllItem.size();
+                            int nAllCount = noteConfig.m_lstData.m_lstAllItem.size();
                             for (int j = 0; j < nAllCount; j++) {
-                                itemData = m_lstData.m_lstAllItem.get(j);
+                                itemData = noteConfig.m_lstData.m_lstAllItem.get(j);
                                 if (itemData.m_strType.compareTo(itemType.m_strName) == 0) {
                                     chkNoteType.setEnabled(false);
                                     break;
@@ -519,9 +496,9 @@ public class noteListActivity extends AppCompatActivity
                         m_lstRubbish.clear();
                         LinearLayout layItems = (LinearLayout)noteDelView.findViewById(R.id.layItems);
                         dataNoteItem itemData = null;
-                        int nAllCount = m_lstData.m_lstAllItem.size();
+                        int nAllCount = noteConfig.m_lstData.m_lstAllItem.size();
                         for (int j = 0; j < nAllCount; j++) {
-                            itemData = m_lstData.m_lstAllItem.get(j);
+                            itemData = noteConfig.m_lstData.m_lstAllItem.get(j);
                             if (itemData.m_strType.compareTo(noteConfig.m_noteTypeMng.m_strRubbish) != 0) {
                                 continue;
                             }
@@ -562,11 +539,13 @@ public class noteListActivity extends AppCompatActivity
                     for (int j = 0; j < dataItem.m_lstItem.size(); j++) {
                         dataNoteItem.dataContent dataContent = dataItem.m_lstItem.get(j);
                         if (dataContent.m_nType == noteConfig.m_nItemTypePict ||
-                                dataContent.m_nType == noteConfig.m_nItemTypeAudo) {
+                                dataContent.m_nType == noteConfig.m_nItemTypeAudo ||
+                                dataContent.m_nType == noteConfig.m_nItemTypeVido) {
                             File filePic = new File (dataContent.m_strItem);
                             filePic.delete();
                         }
                     }
+                    noteConfig.m_lstData.delNoteFile(dataItem.m_strFile);
                     File fileDel = new File (dataItem.m_strFile);
                     fileDel.delete();
                 }
@@ -587,11 +566,13 @@ public class noteListActivity extends AppCompatActivity
                         for (int j = 0; j < dataItem.m_lstItem.size(); j++) {
                             dataNoteItem.dataContent dataContent = dataItem.m_lstItem.get(j);
                             if (dataContent.m_nType == noteConfig.m_nItemTypePict ||
-                                    dataContent.m_nType == noteConfig.m_nItemTypeAudo) {
+                                    dataContent.m_nType == noteConfig.m_nItemTypeAudo ||
+                                    dataContent.m_nType == noteConfig.m_nItemTypeVido) {
                                 File filePic = new File (dataContent.m_strItem);
                                 filePic.delete();
                             }
                         }
+                        noteConfig.m_lstData.delNoteFile(dataItem.m_strFile);
                         File fileDel = new File (dataItem.m_strFile);
                         fileDel.delete();
                     }
@@ -636,9 +617,9 @@ public class noteListActivity extends AppCompatActivity
                     return;
                 }
                 dataNoteItem itemData = null;
-                int nAllCount = m_lstData.m_lstAllItem.size();
+                int nAllCount = noteConfig.m_lstData.m_lstAllItem.size();
                 for (int j = 0; j < nAllCount; j++) {
-                    itemData = m_lstData.m_lstAllItem.get(j);
+                    itemData = noteConfig.m_lstData.m_lstAllItem.get(j);
                     if (itemData.m_strType.compareTo(strOldType) == 0) {
                         itemData.m_strType = strNewType;
                         itemData.writeToFile();
@@ -646,6 +627,7 @@ public class noteListActivity extends AppCompatActivity
                 }
                 m_sldList.scrollToPage (1);
                 fillLeftList(true);
+                updateList();
             }
         });
         dlgNoteTDel.show();
@@ -681,16 +663,16 @@ public class noteListActivity extends AppCompatActivity
                 int     nSel = spnType.getSelectedItemPosition();
                 String  strNoteType = (String)spnType.getAdapter().getItem(nSel);
                 dataNoteItem    dataItem = null;
-                int             nCount = m_lstData.getCount();
+                int             nCount = noteConfig.m_lstData.getCount();
                 for (int i = 0; i < nCount; i++) {
-                    dataItem = (dataNoteItem)m_lstData.getItem(i);
+                    dataItem = (dataNoteItem)noteConfig.m_lstData.getItem(i);
                     if (dataItem.isSelect()) {
                         dataItem.m_strType = strNoteType;
                         dataItem.writeToFile();
                     }
                 }
                 m_sldList.scrollToPage (1);
-                m_lstView.postDelayed(()->updateList(), 200);
+                updateList();
             }
         });
         dlgNoteTDel.show();

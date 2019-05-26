@@ -80,7 +80,7 @@ public class noteListSlider extends ViewGroup {
         child = getChildAt(2);
         child.layout(getWidth() + m_nLeftWidth, t, getWidth() + m_nLeftWidth + m_nRightWidth, b);
         mCurrentPage = 1;
-        scrollBy(m_nLeftWidth,0);
+        scrollTo(m_nLeftWidth,0);
     }
 
     @Override
@@ -129,7 +129,7 @@ public class noteListSlider extends ViewGroup {
                         nMov = nRight - nPos;
                     }
                 }
-                if (Math.abs(dY) < Math.abs(nMov)) {
+                if (Math.abs(dY) < Math.abs(nMov) && y > 300) {
                     scrollBy(nMov, 0);
 
                     if (m_nLastMov > 0 && nMov < 0)
@@ -149,7 +149,8 @@ public class noteListSlider extends ViewGroup {
                     noteConfig.m_nMoveLastTime = System.currentTimeMillis();
                 else
                     noteConfig.m_nMoveLastTime = 0;
-                scrollToPage(-1);
+                if(y > 300)
+                    scrollToPage(-1);
                 break;
         }
 
@@ -182,8 +183,10 @@ public class noteListSlider extends ViewGroup {
             dx = -(nPos - m_nLeftWidth);
         else
             dx = -(nPos - (m_nLeftWidth + m_nRightWidth));
-        mScroller.startScroll(getScrollX(),0, dx, 0, Math.abs(dx) / 2);
-        invalidate();
+        if (dx != 0) {
+            mScroller.startScroll(getScrollX(), 0, dx, 0, Math.abs(dx) / 2);
+            invalidate();
+        }
     }
 
     @Override
