@@ -8,63 +8,120 @@
     android:background="@color/colorView"
     tools:context=".noteListActivity">
 
-    <com.wyhwl.bangnote.noteToolBar
-        android:id="@+id/ntlList"
+    <RelativeLayout
+        android:id="@+id/ntlMain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:background="@color/colorPrimary">
 
-        <ImageButton
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="2dp"
-            android:layout_marginLeft="2dp"
-            android:background="@drawable/app_menu_icon"/>
-
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/ntlList"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
-            android:layout_gravity="center_vertical"
-            android:textColor="@color/colorWhite"
-            android:textSize="24dp"
-            android:text="丰耳笔记"/>
+            android:orientation="horizontal"
+            android:background="@color/colorPrimary">
+
+            <ImageButton
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                android:layout_marginLeft="2dp"
+                android:background="@drawable/app_menu_icon"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_gravity="center_vertical"
+                android:textColor="@color/colorWhite"
+                android:textSize="24dp"
+                android:text="丰耳笔记"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ImageButton
+                    android:id="@+id/imbSearchNote"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/note_search"/>
+                <ImageButton
+                    android:id="@+id/imbDelNote"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_toLeftOf="@+id/imbSearchNote"
+                    android:background="@drawable/note_delete"/>
+                <ImageButton
+                    android:id="@+id/imbNewNote"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_toLeftOf="@+id/imbDelNote"
+                    android:background="@drawable/note_new"/>
+            </RelativeLayout>
+        </LinearLayout>
 
         <RelativeLayout
+            android:id="@+id/ntlSearch"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/colorPrimary">
+
             <ImageButton
-                android:id="@+id/imbSearchNote"
+                android:id="@+id/appBack"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                android:layout_marginLeft="2dp"
+                android:background="@drawable/app_back"/>
+
+            <EditText
+                android:id="@+id/edtSearch"
+                android:layout_width="300dp"
+                android:layout_height="32dp"
+                android:layout_marginLeft="12dp"
+                android:layout_toRightOf="@id/appBack"
+                android:textSize="20dp"
+                android:textColor="@color/colorView"
+                android:background="@null"
+                android:hint="输入查找内容"/>
+
+            <ImageButton
+                android:id="@+id/imbSearchAll"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginTop="2dp"
                 android:layout_marginRight="12dp"
                 android:layout_marginBottom="2dp"
                 android:layout_alignParentRight="true"
-                android:background="@drawable/note_search"/>
+                android:background="@drawable/note_search_all"/>
+
             <ImageButton
-                android:id="@+id/imbDelNote"
+                android:id="@+id/imbSearchSelect"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginTop="2dp"
                 android:layout_marginRight="12dp"
                 android:layout_marginBottom="2dp"
-                android:layout_toLeftOf="@+id/imbSearchNote"
-                android:background="@drawable/note_delete"/>
-            <ImageButton
-                android:id="@+id/imbNewNote"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginTop="2dp"
-                android:layout_marginRight="12dp"
-                android:layout_marginBottom="2dp"
-                android:layout_toLeftOf="@+id/imbDelNote"
-                android:background="@drawable/note_new"/>
+                android:layout_toLeftOf="@id/imbSearchAll"
+                android:background="@drawable/note_search_one"/>
+
         </RelativeLayout>
 
-    </com.wyhwl.bangnote.noteToolBar>
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/layList"

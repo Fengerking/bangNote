@@ -21,6 +21,8 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 
 public class noteViewActivity extends AppCompatActivity
                             implements noteImageShow.noteImageShowListener,
@@ -108,9 +110,6 @@ public class noteViewActivity extends AppCompatActivity
         m_txtWeather = (TextView)findViewById(R.id.textWeather);
         m_layView = (LinearLayout)findViewById(R.id.layView);
         m_spnType = (Spinner)findViewById(R.id.spinNoteType);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                noteViewActivity.this, R.layout.spn_note_type, noteConfig.m_noteTypeMng.getListName());
-        m_spnType.setAdapter(adapter);
         m_spnType.setOnItemSelectedListener(this);
 
         noteConfig.m_bNoteModified = false;
@@ -313,18 +312,10 @@ public class noteViewActivity extends AppCompatActivity
         m_txtDate.setText(m_dataItem.m_strDate);
         m_txtTime.setText(m_dataItem.m_strTime);
         m_txtWeather.setText(m_dataItem.m_strCity + " " + m_dataItem.m_strWeat);
-        String          strType = null;
-        SpinnerAdapter adapter = m_spnType.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            strType = (String)adapter.getItem(i);
-            if (strType.compareTo(m_dataItem.m_strType) == 0) {
-                m_spnType.setSelection(i);
-                break;
-            }
-        }
-
         String strDate = m_dataItem.m_strDate + " " + noteConfig.getWeekDay(m_dataItem.m_strDate);
         m_txtDate.setText(strDate);
+
+        initSpinner();
 
         dataNoteItem.dataContent dataItem = null;
         for (int i = 0; i < m_dataItem.m_lstItem.size(); i++) {
@@ -358,6 +349,15 @@ public class noteViewActivity extends AppCompatActivity
         m_bReadFromFile = false;
 
         m_layView.post(()->onResizeView());
+    }
+
+    private void initSpinner () {
+        ArrayList<String> lstType = noteConfig.m_noteTypeMng.getListName(false);
+        lstType.remove(m_dataItem.m_strType);
+        lstType.add(0, m_dataItem.m_strType);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                noteViewActivity.this, R.layout.spn_note_type, lstType);
+        m_spnType.setAdapter(adapter);
     }
 
     public void onResizeView () {

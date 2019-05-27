@@ -131,7 +131,7 @@ public class noteEditActivity extends AppCompatActivity
         m_txtTime.setText(fmtTime.format(date));
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                noteEditActivity.this, R.layout.spn_note_type, noteConfig.m_noteTypeMng.getListName());
+                noteEditActivity.this, R.layout.spn_note_type, noteConfig.m_noteTypeMng.getListName(m_bNewNote));
         m_spnType.setAdapter(adapter);
         m_spnType.setOnItemSelectedListener(this);
 
@@ -501,7 +501,11 @@ public class noteEditActivity extends AppCompatActivity
         if (m_bNewNote) {
             m_dataItem.m_strCity = noteConfig.m_strCityName;
             m_dataItem.m_strWeat = noteConfig.m_strWeather;
-            m_dataItem.m_strType = noteConfig.m_noteTypeMng.getCurType();
+            if (noteConfig.m_noteTypeMng.isSelTotalType())
+                m_dataItem.m_strType = noteConfig.m_noteTypeMng.m_strDefault;
+            else
+                m_dataItem.m_strType = noteConfig.m_noteTypeMng.getCurType();
+
         }
         m_edtTitle.setText(m_dataItem.m_strTitle);
         m_txtDate.setText(m_dataItem.m_strDate);
@@ -559,6 +563,25 @@ public class noteEditActivity extends AppCompatActivity
         }
         View    vwItem = null;
         int     nCount = m_layView.getChildCount();
+        if (m_bNewNote) {
+            boolean bModified = false;
+            if (m_edtTitle.getText().toString().length() > 0)
+                bModified = true;
+            if (nCount > 2) {
+                vwItem = m_layView.getChildAt(2);
+                if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypeText) {
+                    if (((noteEditText)vwItem).getText().toString().length() > 0)
+                        bModified = true;
+                } else {
+                    bModified = true;
+                }
+            }
+            if (!bModified) {
+                noteConfig.m_bNoteModified = false;
+                return;
+            }
+        }
+
         String  strName = "";
         String  strText = "";
         try {

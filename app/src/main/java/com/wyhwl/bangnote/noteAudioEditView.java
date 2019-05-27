@@ -1,6 +1,9 @@
 package com.wyhwl.bangnote;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,6 +47,8 @@ public class noteAudioEditView extends FrameLayout
 
     private audioChangeListener m_audioListener = null;
 
+    private Paint               m_pntRect = null;
+
     // The event listener function
     public interface audioChangeListener {
         public void onAudioChange (String strAudioFile);
@@ -66,11 +71,18 @@ public class noteAudioEditView extends FrameLayout
         initView(context, false);
     }
 
+    protected void onDetachedFromWindow() {
+        stopRecord();
+        super.onDetachedFromWindow();
+    }
+
     public void initView (Context context, boolean bCreate) {
         m_context = context;
         m_bCreate = bCreate;
         m_nID = noteConfig.getAudoViewID ();
 
+        m_pntRect = new Paint();
+        m_pntRect.setColor(0XFF444444);
 
         final View audioEditView = LayoutInflater.from(m_context).inflate(R.layout.note_audio_edit,null);
         addView(audioEditView);
@@ -275,4 +287,14 @@ public class noteAudioEditView extends FrameLayout
         m_player.start();
     }
 
+
+    @Override
+    public void dispatchDraw(Canvas canvas) {
+        int nW = getWidth();
+        int nH = getHeight();
+        RectF rcItemf = new RectF(0, 0, nW, nH);
+        m_pntRect.setStyle(Paint.Style.FILL);
+        canvas.drawRoundRect(rcItemf, 16, 16, m_pntRect);
+        super.dispatchDraw(canvas);
+    }
 }

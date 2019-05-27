@@ -1,20 +1,10 @@
 package com.wyhwl.bangnote;
 
-
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.TextView;
-
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collections;
@@ -73,6 +63,36 @@ public class noteListAdapter extends BaseAdapter {
         }
         Comparator comp = new dateComparator();
         Collections.sort(m_lstSelItem, comp);
+    }
+
+    public void searchNoteItem (String strFilter, boolean bAll) {
+        ArrayList<dataNoteItem> lstTemp = null;
+        if (bAll)
+            lstTemp = new ArrayList<>(m_lstAllItem);
+        else
+            lstTemp = new ArrayList<>(m_lstSelItem);
+        m_lstSelItem.clear();
+        dataNoteItem dataItem = null;
+        for (int i = 0; i < lstTemp.size(); i++) {
+            dataItem = lstTemp.get(i);
+            if (noteConfig.m_nShowSecurity == 0 && dataItem.isSecurity())
+                continue;
+            if (dataItem.m_strTitle.indexOf(strFilter) >= 0) {
+                m_lstSelItem.add(dataItem);
+                continue;
+            }
+
+            dataNoteItem.dataContent dataContent = null;
+            for (int j = 0; j < dataItem.m_lstItem.size(); j++) {
+                dataContent = dataItem.m_lstItem.get(j);
+                if (dataContent.m_nType == noteConfig.m_nItemTypeText) {
+                    if (dataContent.m_strItem.indexOf(strFilter) >= 0) {
+                        m_lstSelItem.add(dataItem);
+                        continue;
+                    }
+                }
+            }
+        }
     }
 
     public void updNoteFile (String strFile) {

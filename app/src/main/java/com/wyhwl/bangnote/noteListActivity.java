@@ -23,11 +23,13 @@ import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.TextView;
 import android.widget.RadioGroup;
+import android.view.inputmethod.InputMethodManager;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -56,6 +58,7 @@ public class noteListActivity extends AppCompatActivity
 
     private ImageButton         m_btnNewNote = null;
 
+    private RelativeLayout      m_layToolBarSearch = null;
     private ListView            m_lstViewLeft = null;
     private ListView            m_lstViewRight = null;
     private String              m_strNewNote = "新建笔记";
@@ -102,6 +105,13 @@ public class noteListActivity extends AppCompatActivity
     protected void initViews () {
         ((ImageButton)findViewById(R.id.imbNewNote)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbDelNote)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbSearchNote)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbSearchAll)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbSearchSelect)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.appBack)).setOnClickListener(this);
+
+        m_layToolBarSearch = (RelativeLayout)findViewById(R.id.ntlSearch);
+        m_layToolBarSearch.setVisibility(View.INVISIBLE);
 
         m_sldList = (noteListSlider) findViewById(R.id.sldList);
         m_sldList.setSwitchListener(this);
@@ -134,13 +144,38 @@ public class noteListActivity extends AppCompatActivity
     }
 
     public void onClick(View v) {
-        switch (v.getId()) {
+        int nID = v.getId();
+        switch (nID) {
             case R.id.imbNewNote:
                 Intent intent = new Intent(noteListActivity.this, noteEditActivity.class);
                 startActivityForResult(intent, 1);
                 break;
             case R.id.imbDelNote:
                 deleteSelectedNote();
+                break;
+
+            case R.id.imbSearchNote:
+                m_layToolBarSearch.setVisibility(View.VISIBLE);
+                break;
+
+            case R.id.appBack:
+                m_layToolBarSearch.setVisibility(View.INVISIBLE);
+                break;
+
+            case R.id.imbSearchAll:
+            case R.id.imbSearchSelect:
+                m_layToolBarSearch.setVisibility(View.INVISIBLE);
+                String strFilter = ((EditText)findViewById(R.id.edtSearch)).getText().toString();
+                if (strFilter.length() <= 0)
+                    break;
+                if (nID == R.id.imbSearchAll)
+                    noteConfig.m_lstData.searchNoteItem(strFilter, true);
+                else
+                    noteConfig.m_lstData.searchNoteItem(strFilter, false);
+                m_lstView.setAdapter(noteConfig.m_lstData);
+                m_lstView.invalidate();
+                InputMethodManager imm = (InputMethodManager) this.getSystemService(this.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(((EditText)findViewById(R.id.edtSearch)).getWindowToken(), 0);
                 break;
         }
     }
@@ -324,15 +359,27 @@ public class noteListActivity extends AppCompatActivity
     }
 
     protected void deleteSelectedNote () {
-        dataNoteItem    dataItem = null;
-        int             nCount = noteConfig.m_lstData.getCount();
+        dataNoteItem        dataItem = null;
+        int                 nCount = noteConfig.m_lstData.getCount();
+        ArrayList<String>   lstDelFiles = new ArrayList<String>();
         for (int i = 0; i < nCount; i++) {
             dataItem = (dataNoteItem)noteConfig.m_lstData.getItem(i);
             if (dataItem.isSelect()) {
-                dataItem.m_strType = noteConfig.m_noteTypeMng.m_strRubbish;
-                dataItem.writeToFile();
+                if (dataItem.m_strType.compareTo(noteConfig.m_noteTypeMng.m_strRubbish) == 0) {
+                    lstDelFiles.add(dataItem.m_strFile);
+                } else {
+                    dataItem.m_strType = noteConfig.m_noteTypeMng.m_strRubbish;
+                    dataItem.writeToFile();
+                }
             }
         }
+        for (int i = 0; i < lstDelFiles.size(); i++) {
+            noteConfig.m_lstData.delNoteFile(lstDelFiles.get(i));
+            File fileDel = new File (lstDelFiles.get(i));
+            fileDel.delete();
+        }
+        lstDelFiles.clear();
+
         updateList();
     }
 
@@ -640,7 +687,7 @@ public class noteListActivity extends AppCompatActivity
             public AlertDialog create() {
                 Spinner spnType = (Spinner)noteMovView.findViewById(R.id.spinNoteType);
                 ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                        noteListActivity.this, R.layout.spn_note_type, noteConfig.m_noteTypeMng.getListName());
+                        noteListActivity.this, R.layout.spn_note_type, noteConfig.m_noteTypeMng.getListName(false));
                 spnType.setAdapter(adapter);
                 return super.create();
             }

@@ -58,6 +58,10 @@ public class dataNoteItem {
         return m_bSelect;
     }
 
+    public boolean isSecurity () {
+        return noteConfig.m_noteTypeMng.getLevel(m_strType) >= 10;
+    }
+
     public int readFromFile (String strFile) {
         m_strFile = strFile;
         m_lstItem.clear();

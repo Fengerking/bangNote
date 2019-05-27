@@ -143,10 +143,12 @@ public class noteTypeMng {
         return false;
     }
 
-    public ArrayList<String> getListName () {
+    public ArrayList<String> getListName (boolean bNewNote) {
         ArrayList<String> lstName = new ArrayList<String> ();
         for (int i = 0; i < m_lstType.size(); i++) {
-            if (m_lstType.get(i).m_nLevel == -1)
+            if (m_lstType.get(i).m_nLevel == -1)  // total type
+                continue;
+            if (bNewNote && m_lstType.get(i).m_nLevel == -2)  // rubbish
                 continue;
             if (noteConfig.m_nShowSecurity == 0) {
                 if (m_lstType.get(i).m_nLevel >= 10)

@@ -37,6 +37,7 @@ public class noteAudioPlayView extends FrameLayout
     private boolean             m_bPlaying = false;
     private int                 m_nDuration = 0;
     private String              m_strDuration = "";
+    private Paint               m_pntRect = null;
 
     public noteAudioPlayView(Context context) {
             super(context);
@@ -51,9 +52,17 @@ public class noteAudioPlayView extends FrameLayout
             initView(context, false);
         }
 
+    protected void onDetachedFromWindow() {
+        if (m_player != null)
+            m_player.stop();
+        super.onDetachedFromWindow();
+    }
+
     public void initView (Context context, boolean bCreate) {
         m_context = context;
         m_bCreate = bCreate;
+        m_pntRect = new Paint();
+        m_pntRect.setColor(0XFF444444);
 
         final View audioEditView = LayoutInflater.from(m_context).inflate(R.layout.note_audio_play,null);
         addView(audioEditView);
@@ -172,4 +181,13 @@ public class noteAudioPlayView extends FrameLayout
             postDelayed(()->updatePos(), 200);
     }
 
+    @Override
+    public void dispatchDraw(Canvas canvas) {
+        int nW = getWidth();
+        int nH = getHeight();
+        RectF rcItemf = new RectF(0, 0, nW, nH);
+        m_pntRect.setStyle(Paint.Style.FILL);
+        canvas.drawRoundRect(rcItemf, 16, 16, m_pntRect);
+        super.dispatchDraw(canvas);
+    }
 }
