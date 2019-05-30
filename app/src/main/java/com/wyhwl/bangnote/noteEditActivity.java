@@ -205,7 +205,7 @@ public class noteEditActivity extends AppCompatActivity
         View vwLast = null;
         if (nType == noteConfig.m_nItemTypePict) {
             noteImageView imgView = (noteImageView) addNoteView(vwAfter, noteConfig.m_nItemTypePict);
-            imgView.setImageFile(strFile);
+            imgView.setImageFile(strFile, false);
             vwLast = imgView;
             noteConfig.m_bNoteModified = true;
         } else if (nType == noteConfig.m_nItemTypeAudo) {
@@ -538,7 +538,7 @@ public class noteEditActivity extends AppCompatActivity
 
                 if (dataItem.m_nType == noteConfig.m_nItemTypePict) {
                     noteImageView noteImage = (noteImageView)addNoteView(null, noteConfig.m_nItemTypePict);
-                    noteImage.setImageFile(dataItem.m_strItem);
+                    noteImage.setImageFile(dataItem.m_strItem, true);
                 } if (dataItem.m_nType == noteConfig.m_nItemTypeAudo) {
                     noteAudioEditView noteAudio = (noteAudioEditView)addNoteView(null, noteConfig.m_nItemTypeAudo);
                     noteAudio.setAudioFile(dataItem.m_strItem);
@@ -570,11 +570,14 @@ public class noteEditActivity extends AppCompatActivity
             if (nCount > 2) {
                 vwItem = m_layView.getChildAt(2);
                 if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypeText) {
-                    if (((noteEditText)vwItem).getText().toString().length() > 0)
+                    if (((noteEditText) vwItem).getText().toString().length() > 0)
                         bModified = true;
-                } else {
-                    bModified = true;
                 }
+            }
+            if (nCount > 3) {
+                vwItem = m_layView.getChildAt(3);
+                if (noteConfig.getNoteviewType(vwItem) != noteConfig.m_nItemTypeText)
+                    bModified = true;
             }
             if (!bModified) {
                 noteConfig.m_bNoteModified = false;

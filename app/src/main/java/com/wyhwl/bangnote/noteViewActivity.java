@@ -46,6 +46,7 @@ public class noteViewActivity extends AppCompatActivity
     private int             m_nLastY = 0;
     private int             m_nLastYPos = 0;
     private int             m_nDispH = 0;
+    private long            m_lLastShowTime = 0;
 
     private VelocityTracker mVelocityTracker;
     private int             mMaxVelocity;
@@ -262,6 +263,10 @@ public class noteViewActivity extends AppCompatActivity
     private void openNoteImageActivity () {
         if (m_noteImage == null)
             return;
+        if (System.currentTimeMillis() - m_lLastShowTime < 5000) {
+            return;
+        }
+        m_lLastShowTime = System.currentTimeMillis();
         String strImgFile = m_noteImage.getImageFile();
         Intent intent = new Intent(noteViewActivity.this, noteImageActivity.class);
         intent.setData(Uri.parse(strImgFile));
