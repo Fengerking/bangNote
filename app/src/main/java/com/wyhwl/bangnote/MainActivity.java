@@ -27,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
         //actionBar.setDisplayShowHomeEnabled(true);
         //actionBar.setDisplayUseLogoEnabled(true);
 
+        stringFromJNI ();
+/*
         noteConfig.initConfig(this);
 
         m_btnTest = (Button)findViewById(R.id.btnTest);
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)m_layAudio.getLayoutParams();
         param.width = -1;
         m_layAudio.setLayoutParams(param);
+*/
     }
 
 
