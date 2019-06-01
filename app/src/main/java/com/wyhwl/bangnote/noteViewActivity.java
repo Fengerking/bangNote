@@ -62,8 +62,6 @@ public class noteViewActivity extends AppCompatActivity
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.hide();
 
-        noteConfig.initConfig(this);
-
         Intent intent = getIntent();
         Uri uri = intent.getData();
         if (uri != null)
