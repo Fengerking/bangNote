@@ -2,6 +2,7 @@ package com.wyhwl.bangnote;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -20,19 +21,22 @@ import java.util.ArrayList;
 public class noteShowLayout extends FrameLayout
         implements noteImageShow.noteImageShowListener,
         AdapterView.OnItemSelectedListener {
-    private Context m_context = null;
-    private TextView m_txtTitle = null;
-    private TextView m_txtDate = null;
-    private TextView m_txtTime = null;
-    private Spinner m_spnType = null;
-    private TextView m_txtWeather = null;
-    private LinearLayout m_layView = null;
+    private Context         m_context = null;
+    private TextView        m_txtTitle = null;
+    private TextView        m_txtDate = null;
+    private TextView        m_txtTime = null;
+    private Spinner         m_spnType = null;
+    private TextView        m_txtWeather = null;
+    private LinearLayout    m_layView = null;
 
-    private String m_strNoteFile = null;
-    private dataNoteItem m_dataItem = null;
-    private int m_nWordCount = 0;
-    private noteImageShow m_noteImage = null;
-    private boolean m_bReadFromFile = false;
+    private String          m_strNoteFile = null;
+    private dataNoteItem    m_dataItem = null;
+    private int             m_nWordCount = 0;
+    private noteImageShow   m_noteImage = null;
+    private boolean         m_bReadFromFile = false;
+
+    private int             m_nLastY = 0;
+    private int             m_nDispH = 0;
 
     public noteShowLayout(Context context) {
         super(context);
@@ -62,7 +66,41 @@ public class noteShowLayout extends FrameLayout
         m_spnType = (Spinner) noteShowView.findViewById(R.id.spinNoteType);
         m_spnType.setOnItemSelectedListener(this);
 
+        DisplayMetrics dm = this.getResources().getDisplayMetrics();
+        m_nDispH = dm.heightPixels;
         m_dataItem = new dataNoteItem();
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        int y = (int) ev.getY();
+        Log.e ("bangNoteDebug", "y = " + y);
+        switch (ev.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                m_nLastY = y;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                int nPos = m_layView.getScrollY();
+                int nH = m_layView.getHeight();
+                int dy = m_nLastY - y;
+                if (dy < 0) {// move down
+                    if (nPos < 0 || nPos + dy < 0)
+                        dy = -nPos;
+                } else {
+                    if (nH - nPos < m_nDispH)
+                        dy = (nH - nPos) - m_nDispH;
+                    else if (dy > (nH - nPos) - m_nDispH)
+                        dy = (nH - nPos) - m_nDispH;
+                }
+
+                //if (dy != 0 && nH > m_nDispH)
+                    m_layView.scrollBy(0, dy);
+                m_nLastY = y;
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+        }
+        return true;
     }
 
     private void initSpinner() {
@@ -102,9 +140,14 @@ public class noteShowLayout extends FrameLayout
         int nCount = m_layView.getChildCount();
         for (int i = 0; i < nCount; i++) {
             nHeight += m_layView.getChildAt(i).getHeight();
+            Log.e("bangNoteDebug", "Total height = " + nHeight + " i= " + i);
         }
+
         ViewGroup.LayoutParams param = (ViewGroup.LayoutParams) m_layView.getLayoutParams();
         param.height = nHeight + 600;
+
+        Log.e("bangNoteDebug", "Total height = " + nHeight);
+
         m_layView.setLayoutParams(param);
         m_layView.scrollTo(0, 0);
     }

@@ -24,12 +24,13 @@ public class noteShowSlider extends noteBaseSlider {
         super(context, attrs, defStyleAttr);
     }
 
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        super.onLayout(changed, l, 0, r, b);
-    }
-
-    public void setNoteFile (String strFile) {
+    public void setNoteFile (String strFile, boolean bInit) {
         m_strNoteFile = strFile;
+        if (!bInit) {
+            noteShowLayout noteView = (noteShowLayout)m_lstChildView.get(m_nCurPage);
+            noteView.setNoteFile(m_strNoteFile);
+            return;
+        }
         m_nItemCount = noteConfig.m_lstData.m_lstSelItem.size();
 
         noteShowLayout layItem = null;
@@ -47,6 +48,10 @@ public class noteShowSlider extends noteBaseSlider {
         postDelayed(()->scrollTo(getWidth(), 0), 100);
 
         Log.v (LOG_TAG, "m_nItemCount = " + m_nItemCount);
+    }
+
+    public String getNotefile () {
+        return m_strNoteFile;
     }
 
     private void updateNoteFile (boolean bInit) {
@@ -120,6 +125,7 @@ public class noteShowSlider extends noteBaseSlider {
 
     protected void needUpdateView (View view) {
         noteShowLayout noteView = (noteShowLayout)m_lstChildView.get(m_nCurPage);
+        noteView.onResizeView();
         m_strNoteFile = noteView.getNoteFile();
 
         ((noteShowLayout)view).setNoteFile(null);

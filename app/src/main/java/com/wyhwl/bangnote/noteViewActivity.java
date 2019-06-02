@@ -18,7 +18,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ public class noteViewActivity extends AppCompatActivity
                             implements noteImageShow.noteImageShowListener,
                                         AdapterView.OnItemSelectedListener,
                                         View.OnClickListener {
+    private TextView        m_txtWinTitle = null;
     private String          m_strNoteFile = null;
     private TextView        m_txtTitle = null;
     private TextView        m_txtDate = null;
@@ -42,15 +42,20 @@ public class noteViewActivity extends AppCompatActivity
 
     private String[]        m_strFileList = null;
     private int             m_nFileCount = 0;
+    private int             m_nCurIndex = 0;
 
     private int             m_nLastY = 0;
     private int             m_nLastYPos = 0;
     private int             m_nDispH = 0;
     private long            m_lLastShowTime = 0;
+    private long            m_lLastImageClick = 0;
 
-    private VelocityTracker mVelocityTracker;
+    private VelocityTracker mVelocityTracker = null;
     private int             mMaxVelocity;
     private boolean         m_bReadFromFile = false;
+
+    private String          m_strTitle = "笔记详情";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +64,6 @@ public class noteViewActivity extends AppCompatActivity
         setTitle(R.string.old_note);
 
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.hide();
 
         Intent intent = getIntent();
@@ -72,6 +76,12 @@ public class noteViewActivity extends AppCompatActivity
         m_nFileCount = intent.getIntExtra("FileCount", 0);
         if(m_nFileCount > 0) {
             m_strFileList = intent.getStringArrayExtra("FileList");
+            for (int i = 0; i < m_nFileCount; i++) {
+                if (m_strFileList[i].compareTo(m_strNoteFile) == 0) {
+                    m_nCurIndex = i;
+                    break;
+                }
+            }
         }
 
         m_dataItem = new dataNoteItem();
@@ -94,6 +104,8 @@ public class noteViewActivity extends AppCompatActivity
     }
 
     private void initViews () {
+        m_txtWinTitle = (TextView)findViewById(R.id.txtWinTitle);
+
         ((ImageButton)findViewById(R.id.imbBack)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbEditNote)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbShareNote)).setOnClickListener(this);
@@ -237,7 +249,6 @@ public class noteViewActivity extends AppCompatActivity
                 if (Math.abs(m_nLastYPos - y) < 300) {
                     mVelocityTracker.computeCurrentVelocity(1000);
                     int initVelocity = (int) mVelocityTracker.getXVelocity() / 2;
-                    setTitle("Move " + initVelocity);
                     mVelocityTracker.clear();
                     if (initVelocity > mMaxVelocity) {
                         // Left ?  -1
@@ -253,6 +264,11 @@ public class noteViewActivity extends AppCompatActivity
     }
 
     public int onNoteImageShowEvent (View view, MotionEvent ev){
+        if (System.currentTimeMillis() - m_lLastImageClick > 300) {
+            m_lLastImageClick = System.currentTimeMillis();
+            return 0;
+        }
+        m_lLastImageClick = System.currentTimeMillis();
         m_noteImage = (noteImageShow)view;
         m_layView.postDelayed(() -> openNoteImageActivity(), 500);
         return 0;
@@ -265,9 +281,26 @@ public class noteViewActivity extends AppCompatActivity
             return;
         }
         m_lLastShowTime = System.currentTimeMillis();
-        String strImgFile = m_noteImage.getImageFile();
+
         Intent intent = new Intent(noteViewActivity.this, noteImageActivity.class);
+        String strImgFile = m_noteImage.getImageFile();
         intent.setData(Uri.parse(strImgFile));
+
+        int nImageCount = 0;
+        for (int i = 0; i < m_dataItem.m_lstItem.size(); i++) {
+            if (m_dataItem.m_lstItem.get(i).m_nType == noteConfig.m_nItemTypePict) {
+                nImageCount++;
+            }
+        }
+        String[] strImageFiles = new String[nImageCount];
+        for (int i = 0; i < m_dataItem.m_lstItem.size(); i++) {
+            if (m_dataItem.m_lstItem.get(i).m_nType == noteConfig.m_nItemTypePict) {
+                strImageFiles[i] = m_dataItem.m_lstItem.get(i).m_strItem;
+            }
+        }
+        intent.putExtra("FileList", strImageFiles);
+        intent.putExtra("FileCount", nImageCount);
+
         startActivity(intent);
     }
 
@@ -280,24 +313,23 @@ public class noteViewActivity extends AppCompatActivity
             return;
         }
 
-        int     nIndex = 0;
         for (int i = 0; i < m_nFileCount; i++) {
             if (m_strFileList[i].compareTo(m_strNoteFile) == 0) {
-                nIndex = i;
+                m_nCurIndex = i;
                 break;
             }
         }
         if (bNext) {
-            nIndex++;
-            if (nIndex == m_nFileCount)
-                nIndex = 0;
+            m_nCurIndex++;
+            if (m_nCurIndex == m_nFileCount)
+                m_nCurIndex = 0;
         }
         if (!bNext) {
-            nIndex--;
-            if (nIndex < 0)
-                nIndex = m_nFileCount - 1;
+            m_nCurIndex--;
+            if (m_nCurIndex < 0)
+                m_nCurIndex = m_nFileCount - 1;
         }
-        m_strNoteFile = m_strFileList[nIndex];
+        m_strNoteFile = m_strFileList[m_nCurIndex];
         readFromFile ();
     }
 
@@ -373,6 +405,9 @@ public class noteViewActivity extends AppCompatActivity
         param.height = nHeight + 600;
         m_layView.setLayoutParams(param);
         m_layView.scrollTo(0, 0);
+
+        int nIndex = m_nCurIndex+1;
+        m_txtWinTitle.setText(m_strTitle + " ("+nIndex+"/"+m_nFileCount+")");
     }
 
     private void showNormalDialog(){

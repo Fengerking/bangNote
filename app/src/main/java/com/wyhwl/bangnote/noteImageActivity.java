@@ -11,7 +11,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -26,6 +28,13 @@ public class noteImageActivity extends AppCompatActivity
     private int                 m_nLastY = 0;
     private long                m_nLastTime = 0;
     private boolean             m_bHideZoom = false;
+
+    private String[]            m_strFileList = null;
+    private int                 m_nFileCount = 0;
+    private int                 m_nCurIndex = 0;
+
+    private VelocityTracker     mVelocityTracker = null;
+    private int                 mMaxVelocity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +80,9 @@ public class noteImageActivity extends AppCompatActivity
             }
         });
 
+        ViewConfiguration config = ViewConfiguration.get(this);
+        mMaxVelocity = config.getScaledMinimumFlingVelocity();
+
         m_imgShow = findViewById(R.id.imgShow);
         m_imgShow.setNoteImageShowListener (this);
         Uri uri = getIntent().getData();
@@ -79,10 +91,33 @@ public class noteImageActivity extends AppCompatActivity
         if (m_strImgFile != null)
             m_imgShow.setImageFile(m_strImgFile, true);
 
+        m_nFileCount = getIntent().getIntExtra("FileCount", 0);
+        if(m_nFileCount > 0) {
+            m_strFileList = getIntent().getStringArrayExtra("FileList");
+            for (int i = 0; i < m_nFileCount; i++) {
+                if (m_strFileList[i].compareTo(m_strImgFile) == 0) {
+                    m_nCurIndex = i;
+                    break;
+                }
+            }
+        }
+
         m_imgShow.postDelayed(()->hideSystemViews(), 500);
     }
 
+    protected void onStop () {
+        super.onStop();
+        if (mVelocityTracker != null) {
+            mVelocityTracker.recycle();
+            mVelocityTracker = null;
+        }
+    }
+
     public int onNoteImageShowEvent (View view, MotionEvent ev){
+        if(mVelocityTracker == null)
+            mVelocityTracker = VelocityTracker.obtain();
+        mVelocityTracker.addMovement(ev);
+
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 m_nLastY = (int)ev.getY();
@@ -101,9 +136,48 @@ public class noteImageActivity extends AppCompatActivity
                         m_imgShow.postDelayed(()->hideZoomButtons(), 3000);
                     }
                 }
+                mVelocityTracker.computeCurrentVelocity(1000);
+                int initVelocity = (int) mVelocityTracker.getXVelocity() / 10;
+                mVelocityTracker.clear();
+                if (initVelocity > mMaxVelocity) {
+                    // Left ?  -1
+                    openNextFile(false);
+                } else if (initVelocity < -mMaxVelocity) {
+                    // right ? +1
+                    openNextFile(true);
+                }
                 break;
         }
         return 0;
+    }
+
+    private void openNextFile (boolean bNext) {
+        if (m_nFileCount <= 1) {
+            if (m_strImgFile.compareTo(m_strFileList[0]) != 0) {
+                m_strImgFile = m_strFileList[0];
+                m_imgShow.setImageFile(m_strImgFile, true);
+            }
+            return;
+        }
+
+        for (int i = 0; i < m_nFileCount; i++) {
+            if (m_strFileList[i].compareTo(m_strImgFile) == 0) {
+                m_nCurIndex = i;
+                break;
+            }
+        }
+        if (bNext) {
+            m_nCurIndex++;
+            if (m_nCurIndex == m_nFileCount)
+                m_nCurIndex = 0;
+        }
+        if (!bNext) {
+            m_nCurIndex--;
+            if (m_nCurIndex < 0)
+                m_nCurIndex = m_nFileCount - 1;
+        }
+        m_strImgFile = m_strFileList[m_nCurIndex];
+        m_imgShow.setImageFile(m_strImgFile, true);
     }
 
     private void hideZoomButtons () {

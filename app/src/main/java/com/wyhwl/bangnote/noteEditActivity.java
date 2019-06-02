@@ -416,12 +416,12 @@ public class noteEditActivity extends AppCompatActivity
         int nCount = m_layView.getChildCount();
         for (int i = 0; i < nCount; i++) {
             nHeight += m_layView.getChildAt(i).getHeight();
-            Log.e("ResizeView", "height = " + nHeight);
+            Log.v("bangNoteDebug", "height = " + nHeight);
         }
         ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)m_layView.getLayoutParams();
         param.height = nHeight + m_nDispH * 3 / 4;
         m_layView.setLayoutParams(param);
-        Log.e("ResizeView", "Total height = " + param.height);
+        Log.v("bangNoteDebug", "Total height = " + param.height);
     }
 
     @Override

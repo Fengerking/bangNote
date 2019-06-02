@@ -115,7 +115,8 @@ public class noteImageShow extends ImageView {
                 setLayoutParams(param);
             }
 
-            m_nowMatrix.postScale(scale, scale, 0, 0);
+            m_nowMatrix.reset();
+            m_nowMatrix.setScale(scale, scale, 0, 0);
             if (m_bCanZoom) {
                 int nHeight = (int)(m_nBmpHeight * scale);
                 if (nHeight < dm.heightPixels) {

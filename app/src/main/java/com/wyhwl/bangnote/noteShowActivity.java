@@ -40,6 +40,7 @@ public class noteShowActivity extends AppCompatActivity
     protected void onResume () {
         super.onResume();
         if (noteConfig.m_bNoteModified) {
+            m_showSlider.setNoteFile (m_strNoteFile, false);
         }
     }
 
@@ -51,7 +52,7 @@ public class noteShowActivity extends AppCompatActivity
         ((ImageButton) findViewById(R.id.imbCount)).setOnClickListener(this);
 
         m_showSlider = (noteShowSlider)findViewById(R.id.sldNoteShow);
-        m_showSlider.setNoteFile (m_strNoteFile);
+        m_showSlider.setNoteFile (m_strNoteFile, true);
     }
 
     public void onClick(View v) {
@@ -62,8 +63,9 @@ public class noteShowActivity extends AppCompatActivity
                 break;
 
             case R.id.imbEditNote:
+                m_strNoteFile = m_showSlider.getNotefile();
                 intent = new Intent(noteShowActivity.this, noteEditActivity.class);
-                //intent.setData(Uri.parse(m_strNoteFile));
+                intent.setData(Uri.parse(m_strNoteFile));
                 startActivityForResult(intent, 1);
                 break;
 

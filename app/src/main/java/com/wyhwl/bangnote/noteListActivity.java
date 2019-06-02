@@ -183,7 +183,7 @@ public class noteListActivity extends AppCompatActivity
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (parent == (View)m_lstView) {
             dataNoteItem noteItem = noteConfig.m_lstData.getNoteItem(position);
-            Intent intent = new Intent(noteListActivity.this, noteShowActivity.class);
+            Intent intent = new Intent(noteListActivity.this, noteViewActivity.class);
             intent.setData(Uri.parse(noteItem.m_strFile));
 
             int nSize = noteConfig.m_lstData.getCount();

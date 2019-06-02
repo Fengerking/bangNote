@@ -81,7 +81,7 @@ public class noteBaseSlider extends ViewGroup {
         m_lstChildView.clear();
         for (int i = 0; i < getChildCount(); i++){
             View child = getChildAt(i);
-            child.layout(getWidth() * i, t, getWidth() * (i + 1), b);
+            child.layout(getWidth() * i, t, getWidth() * (i + 1), b * 4);
             m_lstChildView.add(child);
         }
         if (m_nDefaultPage != 0)
@@ -202,7 +202,7 @@ public class noteBaseSlider extends ViewGroup {
                     vwChild.layout(getWidth() * (i-1), 0, getWidth() * (i), getHeight());
                 }
                 vwChild = m_lstChildView.get(0);
-                vwChild.layout(getWidth() * (nChildNum-1), 0, getWidth() * (nChildNum), getHeight());
+                vwChild.layout(getWidth() * (nChildNum-1), 0, getWidth() * (nChildNum), getHeight() * 4);
 
                 needUpdateView (vwChild);
 
@@ -217,7 +217,7 @@ public class noteBaseSlider extends ViewGroup {
                     vwChild.layout(getWidth() * (i+1), 0, getWidth() * (i+2), getHeight());
                 }
                 vwChild = m_lstChildView.get(nChildNum-1);
-                vwChild.layout(0, 0, getWidth(), getHeight());
+                vwChild.layout(0, 0, getWidth(), getHeight() * 4);
 
                 needUpdateView (vwChild);
 
