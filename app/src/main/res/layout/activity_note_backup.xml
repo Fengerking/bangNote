@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorView"
+    tools:context=".noteBackupActivity">
+
+    <com.wyhwl.bangnote.view.noteToolBar
+        android:id="@+id/ntlView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/colorPrimary">
+
+        <ImageButton
+            android:id="@+id/imbBack"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginLeft="2dp"
+            android:background="@drawable/app_back"/>
+
+        <TextView
+            android:id="@+id/txtWinTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/colorWhite"
+            android:textSize="24dp"
+            android:text="远程笔记备份和恢复"/>
+
+    </com.wyhwl.bangnote.view.noteToolBar>
+
+    <RelativeLayout
+        android:id="@+id/layWechat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:background="@color/colorView">
+
+        <ImageButton
+            android:id="@+id/btnWechat"
+            android:layout_width="90dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="32dp"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/note_wechat"/>
+
+        <TextView
+            android:id="@+id/txtWechat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/btnWechat"
+            android:layout_centerHorizontal="true"
+            android:textSize="20dp"
+            android:textColor="@color/colorText"
+            android:text="微信登录后，进行远程备份和恢复"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_below="@id/txtWechat"
+            android:background="@color/colorBlack" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layBackup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:background="@color/colorView">
+
+        <ImageButton
+            android:id="@+id/btnBackup"
+            android:layout_width="90dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="8dp"
+            android:background="@drawable/note_cloud_backup"/>
+
+        <ProgressBar
+            android:id="@+id/pgbBackup"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="240dp"
+            android:layout_height="60dp"
+            android:layout_marginLeft="32dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/btnBackup"/>
+
+        <TextView
+            android:id="@+id/txtBackup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/btnBackup"
+            android:layout_marginTop="8dp"
+            android:textSize="20dp"
+            android:textColor="@color/colorText"
+            android:text="备份笔记到远程云服务器上。"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_below="@id/txtBackup"
+            android:background="@color/colorBlack" />
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/layRestore"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:background="@color/colorView">
+
+        <ImageButton
+            android:id="@+id/btnRestore"
+            android:layout_width="90dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="8dp"
+            android:background="@drawable/note_cloud_restore"/>
+
+        <ProgressBar
+            android:id="@+id/pgbRestore"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="240dp"
+            android:layout_height="60dp"
+            android:layout_marginLeft="32dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/btnRestore"/>
+
+        <TextView
+            android:id="@+id/txtRestore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/btnRestore"
+            android:layout_marginTop="8dp"
+            android:textSize="20dp"
+            android:textColor="@color/colorText"
+            android:text="把远程服务器的备份恢复到本机。"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_below="@id/txtRestore"
+            android:background="@color/colorBlack" />
+
+    </RelativeLayout>
+</LinearLayout>
