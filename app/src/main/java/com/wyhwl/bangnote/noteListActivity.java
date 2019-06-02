@@ -235,14 +235,22 @@ public class noteListActivity extends AppCompatActivity
             } else if (strCommand.compareTo("清除选择") == 0) {
                 selectAllItems (false);
             } else if (strCommand.compareTo("备份笔记") == 0) {
-                if (backupNote () > 0)
+                noteBackupRestore noteBackup = new noteBackupRestore(this);
+                if (noteBackup.backupNote () > 0)
                     showMsgDlg ("备份笔记成功", null);
                 else
                     showMsgDlg ("备份笔记失败", null);
             } else if (strCommand.compareTo("恢复备份") == 0) {
-                restoreNoteDialog ();
+                noteBackupRestore noteBackup = new noteBackupRestore(this);
+                if (noteBackup.restoreNote () > 0) {
+                    showMsgDlg("恢复笔记成功", null);
+                    noteConfig.m_lstData.fillFileList(noteConfig.m_strNotePath);
+                    updateList();
+                } else {
+                    showMsgDlg("恢复笔记失败", null);
+                }
             } else if (strCommand.compareTo("发送备份") == 0) {
-                sendBackupNote ();
+
             } else if (strCommand.compareTo("笔记设置") == 0) {
 
             } else if (strCommand.compareTo("退出笔记") == 0) {
@@ -731,194 +739,6 @@ public class noteListActivity extends AppCompatActivity
             }
         });
         dlgNoteTDel.show();
-    }
-
-    private void restoreNoteDialog() {
-        final View noteRestoreView = LayoutInflater.from(noteListActivity.this).inflate(R.layout.note_restore_dlg,null);
-        AlertDialog.Builder dlgNoteType = new AlertDialog.Builder(noteListActivity.this){
-            public AlertDialog create() {
-                RadioGroup rdgGroup = (RadioGroup)noteRestoreView.findViewById(R.id.rdgFiles);
-                File fPath = new File(noteConfig.m_strBackPath);
-                File[] fList = fPath.listFiles();
-                if (fList != null) {
-                    for (int i = 0; i < fList.length; i++) {
-                        File file = fList[i];
-                        if (file.isHidden())
-                            continue;
-                        if (file.isDirectory())
-                            continue;
-                        RadioButton rdbFile = new RadioButton(noteListActivity.this);
-                        rdbFile.setText(file.getName());
-                        rdbFile.setTextSize(20);
-                        rdgGroup.addView(rdbFile);
-                    }
-                }
-                return super.create();
-            }
-            public AlertDialog show() {
-                return super.show();
-            }
-        };
-
-        dlgNoteType.setIcon(R.drawable.notetype_aa);
-        dlgNoteType.setTitle("恢复备份笔记：");
-        dlgNoteType.setView(noteRestoreView);
-        dlgNoteType.setNeutralButton("取消",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        m_sldList.scrollToPage (1);
-                    }
-                });
-        dlgNoteType.setNegativeButton("删除",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        RadioGroup rdgGroup = (RadioGroup)noteRestoreView.findViewById(R.id.rdgFiles);
-                        int nCount = rdgGroup.getChildCount();
-                        RadioButton rdbFile = null;
-                        for (int i = 0; i < nCount; i++) {
-                            rdbFile = (RadioButton)rdgGroup.getChildAt(i);
-                            if (rdbFile.isChecked()) {
-                                String strZipFile = noteConfig.m_strBackPath + rdbFile.getText().toString();
-                                File fileDel = new File(strZipFile);
-                                fileDel.delete();
-                                showMsgDlg ("删除备份文件成功", null);
-                                break;
-                            }
-                        }
-                        m_sldList.scrollToPage (1);
-                    }
-                });
-        dlgNoteType.setPositiveButton("确定",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        RadioGroup rdgGroup = (RadioGroup)noteRestoreView.findViewById(R.id.rdgFiles);
-                        int nCount = rdgGroup.getChildCount();
-                        RadioButton rdbFile = null;
-                        for (int i = 0; i < nCount; i++) {
-                            rdbFile = (RadioButton)rdgGroup.getChildAt(i);
-                            if (rdbFile.isChecked()) {
-                                String strZipFile = noteConfig.m_strBackPath + rdbFile.getText().toString();
-                                UnZipFolder(strZipFile, noteConfig.m_strRootPath);
-                                showMsgDlg ("恢复笔记成功", null);
-                                break;
-                            }
-                        }
-                        noteConfig.m_noteTypeMng.readFromFile();
-                        fillLeftList(false);
-                        updateList();
-                        m_sldList.scrollToPage (1);
-                    }
-                });
-        dlgNoteType.show();
-    }
-
-    private int backupNote () {
-        String strZipFile = noteConfig.getNoteZipFile();
-        try {
-            ZipOutputStream outZip = new ZipOutputStream(new FileOutputStream(strZipFile));
-            //创建文件
-            File file = new File(noteConfig.m_strNotePath);
-            //压缩
-            if (ZipFiles(file.getParent() + File.separator, file.getName(), outZip, true) < 0) {
-                return -1;
-            }
-            //完成和关闭
-            outZip.finish();
-            outZip.close();
-        }catch (Exception e) {
-            e.printStackTrace();
-            return -1;
-        }
-        return 1;
-    }
-
-    private void sendBackupNote () {
-        String strZipFile = noteConfig.getNoteZipFile();
-        strZipFile = strZipFile.substring(0, strZipFile.length() - 3);
-        strZipFile += "zip";
-        try {
-            ZipOutputStream outZip = new ZipOutputStream(new FileOutputStream(strZipFile));
-            File file = new File(noteConfig.m_strNotePath);
-            ZipFiles(file.getParent() + File.separator, file.getName(), outZip, false);
-            outZip.finish();
-            outZip.close();
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("*/*");
-        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(strZipFile)));
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(Intent.createChooser(intent, getTitle()));
-    }
-
-    private int ZipFiles(String folderString, String fileString, ZipOutputStream zipOutputSteam, boolean bAll)throws Exception{
-        if(zipOutputSteam == null)
-            return -1;
-        File file = new File(folderString+fileString);
-        if (file.isFile()) {
-            ZipEntry zipEntry =  new ZipEntry(fileString);
-            FileInputStream inputStream = new FileInputStream(file);
-            zipOutputSteam.putNextEntry(zipEntry);
-            int len;
-            byte[] buffer = new byte[4096];
-            while((len=inputStream.read(buffer)) != -1) {
-                zipOutputSteam.write(buffer, 0, len);
-            }
-            zipOutputSteam.closeEntry();
-        } else {
-            //文件夹
-            String fileList[] = file.list();
-            //没有子文件和压缩
-            if (fileList.length <= 0) {
-                ZipEntry zipEntry =  new ZipEntry(fileString+File.separator);
-                zipOutputSteam.putNextEntry(zipEntry);
-                zipOutputSteam.closeEntry();
-            }
-            //子文件和递归
-            for (int i = 0; i < fileList.length; i++) {
-                ZipFiles(folderString, fileString+ File.separator+fileList[i], zipOutputSteam, bAll);
-            }
-        }
-        return 1;
-    }
-
-    public void UnZipFolder(String zipFileString, String outPathString) {
-        try {
-            ZipInputStream inZip = new ZipInputStream(new FileInputStream(zipFileString));
-            ZipEntry zipEntry;
-            String szName = "";
-            while ((zipEntry = inZip.getNextEntry()) != null) {
-                szName = zipEntry.getName();
-                if (zipEntry.isDirectory()) {
-                    //获取部件的文件夹名
-                    szName = szName.substring(0, szName.length() - 1);
-                    File folder = new File(outPathString + File.separator + szName);
-                    folder.mkdirs();
-                } else {
-                    File file = new File(outPathString + File.separator + szName);
-                    if (!file.exists()) {
-                        file.getParentFile().mkdirs();
-                        file.createNewFile();
-                    }
-                    // 获取文件的输出流
-                    FileOutputStream out = new FileOutputStream(file);
-                    int len;
-                    byte[] buffer = new byte[1024];
-                    // 读取（字节）字节到缓冲区
-                    while ((len = inZip.read(buffer)) != -1) {
-                        // 从缓冲区（0）位置写入（字节）字节
-                        out.write(buffer, 0, len);
-                        out.flush();
-                    }
-                    out.close();
-                }
-            }
-            inZip.close();
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     private void showMsgDlg(String strTitle, String strMsg){

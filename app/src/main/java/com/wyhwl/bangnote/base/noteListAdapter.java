@@ -217,7 +217,9 @@ public class noteListAdapter extends BaseAdapter {
         return itemView;
     }
 
-    private void fillFileList(String strPath) {
+    public void fillFileList(String strPath) {
+        m_lstSelItem.clear();
+        m_lstAllItem.clear();
         String strExtName = null;
         File fPath = new File(strPath);
         File[] fList = fPath.listFiles();
