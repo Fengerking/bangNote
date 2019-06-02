@@ -1,4 +1,4 @@
-package com.wyhwl.bangnote;
+package com.wyhwl.bangnote.study;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -8,6 +8,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+
+import com.wyhwl.bangnote.base.*;
+import com.wyhwl.bangnote.view.*;
 
 public class noteShowSlider extends noteBaseSlider {
     private String              LOG_TAG = "noteShowSlider";

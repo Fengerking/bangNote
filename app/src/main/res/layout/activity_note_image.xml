@@ -11,12 +11,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.wyhwl.bangnote.noteImageShow
+        <com.wyhwl.bangnote.view.noteImageShow
             android:id="@+id/imgShow"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:background="@color/colorBlack">
-        </com.wyhwl.bangnote.noteImageShow>
+        </com.wyhwl.bangnote.view.noteImageShow>
 
         <ImageButton
             android:id="@+id/btnZoomIn"

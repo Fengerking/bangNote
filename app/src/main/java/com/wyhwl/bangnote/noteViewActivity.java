@@ -22,6 +22,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import com.wyhwl.bangnote.base.*;
+import com.wyhwl.bangnote.view.*;
 
 public class noteViewActivity extends AppCompatActivity
                             implements noteImageShow.noteImageShowListener,
@@ -292,10 +294,11 @@ public class noteViewActivity extends AppCompatActivity
                 nImageCount++;
             }
         }
+        int nIndex = 0;
         String[] strImageFiles = new String[nImageCount];
         for (int i = 0; i < m_dataItem.m_lstItem.size(); i++) {
             if (m_dataItem.m_lstItem.get(i).m_nType == noteConfig.m_nItemTypePict) {
-                strImageFiles[i] = m_dataItem.m_lstItem.get(i).m_strItem;
+                strImageFiles[nIndex++] = m_dataItem.m_lstItem.get(i).m_strItem;
             }
         }
         intent.putExtra("FileList", strImageFiles);

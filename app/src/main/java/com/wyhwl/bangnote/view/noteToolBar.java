@@ -1,4 +1,4 @@
-package com.wyhwl.bangnote;
+package com.wyhwl.bangnote.view;
 
 import android.content.Context;
 import android.util.AttributeSet;

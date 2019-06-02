@@ -1,4 +1,4 @@
-package com.wyhwl.bangnote;
+package com.wyhwl.bangnote.view;
 
 import android.content.Context;
 import android.os.Handler;
@@ -14,6 +14,8 @@ import android.widget.Scroller;
 import android.view.animation.*;
 
 import android.util.Log;
+
+import com.wyhwl.bangnote.base.*;
 
 public class noteListSlider extends ViewGroup {
     private int                 mLastX;

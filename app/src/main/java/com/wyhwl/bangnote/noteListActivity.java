@@ -46,6 +46,9 @@ import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 import okhttp3.Call;
 
+import com.wyhwl.bangnote.base.*;
+import com.wyhwl.bangnote.view.*;
+
 public class noteListActivity extends AppCompatActivity
                               implements noteListSlider.switchListener,
                                             AdapterView.OnItemClickListener,
@@ -53,11 +56,12 @@ public class noteListActivity extends AppCompatActivity
                                             View.OnClickListener {
     public static final int     REQUEST_STORAGE     = 1;
 
-    private noteListListView    m_lstView = null;
+    private ListView            m_lstView = null;
     private noteListSlider      m_sldList = null;
 
     private ImageButton         m_btnNewNote = null;
 
+    private LinearLayout        m_layToolBarList = null;
     private RelativeLayout      m_layToolBarSearch = null;
     private ListView            m_lstViewLeft = null;
     private ListView            m_lstViewRight = null;
@@ -110,6 +114,8 @@ public class noteListActivity extends AppCompatActivity
         ((ImageButton)findViewById(R.id.imbSearchSelect)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.appBack)).setOnClickListener(this);
 
+        m_layToolBarList = (LinearLayout) findViewById(R.id.ntlList);
+        //m_layToolBarList.setVisibility(View.INVISIBLE);
         m_layToolBarSearch = (RelativeLayout)findViewById(R.id.ntlSearch);
         m_layToolBarSearch.setVisibility(View.INVISIBLE);
 
@@ -117,7 +123,7 @@ public class noteListActivity extends AppCompatActivity
         m_sldList.setSwitchListener(this);
 
         noteConfig.m_lstData = new noteListAdapter(this);
-        m_lstView = (noteListListView) findViewById(R.id.vwNoteList);
+        m_lstView = (ListView) findViewById(R.id.vwNoteList);
         m_lstView.setOnItemClickListener(this);
         m_lstView.setOnItemLongClickListener(this);
         m_lstView.setAdapter(noteConfig.m_lstData);
@@ -156,9 +162,11 @@ public class noteListActivity extends AppCompatActivity
 
             case R.id.imbSearchNote:
                 m_layToolBarSearch.setVisibility(View.VISIBLE);
+                m_layToolBarList.setVisibility(View.INVISIBLE);
                 break;
 
             case R.id.appBack:
+                m_layToolBarList.setVisibility(View.VISIBLE);
                 m_layToolBarSearch.setVisibility(View.INVISIBLE);
                 break;
 
@@ -189,7 +197,7 @@ public class noteListActivity extends AppCompatActivity
             int nSize = noteConfig.m_lstData.getCount();
             String[] strFileList = new String[nSize];
             for (int i = 0; i < nSize; i++) {
-                strFileList[nSize-i-1] = ((dataNoteItem)noteConfig.m_lstData.getItem(i)).m_strFile;
+                strFileList[i] = ((dataNoteItem)noteConfig.m_lstData.getItem(i)).m_strFile;
             }
             intent.putExtra("FileList", strFileList);
             intent.putExtra("FileCount", nSize);

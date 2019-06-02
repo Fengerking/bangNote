@@ -38,6 +38,9 @@ import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.wyhwl.bangnote.base.*;
+import com.wyhwl.bangnote.view.*;
+
 public class noteEditActivity extends AppCompatActivity
         implements  noteEditText.onNoteEditListener,
                     noteImageView.onNoteImageListener,

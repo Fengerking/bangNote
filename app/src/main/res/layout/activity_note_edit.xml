@@ -9,7 +9,7 @@
     android:background="@color/colorView"
     tools:context=".noteEditActivity">
 
-    <com.wyhwl.bangnote.noteToolBar
+    <com.wyhwl.bangnote.view.noteToolBar
         android:id="@+id/ntlView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -85,7 +85,7 @@
                 android:background="@drawable/note_audio"/>
         </RelativeLayout>
 
-    </com.wyhwl.bangnote.noteToolBar>
+    </com.wyhwl.bangnote.view.noteToolBar>
 
     <LinearLayout
         android:id="@+id/layView"
@@ -96,7 +96,7 @@
         android:background="@color/colorView"
         android:orientation="vertical">
 
-        <com.wyhwl.bangnote.noteEditText
+        <com.wyhwl.bangnote.view.noteEditText
             android:id="@+id/editTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

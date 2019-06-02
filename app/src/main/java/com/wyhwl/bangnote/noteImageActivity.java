@@ -18,6 +18,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.wyhwl.bangnote.view.*;
+
 public class noteImageActivity extends AppCompatActivity
                 implements noteImageShow.noteImageShowListener {
     private noteImageShow       m_imgShow = null;

@@ -1,4 +1,4 @@
-package com.wyhwl.bangnote;
+package com.wyhwl.bangnote.study;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -8,6 +8,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
+
+import com.wyhwl.bangnote.base.*;
+import com.wyhwl.bangnote.view.*;
+import com.wyhwl.bangnote.R;
 
 public class noteShowActivity extends AppCompatActivity
         implements View.OnClickListener {
@@ -64,7 +68,7 @@ public class noteShowActivity extends AppCompatActivity
 
             case R.id.imbEditNote:
                 m_strNoteFile = m_showSlider.getNotefile();
-                intent = new Intent(noteShowActivity.this, noteEditActivity.class);
+                intent = new Intent(noteShowActivity.this, noteShowActivity.class);
                 intent.setData(Uri.parse(m_strNoteFile));
                 startActivityForResult(intent, 1);
                 break;

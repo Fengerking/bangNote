@@ -1,4 +1,4 @@
-package com.wyhwl.bangnote;
+package com.wyhwl.bangnote.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -19,6 +19,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import com.wyhwl.bangnote.base.*;
+import com.wyhwl.bangnote.R;
 
 public class noteAudioEditView extends FrameLayout
                                 implements View.OnClickListener,

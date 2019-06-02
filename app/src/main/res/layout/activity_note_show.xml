@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/colorView"
-    tools:context=".noteShowActivity">
+    tools:context=".study.noteShowActivity">
 
     <com.wyhwl.bangnote.noteToolBar
         android:id="@+id/ntlView"
@@ -79,12 +79,12 @@
 
     </com.wyhwl.bangnote.noteToolBar>
 
-    <com.wyhwl.bangnote.noteShowSlider
+    <com.wyhwl.bangnote.study.noteShowSlider
         android:id="@+id/sldNoteShow"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/colorView">
 
-    </com.wyhwl.bangnote.noteShowSlider>
+    </com.wyhwl.bangnote.study.noteShowSlider>
 
 </LinearLayout>

@@ -1,4 +1,4 @@
-package com.wyhwl.bangnote;
+package com.wyhwl.bangnote.base;
 
 import android.content.Context;
 import android.view.View;
@@ -8,6 +8,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collections;
+
+import com.wyhwl.bangnote.base.*;
+import com.wyhwl.bangnote.view.*;
 
 public class noteListAdapter extends BaseAdapter {
     private Context                     m_context       = null;

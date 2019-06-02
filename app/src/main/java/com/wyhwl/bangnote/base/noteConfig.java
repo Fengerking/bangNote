@@ -1,4 +1,4 @@
-package com.wyhwl.bangnote;
+package com.wyhwl.bangnote.base;
 
 import android.Manifest;
 import android.app.Activity;
@@ -19,6 +19,7 @@ import java.util.TimeZone;
 import java.util.Locale;
 
 public class noteConfig {
+    // 应用签名：3a130829ea74bd083fa7444f4df6a82f
     public static int           m_nItemTypeText = 0;
     public static int           m_nItemTypePict = 1;
     public static int           m_nItemTypeAudo = 2;

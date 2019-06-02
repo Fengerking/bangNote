@@ -1,4 +1,4 @@
-package com.wyhwl.bangnote;
+package com.wyhwl.bangnote.view;
 
 import android.content.Context;
 import android.graphics.BitmapFactory;
@@ -16,6 +16,9 @@ import android.util.Log;
 import android.text.method.LinkMovementMethod;
 
 import java.io.FileInputStream;
+
+import com.wyhwl.bangnote.base.*;
+import com.wyhwl.bangnote.R;
 
 public class noteListItemView extends TextView {
     private Context         m_context = null;

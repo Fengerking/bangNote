@@ -8,7 +8,7 @@
     android:background="@color/colorView"
     tools:context=".noteViewActivity">
 
-    <com.wyhwl.bangnote.noteToolBar
+    <com.wyhwl.bangnote.view.noteToolBar
         android:id="@+id/ntlView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
                 android:background="@drawable/noteedit"/>
         </RelativeLayout>
 
-    </com.wyhwl.bangnote.noteToolBar>
+    </com.wyhwl.bangnote.view.noteToolBar>
 
     <LinearLayout
         android:id="@+id/layView"

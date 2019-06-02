@@ -1,4 +1,4 @@
-package com.wyhwl.bangnote;
+package com.wyhwl.bangnote.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -16,6 +16,8 @@ import android.widget.ImageView;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.File;
+
+import com.wyhwl.bangnote.base.*;
 
 public class noteImageView extends ImageView {
     private Context                 m_context = null;

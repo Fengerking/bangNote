@@ -1,4 +1,4 @@
-package com.wyhwl.bangnote;
+package com.wyhwl.bangnote.base;
 
 import java.io.IOException;
 import java.util.List;

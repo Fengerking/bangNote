@@ -5,11 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <com.wyhwl.bangnote.noteAudioRecStatus
+    <com.wyhwl.bangnote.view.noteAudioRecStatus
         android:id="@+id/viewRecStatus"
         android:layout_width="132dp"
         android:layout_height="match_parent">
-    </com.wyhwl.bangnote.noteAudioRecStatus>
+    </com.wyhwl.bangnote.view.noteAudioRecStatus>
 
     <ImageButton
         android:id="@+id/btnAudioStop"

@@ -1,4 +1,4 @@
-package com.wyhwl.bangnote;
+package com.wyhwl.bangnote.study;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -17,6 +17,11 @@ import android.widget.TextView;
 import android.util.Log;
 
 import java.util.ArrayList;
+
+import com.wyhwl.bangnote.base.*;
+import com.wyhwl.bangnote.view.*;
+
+import com.wyhwl.bangnote.R;
 
 public class noteShowLayout extends FrameLayout
         implements noteImageShow.noteImageShowListener,

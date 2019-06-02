@@ -14,6 +14,9 @@ import android.widget.Toast;
 import android.widget.RelativeLayout;
 import android.content.Intent;
 
+import com.wyhwl.bangnote.base.*;
+import com.wyhwl.bangnote.view.*;
+
 public class MainActivity extends AppCompatActivity {
     private Button              m_btnTest = null;
     private noteAudioEditView   m_layAudio = null;

@@ -1,4 +1,4 @@
-package com.wyhwl.bangnote;
+package com.wyhwl.bangnote.view;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.text.Editable;
 import android.text.TextWatcher;
 
+import com.wyhwl.bangnote.base.*;
 
 public class noteEditText extends EditText {
     private Context             m_context = null;
