@@ -6,8 +6,10 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -161,6 +163,7 @@ public class noteBackupRestore {
     }
 
     private void findLastModifedTime () {
+        String strLastName = "";
         File fPath = new File(noteConfig.m_strBackPath);
         File[] fList = fPath.listFiles();
         if (fList != null) {
@@ -170,9 +173,23 @@ public class noteBackupRestore {
                     continue;
                 if (file.isDirectory())
                     continue;
-                if (file.lastModified() > m_lLastBackupTime)
-                    m_lLastBackupTime = file.lastModified();
+                if (file.getName().compareTo(strLastName) > 0)
+                    strLastName = file.getName();
             }
+        }
+
+        Log.e("noteBackup", strLastName);
+        if (strLastName.length() <= 0)
+            return;
+        strLastName = strLastName.substring(4, strLastName.length() - 4);
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+            Date dateLast = formatter.parse(strLastName);
+            m_lLastBackupTime = dateLast.getTime();
+
+            Log.e("noteBackup", "lastTime = " + m_lLastBackupTime);
+        }catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
