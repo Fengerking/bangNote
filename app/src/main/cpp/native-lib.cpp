@@ -1,125 +1,47 @@
 #include <jni.h>
-#include <fstream>
-#include <android/log.h>
-#include <alibabacloud/oss/OssClient.h>
+#include <string>
+#include "COSSMng.h"
 
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_wyhwl_bangnote_base_noteAliyunOSS_initOSS (JNIEnv* env, jobject obj, jobject oss) {
+    JavaVM * 	jvm = 0;
+    jobject 	envobj;
 
-using namespace AlibabaCloud::OSS;
+    env->GetJavaVM(&jvm);
+    jclass clazz = env->GetObjectClass(obj);
+    jclass clsOSS = (jclass)env->NewGlobalRef(clazz);
+    jobject objOSS  = env->NewGlobalRef(oss);
 
-#define  LOG_TAG "@@@BangNote"
-#define LOGW(...) ((int)__android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__))
+    COSSMng * pOss = new COSSMng ();
+    pOss->Init(jvm, env, clsOSS, objOSS);
+    env->DeleteLocalRef(clazz);
 
-int uploadFile (const char * pUserName, const char * pFileName);
-int listObjectName(const char * pUserName);
-int downLoadFile(const char * pUserName, const char * pFileName);
+    return (long)pOss;
+}
 
-std::string AccessKeyId     = "LTAIu16qahlahcz9";
-std::string AccessKeySecret = "qVtgmjKL2pOOkB7MAAy8w0BKOaPX9N";
-std::string Endpoint        = "oss-cn-shanghai.aliyuncs.com";
-std::string BucketName      = "bangnote";
+extern "C" JNIEXPORT jlong JNICALL
+Java_com_wyhwl_bangnote_base_noteAliyunOSS_uninitOSS (JNIEnv* env, jobject obj, jlong oss) {
+    COSSMng * pOss = (COSSMng *)oss;
+    pOss->Uninit(env);
+    delete pOss;
+    return 0;
+}
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_wyhwl_bangnote_MainActivity_stringFromJNI(JNIEnv* env, jobject /* this */) {
-    //uploadFile ("jin_bangfei", "/sdcard/bangnote/.data/txt_2019-05-21-19-22-28.bnt");
-    //listObjectName ("jin_bangfei");
-    downLoadFile ("jin_bangfei", "txt_2019-05-21-19-22-28.bnt");
-    std::string hello = "Hello from C++";
-    return env->NewStringUTF(hello.c_str());
+Java_com_wyhwl_bangnote_base_noteAliyunOSS_getFileList (JNIEnv* env, jobject obj, jlong oss) {
+    std::string strFileList = "Hello from C++";
+    return env->NewStringUTF(strFileList.c_str());
 }
 
-void ProgressCallback(size_t increment, int64_t transfered, int64_t total, void* userData) {
-    LOGW ("Progress: % 8d,  % 8lld  % 8lld ", increment, transfered, total);
-}
-
-int uploadFile (const char * pUserName, const char * pFileName) {
-    std::string strFileName = pFileName;
-    int nPos = strFileName.rfind("/");
-    strFileName = strFileName.substr(nPos, strFileName.size());
-    std::string ObjectName = "user/";
-    ObjectName =  ObjectName + pUserName + strFileName;
-
-    InitializeSdk();
-
-    ClientConfiguration conf;
-    OssClient client(Endpoint, AccessKeyId, AccessKeySecret, conf);
-
-    std::shared_ptr<std::iostream> content = std::make_shared<std::fstream>(pFileName, std::ios::in | std::ios::binary);
-    PutObjectRequest request(BucketName, ObjectName, content);
-
-    TransferProgress progressCallback = { ProgressCallback , nullptr };
-    request.setTransferProgress(progressCallback);
-
-    auto outcome = client.PutObject(request);
-
-    if (!outcome.isSuccess()) {
-        LOGW ("Error code: %s, msg: %s", outcome.error().Code().c_str(), outcome.error().Message().c_str());
-        ShutdownSdk();
-        return -1;
-    }
-
-    ShutdownSdk();
+extern "C" JNIEXPORT jint JNICALL
+Java_com_wyhwl_bangnote_base_noteAliyunOSS_uploadFile (JNIEnv* env, jobject obj, jlong oss, jstring strFile) {
+    char * strFileName = (char *) env->GetStringUTFChars(strFile, NULL);
     return 0;
 }
 
+extern "C" JNIEXPORT jint JNICALL
+Java_com_wyhwl_bangnote_base_noteAliyunOSS_downloadFile (JNIEnv* env, jobject obj, jlong oss, jstring strFile) {
 
-int listObjectName(const char * pUserName) {
-    std::string ObjectName = "user/";
-    ObjectName += pUserName;
-
-    InitializeSdk();
-
-    ClientConfiguration conf;
-    OssClient client(Endpoint, AccessKeyId, AccessKeySecret, conf);
-
-    ListObjectsRequest * request = new ListObjectsRequest(BucketName);
-    request->setPrefix(ObjectName);
-
-    auto outcome = client.ListObjects(*request);
-
-    if (!outcome.isSuccess()) {
-        LOGW ("Error code: %s, msg: %s", outcome.error().Code().c_str(), outcome.error().Message().c_str());
-        ShutdownSdk();
-        return -1;
-    } else {
-        for (const auto& object : outcome.result().ObjectSummarys()) {
-            LOGW ("File  Name: %s, % 8lld  %s", object.Key().c_str(), object.Size(), object.LastModified().c_str());
-        }
-    }
-
-    ShutdownSdk();
     return 0;
 }
 
-int downLoadFile(const char * pUserName, const char * pFileName) {
-
-    std::string ObjectName = "user/";
-    ObjectName += pUserName;
-    ObjectName += "/";
-    ObjectName += pFileName;
-
-    std::string outFileName = "/sdcard/bangnote/.data/111.bnt";
-
-
-    InitializeSdk();
-
-    ClientConfiguration conf;
-    OssClient client(Endpoint, AccessKeyId, AccessKeySecret, conf);
-
-
-    GetObjectRequest request(BucketName, ObjectName);
-    request.setResponseStreamFactory([=]() {return std::make_shared<std::fstream>(outFileName, std::ios_base::out | std::ios_base::in | std::ios_base::trunc| std::ios_base::binary); });
-
-    TransferProgress progressCallback = { ProgressCallback , nullptr };
-    request.setTransferProgress(progressCallback);
-
-    auto outcome = client.GetObject(request);
-
-    if (!outcome.isSuccess()) {
-        LOGW ("Error code: %s, msg: %s", outcome.error().Code().c_str(), outcome.error().Message().c_str());
-        ShutdownSdk();
-        return -1;
-    }
-
-    ShutdownSdk();
-    return 0;
-}

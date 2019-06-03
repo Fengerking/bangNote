@@ -14,7 +14,8 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
-            native-lib.cpp)
+            native-lib.cpp
+            COSSMng.cpp)
 
 
 #添加自己所需的静态库 库多的话，可以使用下面的方式添加

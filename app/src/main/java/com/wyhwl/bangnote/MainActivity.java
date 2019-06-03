@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
         //actionBar.setDisplayShowHomeEnabled(true);
         //actionBar.setDisplayUseLogoEnabled(true);
 
-        stringFromJNI ();
 /*
         noteConfig.initConfig(this);
 
@@ -56,9 +55,5 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    public native String stringFromJNI();
 
-    static {
-        System.loadLibrary("native-lib");
-    }
 }
