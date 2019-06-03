@@ -19,6 +19,7 @@ public class noteBackupRestore {
     private Context     m_context = null;
 
     private long        m_lLastBackupTime = 0;
+    private long        m_lZipFileTime = 0;
 
     public noteBackupRestore (Context context) {
         m_context = context;
@@ -64,28 +65,44 @@ public class noteBackupRestore {
         Comparator comp = new nameComparator();
         Collections.sort(lstZipFiles, comp);
 
+        String strFileName = "";
         for (int i = 0; i < lstZipFiles.size(); i++) {
-            Log.e("noteBackup", lstZipFiles.get(i));
+
+            strFileName = lstZipFiles.get(i);
+            int nPos = strFileName.lastIndexOf(File.separator);
+            strFileName = strFileName.substring(nPos+1);
+            strFileName = strFileName.substring(4, strFileName.length() - 4);
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+                Date dateLast = formatter.parse(strFileName);
+                m_lZipFileTime = dateLast.getTime();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
             unzipFolder(lstZipFiles.get(i), noteConfig.m_strRootPath);
         }
         return 1;
     }
 
     private boolean needZipFile (String strFolder, String strFile) {
-        Log.e ("noteBackup", "needZip" + strFolder + strFile);
         File fileCheck = new File (strFolder + strFile);
         if (fileCheck.exists()) {
             if (fileCheck.lastModified() < m_lLastBackupTime) {
-                Log.e("noteBackup", "UN Zip   " + strFile);
                 return false;
             }
         }
-
-        Log.e ("noteBackup", "   Zip   " + strFile);
         return true;
     }
 
-    private boolean needunZipFile (String strFolder, String strFile) {
+    private boolean needUnzipFile (String strFolder, String strFile) {
+        String strNoteFile = strFolder + strFile;
+        File noteFile = new File (strNoteFile);
+        if (noteFile.exists()) {
+            long lModifyTime = noteFile.lastModified();
+            if (lModifyTime > m_lZipFileTime)
+                return false;
+        }
         return true;
     }
 
@@ -134,7 +151,7 @@ public class noteBackupRestore {
             String          szName = "";
             while ((zipEntry = inZip.getNextEntry()) != null) {
                 szName = zipEntry.getName();
-                if (!needunZipFile (strOutPath, szName))
+                if (!needUnzipFile (strOutPath, szName))
                     continue;
                 if (zipEntry.isDirectory()) {
                     szName = szName.substring(0, szName.length() - 1);
@@ -178,7 +195,6 @@ public class noteBackupRestore {
             }
         }
 
-        Log.e("noteBackup", strLastName);
         if (strLastName.length() <= 0)
             return;
         strLastName = strLastName.substring(4, strLastName.length() - 4);
@@ -186,8 +202,6 @@ public class noteBackupRestore {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
             Date dateLast = formatter.parse(strLastName);
             m_lLastBackupTime = dateLast.getTime();
-
-            Log.e("noteBackup", "lastTime = " + m_lLastBackupTime);
         }catch (Exception e) {
             e.printStackTrace();
         }

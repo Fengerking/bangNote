@@ -288,6 +288,15 @@ public class noteEditActivity extends AppCompatActivity
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         String strDate = String.format("%d-%02d-%02d", year, month+1, dayOfMonth);
                         m_txtDate.setText(strDate);
+
+                        if (m_bNewNote) {
+                            Date dateNow = new Date(System.currentTimeMillis());
+                            if (dateNow.getDate() != dayOfMonth || dateNow.getMonth() != month)
+                                m_dataItem.m_strWeat = "";
+                            else
+                                m_dataItem.m_strWeat = noteConfig.m_strWeather;
+                        }
+
                         noteConfig.m_bNoteModified = true;
                     }
                 }, nYear, nMonth - 1, nDate);
@@ -605,9 +614,11 @@ public class noteEditActivity extends AppCompatActivity
 
             if (m_dataItem.m_strCity != null && m_dataItem.m_strCity.length() > 0) {
                 strName = noteConfig.m_strTagNoteCity; bw.write((strName+"\n").toCharArray());
-                strText = noteConfig.m_strCityName; bw.write((strText+"\n").toCharArray());
+                strText = m_dataItem.m_strCity; bw.write((strText+"\n").toCharArray());
+            }
+            if (m_dataItem.m_strWeat != null && m_dataItem.m_strWeat.length() > 0) {
                 strName = noteConfig.m_strTagNoteWeat; bw.write((strName+"\n").toCharArray());
-                strText = noteConfig.m_strWeather; bw.write((strText+"\n").toCharArray());
+                strText = m_dataItem.m_strWeat; bw.write((strText+"\n").toCharArray());
             }
 
             strName = noteConfig.m_strTagNoteType; bw.write((strName+"\n").toCharArray());

@@ -240,6 +240,7 @@ public class noteListActivity extends AppCompatActivity
                     showMsgDlg ("备份笔记成功", null);
                 else
                     showMsgDlg ("备份笔记失败", null);
+                m_sldList.scrollToPage (1);
             } else if (strCommand.compareTo("恢复备份") == 0) {
                 noteBackupRestore noteBackup = new noteBackupRestore(this);
                 if (noteBackup.restoreNote () > 0) {
@@ -249,8 +250,11 @@ public class noteListActivity extends AppCompatActivity
                 } else {
                     showMsgDlg("恢复笔记失败", null);
                 }
-            } else if (strCommand.compareTo("发送备份") == 0) {
-
+                m_sldList.scrollToPage (1);
+            } else if (strCommand.compareTo("远程备份") == 0) {
+                Intent intent = new Intent(noteListActivity.this, noteBackupActivity.class);
+                startActivity(intent);
+                m_sldList.scrollToPage (1);
             } else if (strCommand.compareTo("笔记设置") == 0) {
 
             } else if (strCommand.compareTo("退出笔记") == 0) {
@@ -348,7 +352,7 @@ public class noteListActivity extends AppCompatActivity
         addRightCommand (listItem, "清除选择", R.drawable.notetype_selnone);
         addRightCommand (listItem, "备份笔记", R.drawable.note_backup);
         addRightCommand (listItem, "恢复备份", R.drawable.note_restore);
-        //addRightCommand (listItem, "发送备份", R.drawable.note_send);
+        addRightCommand (listItem, "远程备份", R.drawable.note_send);
         addRightCommand (listItem, "笔记设置", R.drawable.note_setting);
         addRightCommand (listItem, "退出笔记", R.drawable.note_exit);
 
