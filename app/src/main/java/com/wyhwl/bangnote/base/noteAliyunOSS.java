@@ -24,7 +24,7 @@ public class noteAliyunOSS {
 
     public native long      initOSS(Object oss);
     public native long      uninitOSS(long oss);
-    public native String    getFileList(long oss);
+    public native String    getFileList(long oss, String strUser);
     public native int       uploadFile(long oss, String strFile);
     public native int       downloadFile(long oss, String strFile);
 

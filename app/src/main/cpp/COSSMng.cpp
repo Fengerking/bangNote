@@ -21,10 +21,10 @@
 
 using namespace AlibabaCloud::OSS;
 
-std::string AccessKeyId     = "LTAIu16qahlahcz9";
-std::string AccessKeySecret = "qVtgmjKL2pOOkB7MAAy8w0BKOaPX9N";
-std::string Endpoint        = "oss-cn-shanghai.aliyuncs.com";
-std::string BucketName      = "bangnote";
+std::string OSS_AccessKeyId     = "LTAIu16qahlahcz9";
+std::string OSS_AccessKeySecret = "qVtgmjKL2pOOkB7MAAy8w0BKOaPX9N";
+std::string OSS_Endpoint        = "oss-cn-shanghai.aliyuncs.com";
+std::string OSS_BucketName      = "bangnote";
 
 
 
@@ -34,11 +34,16 @@ int downLoadFile(const char * pUserName, const char * pFileName);
 
 COSSMng::COSSMng(void)
 {
+    m_pjVM = NULL;
+    m_pjCls = NULL;
+    m_pjObj = NULL;
+    m_pFileList = NULL;
 }
 
 COSSMng::~COSSMng(void)
 {
-
+    if (m_pFileList != NULL)
+        delete []m_pFileList;
 }
 
 int COSSMng::Init (JavaVM * jvm, JNIEnv* env, jclass clsOSS, jobject objOSS) {
@@ -51,17 +56,36 @@ int COSSMng::Init (JavaVM * jvm, JNIEnv* env, jclass clsOSS, jobject objOSS) {
                                               "(Ljava/lang/Object;IIILjava/lang/Object;)V");
     }
 
+    InitializeSdk();
+
     return 0;
 }
 
 int COSSMng::Uninit (JNIEnv* env)
 {
+    ShutdownSdk();
+
     if (m_pjObj != NULL)
         env->DeleteGlobalRef(m_pjObj);
     m_pjObj = NULL;
     if (m_pjCls != NULL)
         env->DeleteGlobalRef(m_pjCls);
     m_pjCls = NULL;
+}
+
+char * COSSMng::getFileList (JNIEnv* env, char * pUser)
+{
+    return m_pFileList;
+}
+
+int COSSMng::uploadFile (JNIEnv* env, char * pFileName)
+{
+    return 0;
+}
+
+int COSSMng::downloadFile (JNIEnv* env, char * pFileName)
+{
+    return 0;
 }
 
 
@@ -79,10 +103,10 @@ int uploadFile (const char * pUserName, const char * pFileName) {
     InitializeSdk();
 
     ClientConfiguration conf;
-    OssClient client(Endpoint, AccessKeyId, AccessKeySecret, conf);
+    OssClient client(OSS_Endpoint, OSS_AccessKeyId, OSS_AccessKeySecret, conf);
 
     std::shared_ptr<std::iostream> content = std::make_shared<std::fstream>(pFileName, std::ios::in | std::ios::binary);
-    PutObjectRequest request(BucketName, ObjectName, content);
+    PutObjectRequest request(OSS_BucketName, ObjectName, content);
 
     TransferProgress progressCallback = { ProgressCallback , nullptr };
     request.setTransferProgress(progressCallback);
@@ -107,9 +131,9 @@ int listObjectName(const char * pUserName) {
     InitializeSdk();
 
     ClientConfiguration conf;
-    OssClient client(Endpoint, AccessKeyId, AccessKeySecret, conf);
+    OssClient client(OSS_Endpoint, OSS_AccessKeyId, OSS_AccessKeySecret, conf);
 
-    ListObjectsRequest * request = new ListObjectsRequest(BucketName);
+    ListObjectsRequest * request = new ListObjectsRequest(OSS_BucketName);
     request->setPrefix(ObjectName);
 
     auto outcome = client.ListObjects(*request);
@@ -141,10 +165,10 @@ int downLoadFile(const char * pUserName, const char * pFileName) {
     InitializeSdk();
 
     ClientConfiguration conf;
-    OssClient client(Endpoint, AccessKeyId, AccessKeySecret, conf);
+    OssClient client(OSS_Endpoint, OSS_AccessKeyId, OSS_AccessKeySecret, conf);
 
 
-    GetObjectRequest request(BucketName, ObjectName);
+    GetObjectRequest request(OSS_BucketName, ObjectName);
     request.setResponseStreamFactory([=]() {return std::make_shared<std::fstream>(outFileName, std::ios_base::out | std::ios_base::in | std::ios_base::trunc| std::ios_base::binary); });
 
     TransferProgress progressCallback = { ProgressCallback , nullptr };

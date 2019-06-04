@@ -28,20 +28,24 @@ Java_com_wyhwl_bangnote_base_noteAliyunOSS_uninitOSS (JNIEnv* env, jobject obj, 
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_wyhwl_bangnote_base_noteAliyunOSS_getFileList (JNIEnv* env, jobject obj, jlong oss) {
-    std::string strFileList = "Hello from C++";
-    return env->NewStringUTF(strFileList.c_str());
+Java_com_wyhwl_bangnote_base_noteAliyunOSS_getFileList (JNIEnv* env, jobject obj, jlong oss, jstring strUser) {
+    COSSMng * pOss = (COSSMng *)oss;
+    char * pUser = (char *) env->GetStringUTFChars(strUser, NULL);
+    char * pFileList = pOss->getFileList(env, pUser);
+    return env->NewStringUTF(pFileList);
 }
 
 extern "C" JNIEXPORT jint JNICALL
 Java_com_wyhwl_bangnote_base_noteAliyunOSS_uploadFile (JNIEnv* env, jobject obj, jlong oss, jstring strFile) {
-    char * strFileName = (char *) env->GetStringUTFChars(strFile, NULL);
-    return 0;
+    COSSMng * pOss = (COSSMng *)oss;
+    char * pFileName = (char *) env->GetStringUTFChars(strFile, NULL);
+    return pOss->uploadFile(env, pFileName);
 }
 
 extern "C" JNIEXPORT jint JNICALL
 Java_com_wyhwl_bangnote_base_noteAliyunOSS_downloadFile (JNIEnv* env, jobject obj, jlong oss, jstring strFile) {
-
-    return 0;
+    COSSMng * pOss = (COSSMng *)oss;
+    char * pFileName = (char *) env->GetStringUTFChars(strFile, NULL);
+    return pOss->downloadFile(env, pFileName);
 }
 

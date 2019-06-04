@@ -25,12 +25,18 @@ public:
     int     Init (JavaVM * jvm, JNIEnv* env, jclass clsOSS, jobject objOSS);
     int     Uninit (JNIEnv* env);
 
+    char * 	getFileList (JNIEnv* env, char * pUser);
+    int 	uploadFile (JNIEnv* env, char * pFileName);
+    int 	downloadFile (JNIEnv* env, char * pFileName);
+
 protected:
     JavaVM *			m_pjVM;
     jclass     			m_pjCls;
     jobject				m_pjObj;
 
     jmethodID			m_fPostEvent;
+
+    char *				m_pFileList;
 
 };
 
