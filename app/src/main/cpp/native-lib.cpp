@@ -27,12 +27,11 @@ Java_com_wyhwl_bangnote_base_noteAliyunOSS_uninitOSS (JNIEnv* env, jobject obj, 
     return 0;
 }
 
-extern "C" JNIEXPORT jstring JNICALL
+extern "C" JNIEXPORT jint JNICALL
 Java_com_wyhwl_bangnote_base_noteAliyunOSS_getFileList (JNIEnv* env, jobject obj, jlong oss, jstring strUser) {
     COSSMng * pOss = (COSSMng *)oss;
     char * pUser = (char *) env->GetStringUTFChars(strUser, NULL);
-    char * pFileList = pOss->getFileList(env, pUser);
-    return env->NewStringUTF(pFileList);
+    return pOss->getFileList(env, pUser);
 }
 
 extern "C" JNIEXPORT jint JNICALL
@@ -43,9 +42,10 @@ Java_com_wyhwl_bangnote_base_noteAliyunOSS_uploadFile (JNIEnv* env, jobject obj,
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_com_wyhwl_bangnote_base_noteAliyunOSS_downloadFile (JNIEnv* env, jobject obj, jlong oss, jstring strFile) {
+Java_com_wyhwl_bangnote_base_noteAliyunOSS_downloadFile (JNIEnv* env, jobject obj, jlong oss, jstring strFile, jstring strPath) {
     COSSMng * pOss = (COSSMng *)oss;
     char * pFileName = (char *) env->GetStringUTFChars(strFile, NULL);
-    return pOss->downloadFile(env, pFileName);
+    char * pFilePath = (char *) env->GetStringUTFChars(strPath, NULL);
+    return pOss->downloadFile(env, pFileName, pFilePath);
 }
 

@@ -72,53 +72,38 @@ public class noteImageView extends ImageView {
             int nFind = strFile.indexOf(noteConfig.m_strNotePath);
             m_strFileName = noteConfig.getNotePictFile();
             try {
-                if (true) {
-                    Matrix matBmp = null;
-                    ExifInterface ei = new ExifInterface(strFile);
-                    int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                    switch (orientation) {
-                        case ExifInterface.ORIENTATION_ROTATE_90:
-                            matBmp = new Matrix();
-                            matBmp.postRotate(90);
-                            break;
-                        case ExifInterface.ORIENTATION_ROTATE_180:
-                            matBmp = new Matrix();
-                            matBmp.postRotate(180);
-                            break;
-                        case ExifInterface.ORIENTATION_ROTATE_270:
-                            matBmp = new Matrix();
-                            matBmp.postRotate(270);
-                            break;
-                    }
-
-                    FileInputStream fis = new FileInputStream (strFile);
-                    FileOutputStream fos = new FileOutputStream(m_strFileName);
-                    Bitmap bmp = BitmapFactory.decodeStream(fis);
-
-                    if (matBmp != null) {
-                        Bitmap bmpNew = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matBmp, true);
-                        bmpNew.compress(Bitmap.CompressFormat.JPEG, 65, fos);
-                        bmpNew.recycle();
-                    } else {
-                        bmp.compress(Bitmap.CompressFormat.JPEG, 65, fos);
-                    }
-                    bmp.recycle();
-                    fis.close();
-                    fos.close();
-                } else {
-                    FileInputStream fis = new FileInputStream(strFile);
-                    FileOutputStream fos = new FileOutputStream(m_strFileName);
-
-                    byte[] buffer = new byte[1024];
-                    int byteRead;
-                    while (-1 != (byteRead = fis.read(buffer))) {
-                        fos.write(buffer, 0, byteRead);
-                    }
-
-                    fis.close();
-                    fos.flush();
-                    fos.close();
+                Matrix matBmp = null;
+                ExifInterface ei = new ExifInterface(strFile);
+                int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        matBmp = new Matrix();
+                        matBmp.postRotate(90);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        matBmp = new Matrix();
+                        matBmp.postRotate(180);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        matBmp = new Matrix();
+                        matBmp.postRotate(270);
+                        break;
                 }
+
+                FileInputStream fis = new FileInputStream (strFile);
+                FileOutputStream fos = new FileOutputStream(m_strFileName);
+                Bitmap bmp = BitmapFactory.decodeStream(fis);
+
+                if (matBmp != null) {
+                    Bitmap bmpNew = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matBmp, true);
+                    bmpNew.compress(Bitmap.CompressFormat.JPEG, 65, fos);
+                    bmpNew.recycle();
+                } else {
+                    bmp.compress(Bitmap.CompressFormat.JPEG, 65, fos);
+                }
+                bmp.recycle();
+                fis.close();
+                fos.close();
             }catch (Exception e) {
                 e.printStackTrace();
             }

@@ -56,6 +56,10 @@ public class noteListActivity extends AppCompatActivity
                                             View.OnClickListener {
     public static final int     REQUEST_STORAGE     = 1;
 
+    public static final int     ACTIVITY_BACKUP     = 1;
+    public static final int     ACTIVITY_NOTEVIEW   = 2;
+    public static final int     ACTIVITY_NOTEEDIT   = 3;
+
     private ListView            m_lstView = null;
     private noteListSlider      m_sldList = null;
 
@@ -142,7 +146,7 @@ public class noteListActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(noteListActivity.this, noteEditActivity.class);
-                startActivityForResult(intent, 1);
+                startActivityForResult(intent, ACTIVITY_NOTEEDIT);
             }
         });
 
@@ -154,7 +158,7 @@ public class noteListActivity extends AppCompatActivity
         switch (nID) {
             case R.id.imbNewNote:
                 Intent intent = new Intent(noteListActivity.this, noteEditActivity.class);
-                startActivityForResult(intent, 1);
+                startActivityForResult(intent, ACTIVITY_NOTEEDIT);
                 break;
             case R.id.imbDelNote:
                 deleteSelectedNote();
@@ -202,13 +206,13 @@ public class noteListActivity extends AppCompatActivity
             intent.putExtra("FileList", strFileList);
             intent.putExtra("FileCount", nSize);
 
-            startActivityForResult(intent, 1);
+            startActivityForResult(intent, ACTIVITY_NOTEVIEW);
         } else if (parent == (View)m_lstViewLeft) {
             TextView tvType = (TextView) view.findViewById(R.id.name);
             String strType = tvType.getText().toString();
             if (strType.compareTo(m_strNewNote) == 0) {
                 Intent intent = new Intent(noteListActivity.this, noteEditActivity.class);
-                startActivityForResult(intent, 1);
+                startActivityForResult(intent, ACTIVITY_NOTEEDIT);
             } else {
                 noteConfig.m_noteTypeMng.setCurType(strType);
                 noteConfig.m_lstData.updNoteType(strType);
@@ -253,7 +257,7 @@ public class noteListActivity extends AppCompatActivity
                 m_sldList.scrollToPage (1);
             } else if (strCommand.compareTo("远程备份") == 0) {
                 Intent intent = new Intent(noteListActivity.this, noteBackupActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, ACTIVITY_BACKUP);
                 m_sldList.scrollToPage (1);
             } else if (strCommand.compareTo("笔记设置") == 0) {
 
@@ -436,6 +440,8 @@ public class noteListActivity extends AppCompatActivity
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ACTIVITY_BACKUP)
+            updateList();
     }
 
     private void addNoteTypeDialog() {

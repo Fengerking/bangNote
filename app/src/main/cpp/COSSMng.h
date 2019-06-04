@@ -16,8 +16,11 @@
 #include "string.h"
 #include "jni.h"
 
-class COSSMng
-{
+#include <alibabacloud/oss/OssClient.h>
+
+using namespace AlibabaCloud::OSS;
+
+class COSSMng {
 public:
 	COSSMng(void);
 	virtual ~COSSMng(void);
@@ -25,19 +28,22 @@ public:
     int     Init (JavaVM * jvm, JNIEnv* env, jclass clsOSS, jobject objOSS);
     int     Uninit (JNIEnv* env);
 
-    char * 	getFileList (JNIEnv* env, char * pUser);
+	int 	getFileList (JNIEnv* env, char * pUser);
     int 	uploadFile (JNIEnv* env, char * pFileName);
-    int 	downloadFile (JNIEnv* env, char * pFileName);
+    int 	downloadFile (JNIEnv* env, char * pFileName, char * pFilePath);
+
+	void 	progCallback(size_t increment, int64_t transfered, int64_t total);
 
 protected:
     JavaVM *			m_pjVM;
     jclass     			m_pjCls;
     jobject				m_pjObj;
+	JNIEnv*				m_pEnv;
 
     jmethodID			m_fPostEvent;
 
-    char *				m_pFileList;
-
+	OssClient *			m_pOssClient;
+	char 				m_szUserID[256];
 };
 
 

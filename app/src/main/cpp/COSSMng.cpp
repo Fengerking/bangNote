@@ -12,12 +12,14 @@
 #include <fstream>
 #include <string>
 #include <android/log.h>
-#include <alibabacloud/oss/OssClient.h>
 
 #include "COSSMng.h"
 
-#define  LOG_TAG "@@@BangNote"
+#define  LOG_TAG "@@@noteOSS"
 #define LOGW(...) ((int)__android_log_print(ANDROID_LOG_WARN, LOG_TAG, __VA_ARGS__))
+
+#define OSS_MSG_FILE_LIST           0X10000001
+#define OSS_MSG_FILE_PROG           0X10000010
 
 using namespace AlibabaCloud::OSS;
 
@@ -26,24 +28,19 @@ std::string OSS_AccessKeySecret = "qVtgmjKL2pOOkB7MAAy8w0BKOaPX9N";
 std::string OSS_Endpoint        = "oss-cn-shanghai.aliyuncs.com";
 std::string OSS_BucketName      = "bangnote";
 
+void ossProgressCallback(size_t increment, int64_t transfered, int64_t total, void* userData) {
+    //LOGW ("Progress: % 8d,  % 8lld  % 8lld ", increment, transfered, total);
+    COSSMng * pOssMng = (COSSMng *)userData;
+    pOssMng->progCallback(increment, transfered, total);
+}
 
-
-int uploadFile (const char * pUserName, const char * pFileName);
-int listObjectName(const char * pUserName);
-int downLoadFile(const char * pUserName, const char * pFileName);
-
-COSSMng::COSSMng(void)
-{
+COSSMng::COSSMng(void) {
     m_pjVM = NULL;
     m_pjCls = NULL;
     m_pjObj = NULL;
-    m_pFileList = NULL;
 }
 
-COSSMng::~COSSMng(void)
-{
-    if (m_pFileList != NULL)
-        delete []m_pFileList;
+COSSMng::~COSSMng(void) {
 }
 
 int COSSMng::Init (JavaVM * jvm, JNIEnv* env, jclass clsOSS, jobject objOSS) {
@@ -57,12 +54,14 @@ int COSSMng::Init (JavaVM * jvm, JNIEnv* env, jclass clsOSS, jobject objOSS) {
     }
 
     InitializeSdk();
+    ClientConfiguration conf;
+    m_pOssClient = new OssClient(OSS_Endpoint, OSS_AccessKeyId, OSS_AccessKeySecret, conf);
 
+    memset (m_szUserID, 0, sizeof (m_szUserID));
     return 0;
 }
 
-int COSSMng::Uninit (JNIEnv* env)
-{
+int COSSMng::Uninit (JNIEnv* env) {
     ShutdownSdk();
 
     if (m_pjObj != NULL)
@@ -71,117 +70,98 @@ int COSSMng::Uninit (JNIEnv* env)
     if (m_pjCls != NULL)
         env->DeleteGlobalRef(m_pjCls);
     m_pjCls = NULL;
-}
-
-char * COSSMng::getFileList (JNIEnv* env, char * pUser)
-{
-    return m_pFileList;
-}
-
-int COSSMng::uploadFile (JNIEnv* env, char * pFileName)
-{
     return 0;
 }
 
-int COSSMng::downloadFile (JNIEnv* env, char * pFileName)
-{
-    return 0;
-}
+int COSSMng::getFileList (JNIEnv* env, char * pUser) {
+    m_pEnv = env;
 
-
-void ProgressCallback(size_t increment, int64_t transfered, int64_t total, void* userData) {
-    LOGW ("Progress: % 8d,  % 8lld  % 8lld ", increment, transfered, total);
-}
-
-int uploadFile (const char * pUserName, const char * pFileName) {
-    std::string strFileName = pFileName;
-    int nPos = strFileName.rfind("/");
-    strFileName = strFileName.substr(nPos, strFileName.size());
+    strcpy (m_szUserID, pUser);
     std::string ObjectName = "user/";
-    ObjectName =  ObjectName + pUserName + strFileName;
-
-    InitializeSdk();
-
-    ClientConfiguration conf;
-    OssClient client(OSS_Endpoint, OSS_AccessKeyId, OSS_AccessKeySecret, conf);
-
-    std::shared_ptr<std::iostream> content = std::make_shared<std::fstream>(pFileName, std::ios::in | std::ios::binary);
-    PutObjectRequest request(OSS_BucketName, ObjectName, content);
-
-    TransferProgress progressCallback = { ProgressCallback , nullptr };
-    request.setTransferProgress(progressCallback);
-
-    auto outcome = client.PutObject(request);
-
-    if (!outcome.isSuccess()) {
-        LOGW ("Error code: %s, msg: %s", outcome.error().Code().c_str(), outcome.error().Message().c_str());
-        ShutdownSdk();
-        return -1;
-    }
-
-    ShutdownSdk();
-    return 0;
-}
-
-
-int listObjectName(const char * pUserName) {
-    std::string ObjectName = "user/";
-    ObjectName += pUserName;
-
-    InitializeSdk();
-
-    ClientConfiguration conf;
-    OssClient client(OSS_Endpoint, OSS_AccessKeyId, OSS_AccessKeySecret, conf);
+    ObjectName += pUser;
 
     ListObjectsRequest * request = new ListObjectsRequest(OSS_BucketName);
     request->setPrefix(ObjectName);
 
-    auto outcome = client.ListObjects(*request);
+    auto outcome = m_pOssClient->ListObjects(*request);
 
     if (!outcome.isSuccess()) {
         LOGW ("Error code: %s, msg: %s", outcome.error().Code().c_str(), outcome.error().Message().c_str());
-        ShutdownSdk();
         return -1;
-    } else {
-        for (const auto& object : outcome.result().ObjectSummarys()) {
-            LOGW ("File  Name: %s, % 8lld  %s", object.Key().c_str(), object.Size(), object.LastModified().c_str());
+    }
+
+    std::string strFileInfo;
+    for (const auto& object : outcome.result().ObjectSummarys()) {
+        LOGW ("File  Name: %s, % 8lld  %s", object.Key().c_str(), object.Size(), object.LastModified().c_str());
+        strFileInfo = object.Key() + "|" + object.LastModified();
+
+        if (m_fPostEvent != NULL) {
+            jstring strInfo = env->NewStringUTF(strFileInfo.c_str());
+            env->CallStaticVoidMethod(m_pjCls, m_fPostEvent, m_pjObj, OSS_MSG_FILE_LIST, (int)object.Size(), 0, strInfo);
         }
     }
 
-    ShutdownSdk();
     return 0;
 }
 
-int downLoadFile(const char * pUserName, const char * pFileName) {
+int COSSMng::uploadFile (JNIEnv* env, char * pFileName) {
+    m_pEnv = env;
 
+    std::string strFileName = pFileName;
+    int nPos = strFileName.rfind("/");
+    strFileName = strFileName.substr(nPos, strFileName.size());
     std::string ObjectName = "user/";
-    ObjectName += pUserName;
+    ObjectName =  ObjectName + m_szUserID + strFileName;
+
+    std::shared_ptr<std::iostream> content = std::make_shared<std::fstream>(pFileName, std::ios::in | std::ios::binary);
+    PutObjectRequest request(OSS_BucketName, ObjectName, content);
+
+    TransferProgress progressCallback = { ossProgressCallback , this };
+    request.setTransferProgress(progressCallback);
+
+    auto outcome = m_pOssClient->PutObject(request);
+
+    if (!outcome.isSuccess()) {
+        LOGW ("Error code: %s, msg: %s", outcome.error().Code().c_str(), outcome.error().Message().c_str());
+        return -1;
+    }
+
+    return 0;
+}
+
+int COSSMng::downloadFile (JNIEnv* env, char * pFileName, char * pFilePath) {
+    m_pEnv = env;
+    std::string ObjectName = "user/";
+    ObjectName += m_szUserID;
     ObjectName += "/";
     ObjectName += pFileName;
 
-    std::string outFileName = "/sdcard/bangnote/.data/111.bnt";
-
-
-    InitializeSdk();
-
-    ClientConfiguration conf;
-    OssClient client(OSS_Endpoint, OSS_AccessKeyId, OSS_AccessKeySecret, conf);
-
+    std::string outFileName = pFilePath;
+    outFileName += pFileName;
 
     GetObjectRequest request(OSS_BucketName, ObjectName);
     request.setResponseStreamFactory([=]() {return std::make_shared<std::fstream>(outFileName, std::ios_base::out | std::ios_base::in | std::ios_base::trunc| std::ios_base::binary); });
 
-    TransferProgress progressCallback = { ProgressCallback , nullptr };
+    TransferProgress progressCallback = {ossProgressCallback , this };
     request.setTransferProgress(progressCallback);
 
-    auto outcome = client.GetObject(request);
+    auto outcome = m_pOssClient->GetObject(request);
 
     if (!outcome.isSuccess()) {
         LOGW ("Error code: %s, msg: %s", outcome.error().Code().c_str(), outcome.error().Message().c_str());
-        ShutdownSdk();
         return -1;
     }
 
-    ShutdownSdk();
     return 0;
 }
+
+void COSSMng::progCallback(size_t increment, int64_t transfered, int64_t total) {
+    if (m_fPostEvent == NULL || m_pjVM == NULL)
+        return;
+
+//    JNIEnv * env = NULL;
+//    m_pjVM->AttachCurrentThread (&env, NULL);
+    m_pEnv->CallStaticVoidMethod(m_pjCls, m_fPostEvent, m_pjObj, OSS_MSG_FILE_PROG, (int)transfered, (int)total, NULL);
+//    m_pjVM->DetachCurrentThread();
+}
+
