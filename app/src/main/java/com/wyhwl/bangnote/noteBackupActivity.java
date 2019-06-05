@@ -41,8 +41,6 @@ public class noteBackupActivity extends AppCompatActivity
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
-        noteConfig.initConfig(this);
-
         m_strUserID = "jin_bangfei-";
         if (Build.BRAND.compareTo("google") == 0)
             m_strUserID += Build.BRAND + "_x86";

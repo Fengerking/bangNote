@@ -122,7 +122,7 @@ public class noteTypeMng {
         String  strCurType = getCurType();
         int     nLevel = getLevel(strCurType);
         if (nLevel >= 10)
-            setCurType(m_strDefault);
+            setCurType(m_strTotal);
     }
 
     public int changeType (String strOld, String strNew) {

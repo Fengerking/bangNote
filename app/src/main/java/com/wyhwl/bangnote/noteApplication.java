@@ -7,6 +7,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import com.tencent.bugly.crashreport.CrashReport;
 
 public class noteApplication extends Application {
     @Override
@@ -14,7 +15,7 @@ public class noteApplication extends Application {
        super.onCreate();
        closeAndroidPDialog ();
 
-       //noteConfig.initConfig(getApplicationContext());
+       CrashReport.initCrashReport(getApplicationContext(), "6c790217f8", false);
     }
 
 
