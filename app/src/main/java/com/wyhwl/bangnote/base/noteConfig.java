@@ -74,9 +74,11 @@ public class noteConfig {
     public static String        m_strCityName       = "未知";
     public static String        m_strWeather        = "未知";
 
-    public static final String  APP_ID_WX           = "wxa5e01214efdf3c3a";
-    public static final String  APP_SECRET_WX       = "3ee60759bb37e66e3962d9cb73e7a644";
+    public static final String  APP_ID_WX           = "wxcf2865fab70f442c";
+    public static final String  APP_SECRET_WX       = "431678fa731e94a18d04a9a500d1d77a";
     public static int           g_nWXLoginResult    = 0;
+    public static String        g_strWXUnionID      = "";
+    public static String        g_strWXNickName     = "";
 
     public static void initConfig(Context context) {
         File file = Environment.getExternalStorageDirectory();

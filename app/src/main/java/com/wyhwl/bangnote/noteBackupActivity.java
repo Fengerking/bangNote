@@ -2,6 +2,7 @@ package com.wyhwl.bangnote;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.wyhwl.bangnote.base.*;
@@ -25,8 +27,10 @@ public class noteBackupActivity extends AppCompatActivity
                                 implements View.OnClickListener,
                                             noteAliyunOSS.onOssProgressListener {
     private noteAliyunOSS       m_noteOSS = null;
-    private String              m_strUserID = null;
+    private String              m_strUserID = "";
+    private String              m_strUserName = "";
 
+    private TextView            m_txtWechat = null;
     private ImageButton         m_btnWechat = null;
     private ImageButton         m_btnBackup = null;
     private ImageButton         m_btnRestore = null;
@@ -52,14 +56,28 @@ public class noteBackupActivity extends AppCompatActivity
         //将应用的appid注册到微信
         m_wxAPI.registerApp(noteConfig.APP_ID_WX);
 
-        m_strUserID = "jin_bangfei-";
-        if (Build.BRAND.compareTo("google") == 0)
-            m_strUserID += Build.BRAND + "_x86";
-        else
-            m_strUserID += Build.BRAND + "_" + Build.MODEL;
+        SharedPreferences settings = getSharedPreferences("note_Setting", 0);
+        m_strUserID = settings.getString("wxUserID", "");
+        m_strUserName = settings.getString("wxUserName", "");
+
         m_noteOSS = new noteAliyunOSS (this);
         m_noteOSS.setOssProgListener(this);
         initViews();
+    }
+
+    protected void onResume () {
+        super.onResume();
+        if (noteConfig.g_nWXLoginResult == 1) {
+            m_strUserID = noteConfig.g_strWXUnionID;
+            m_strUserName = noteConfig.g_strWXNickName;
+            SharedPreferences settings = getSharedPreferences("note_Setting", 0);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString("wxUserID", m_strUserID);
+            editor.putString("wxUserName", m_strUserName);
+            editor.commit();
+            m_txtWechat.setText (m_strUserName + "已经登录，可以远程备份和恢复");
+            noteConfig.g_nWXLoginResult = 0;
+        }
     }
 
     protected void onStop () {
@@ -73,6 +91,7 @@ public class noteBackupActivity extends AppCompatActivity
     private void initViews () {
         ((ImageButton)findViewById(R.id.imbBack)).setOnClickListener(this);
 
+        m_txtWechat = (TextView)findViewById(R.id.txtWechat);
         m_btnWechat = (ImageButton)findViewById(R.id.btnWechat);
         m_btnBackup = (ImageButton)findViewById(R.id.btnBackup);
         m_btnRestore = (ImageButton)findViewById(R.id.btnRestore);
@@ -82,6 +101,10 @@ public class noteBackupActivity extends AppCompatActivity
 
         m_prgBackup = (ProgressBar)findViewById(R.id.pgbBackup);
         m_prgRestore = (ProgressBar)findViewById(R.id.pgbRestore);
+
+        if (m_strUserID.length() > 6) {
+            m_txtWechat.setText (m_strUserName + "已经登录，可以远程备份和恢复");
+        }
     }
 
     public void onClick(View v) {
@@ -186,7 +209,11 @@ public class noteBackupActivity extends AppCompatActivity
     }
 
     private void wechatLogin () {
-
+        SendAuth.Req req = new SendAuth.Req();
+        req.scope = "snsapi_userinfo";
+        // req.scope = "snsapi_login";  //提示 scope参数错误，或者没有scope权限
+        req.state = "wechat_sdk_test";
+        m_wxAPI.sendReq(req);
     }
 
     private boolean findInList (String strFile) {
@@ -217,20 +244,6 @@ public class noteBackupActivity extends AppCompatActivity
             m_prgBackup.setProgress(nPercent);
         else
             m_prgRestore.setProgress(nPercent);
-    }
-
-    protected void loginWX () {
-    /*
-        BaseConfig.g_nWXLoginResult = 0;
-        if (BaseConfig.g_jsnWXLoginUser != null)
-            BaseConfig.g_jsnWXLoginUser.clear();
-        BaseConfig.g_jsnWXLoginUser = null;
-    */
-        SendAuth.Req req = new SendAuth.Req();
-        req.scope = "snsapi_userinfo";
-        // req.scope = "snsapi_login";  //提示 scope参数错误，或者没有scope权限
-        req.state = "wechat_sdk_test";
-        m_wxAPI.sendReq(req);
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

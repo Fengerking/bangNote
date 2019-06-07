@@ -32,11 +32,11 @@ public class noteFlashActivity extends Activity {
     }
 
     public void CheckWritePermission () {
-        String[] permissions = new String[]{Manifest.permission.CAMERA,
+        String[] permissions = new String[]{
+                Manifest.permission.CAMERA,
                 Manifest.permission.RECORD_AUDIO,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.ACCESS_COARSE_LOCATION};
+                Manifest.permission.READ_EXTERNAL_STORAGE};
         //检查权限
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             // 之前拒绝了权限，但没有点击 不再询问 这个时候让它继续请求权限

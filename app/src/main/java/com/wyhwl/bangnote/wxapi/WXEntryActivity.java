@@ -140,6 +140,10 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
                                  Intent intent = getIntent();
                                  intent.putExtra("headUrl",headUrl);
                                  WXEntryActivity.this.setResult(0,intent);
+
+                                 noteConfig.g_strWXUnionID = wxResponse.getUnionid();
+                                 noteConfig.g_strWXNickName = wxResponse.getNickname();
+
                                  finish();
                              }
                          }
