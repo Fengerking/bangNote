@@ -23,6 +23,7 @@
             android:background="@color/colorPrimary">
 
             <ImageButton
+                android:id="@+id/imbHome"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginTop="2dp"

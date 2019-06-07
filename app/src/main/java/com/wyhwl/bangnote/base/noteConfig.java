@@ -169,6 +169,11 @@ public class noteConfig {
         return m_strNoteFile;
     }
 
+    public static String    getNoteLockKeyFile () {
+        String strKeyFile = m_strNotePath + "noteLockKey.bnk";
+        return strKeyFile;
+    }
+
     public static Date parseServerTime(String serverTime, String format) {
         if (format == null || format.isEmpty()) {
             format = "yyyy-MM-dd HH:mm:ss";

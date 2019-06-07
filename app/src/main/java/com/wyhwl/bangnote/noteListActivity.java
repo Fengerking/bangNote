@@ -39,24 +39,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.zhy.http.okhttp.OkHttpUtils;
-import com.zhy.http.okhttp.callback.StringCallback;
-import okhttp3.Call;
-
 import com.wyhwl.bangnote.base.*;
 import com.wyhwl.bangnote.view.*;
+import com.wyhwl.bangnote.lock.LockActivity;
+import com.wyhwl.bangnote.lock.LockSettingActivity;
 
 public class noteListActivity extends AppCompatActivity
                               implements noteListSlider.switchListener,
                                             AdapterView.OnItemClickListener,
                                             AdapterView.OnItemLongClickListener,
                                             View.OnClickListener {
-    public static final int     ACTIVITY_BACKUP     = 1;
-    public static final int     ACTIVITY_NOTEVIEW   = 2;
-    public static final int     ACTIVITY_NOTEEDIT   = 3;
+    public static final int     REQUEST_STORAGE         = 1;
+
+    public static final int     ACTIVITY_BACKUP         = 1;
+    public static final int     ACTIVITY_NOTEVIEW       = 2;
+    public static final int     ACTIVITY_NOTEEDIT       = 3;
+    public static final int     ACTIVITY_NOTESETKEY     = 4;
+    public static final int     ACTIVITY_NOTEUNLOCK     = 5;
+    public static final int     ACTIVITY_NOTEABOUT      = 6;
 
     private ListView            m_lstView = null;
     private noteListSlider      m_sldList = null;
@@ -83,6 +83,8 @@ public class noteListActivity extends AppCompatActivity
 
         m_noteInfo = new noteBaseInfo(this);
         initViews();
+
+        CheckWritePermission();
     }
 
     protected void onResume() {
@@ -107,6 +109,7 @@ public class noteListActivity extends AppCompatActivity
     }
 
     protected void initViews () {
+        ((ImageButton)findViewById(R.id.imbHome)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbNewNote)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbDelNote)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbSearchNote)).setOnClickListener(this);
@@ -150,10 +153,16 @@ public class noteListActivity extends AppCompatActivity
     }
 
     public void onClick(View v) {
+        Intent intent = null;
         int nID = v.getId();
         switch (nID) {
+            case R.id.imbHome:
+                intent = new Intent(noteListActivity.this, noteAboutActivity.class);
+                startActivityForResult(intent, ACTIVITY_NOTEABOUT);
+                break;
+
             case R.id.imbNewNote:
-                Intent intent = new Intent(noteListActivity.this, noteEditActivity.class);
+                intent = new Intent(noteListActivity.this, noteEditActivity.class);
                 startActivityForResult(intent, ACTIVITY_NOTEEDIT);
                 break;
             case R.id.imbDelNote:
@@ -255,8 +264,21 @@ public class noteListActivity extends AppCompatActivity
                 Intent intent = new Intent(noteListActivity.this, noteBackupActivity.class);
                 startActivityForResult(intent, ACTIVITY_BACKUP);
                 m_sldList.scrollToPage (1);
+            } else if (strCommand.compareTo("激活密记") == 0) {
+                String strKeyFile = noteConfig.getNoteLockKeyFile();
+                noteApplication.getInstance().readLockKey(strKeyFile);
+                if (noteApplication.getInstance().m_strLockKey.length() > 1) {
+                    Intent intent = new Intent(noteListActivity.this, LockActivity.class);
+                    startActivityForResult(intent, ACTIVITY_NOTEUNLOCK);
+                } else {
+                    Intent intent = new Intent(noteListActivity.this, LockSettingActivity.class);
+                    startActivityForResult(intent, ACTIVITY_NOTESETKEY);
+                }
+                m_sldList.scrollToPage (1);
             } else if (strCommand.compareTo("笔记设置") == 0) {
-
+                Intent intent = new Intent(noteListActivity.this, noteAboutActivity.class);
+                startActivityForResult(intent, ACTIVITY_NOTEABOUT);
+                m_sldList.scrollToPage (1);
             } else if (strCommand.compareTo("退出笔记") == 0) {
                 System.exit(0);
             }
@@ -276,6 +298,12 @@ public class noteListActivity extends AppCompatActivity
                 if (lTimeNow - noteConfig.m_nMoveLastTime < 5000 && noteConfig.m_nMoveCount == noteConfig.m_nMoveNeedTime) {
                     noteConfig.m_nShowSecurity = 1;
                     fillLeftList(false);
+
+                    String strKeyFile = noteConfig.getNoteLockKeyFile();
+                    File fileDel = new File (strKeyFile);
+                    if (fileDel.exists())
+                        fileDel.delete();
+
                     Toast.makeText(this,"开启秘密笔记！",Toast.LENGTH_SHORT).show();
                 }
             }
@@ -346,15 +374,16 @@ public class noteListActivity extends AppCompatActivity
         addRightCommand (listItem, "删除类型", R.drawable.notetype_del);
         addRightCommand (listItem, "修改类型", R.drawable.notetype_modify);
         addRightCommand (listItem, "转移类型", R.drawable.notetype_move);
-        addRightCommand (listItem, "删除笔记", R.drawable.note_delete);
+        //addRightCommand (listItem, "删除笔记", R.drawable.note_delete);
         addRightCommand (listItem, "清除垃圾", R.drawable.lajitong);
         addRightCommand (listItem, "全部选中", R.drawable.notetype_selall);
         addRightCommand (listItem, "清除选择", R.drawable.notetype_selnone);
         addRightCommand (listItem, "备份笔记", R.drawable.note_backup);
         addRightCommand (listItem, "恢复备份", R.drawable.note_restore);
         addRightCommand (listItem, "远程备份", R.drawable.note_send);
+        addRightCommand (listItem, "激活密记", R.drawable.note_lock);
         addRightCommand (listItem, "笔记设置", R.drawable.note_setting);
-        addRightCommand (listItem, "退出笔记", R.drawable.note_exit);
+        //addRightCommand (listItem, "退出笔记", R.drawable.note_exit);
 
         SimpleAdapter adapter = new SimpleAdapter(this, listItem, R.layout.menu_list_item,
                 new String[]{"name","img"}, new int[]{R.id.name, R.id.img});
@@ -436,8 +465,23 @@ public class noteListActivity extends AppCompatActivity
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == ACTIVITY_BACKUP)
+        if (requestCode == ACTIVITY_BACKUP) {
             updateList();
+        } else if (requestCode == ACTIVITY_NOTESETKEY) {
+            if (noteApplication.getInstance().m_strLockKey.length() < 1)
+                return;
+            String strKeyFile = noteConfig.getNoteLockKeyFile();
+            noteApplication.getInstance().writeLockKey(strKeyFile);
+            noteConfig.m_nShowSecurity = 1;
+            fillLeftList(false);
+            showMsgDlg("密记已经激活", "先添加密记笔记类型");
+         } else if (requestCode == ACTIVITY_NOTEUNLOCK) {
+            if (!noteApplication.getInstance().m_isUnlock)
+                return;
+            noteConfig.m_nShowSecurity = 1;
+            fillLeftList(false);
+            Toast.makeText(this,"密记已经激活！",Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void addNoteTypeDialog() {
@@ -758,5 +802,39 @@ public class noteListActivity extends AppCompatActivity
         msgDialog.show();
     }
 
+
+    public void CheckWritePermission () {
+        String[] permissions = new String[]{
+                Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE};
+        //检查权限
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            // 之前拒绝了权限，但没有点击 不再询问 这个时候让它继续请求权限
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.CAMERA)) {
+                Toast.makeText(this, "用户曾拒绝打开相机权限", Toast.LENGTH_SHORT).show();
+                ActivityCompat.requestPermissions(this, permissions, REQUEST_STORAGE);
+            } else {
+                //注册相机权限
+                ActivityCompat.requestPermissions(this, permissions, REQUEST_STORAGE);
+            }
+        }
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //成功
+                    //Toast.makeText(this, "用户授权相机权限", Toast.LENGTH_SHORT).show();
+                } else {
+                    // 勾选了不再询问
+                    Toast.makeText(this, "用户拒绝相机权限", Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
 
 }
