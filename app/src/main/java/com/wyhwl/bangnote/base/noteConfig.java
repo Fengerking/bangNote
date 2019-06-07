@@ -9,6 +9,12 @@ import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
 import android.view.View;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -17,6 +23,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.Locale;
+
+import okhttp3.Call;
 
 public class noteConfig {
     // 应用签名：3a130829ea74bd083fa7444f4df6a82f
@@ -65,6 +73,10 @@ public class noteConfig {
 
     public static String        m_strCityName       = "未知";
     public static String        m_strWeather        = "未知";
+
+    public static final String  APP_ID_WX           = "wxa5e01214efdf3c3a";
+    public static final String  APP_SECRET_WX       = "3ee60759bb37e66e3962d9cb73e7a644";
+    public static int           g_nWXLoginResult    = 0;
 
     public static void initConfig(Context context) {
         File file = Environment.getExternalStorageDirectory();

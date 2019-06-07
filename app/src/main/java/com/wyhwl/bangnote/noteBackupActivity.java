@@ -11,11 +11,15 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.wyhwl.bangnote.base.*;
 
 import java.io.File;
 
+import com.tencent.mm.opensdk.modelmsg.SendAuth;
+import com.tencent.mm.opensdk.openapi.IWXAPI;
+import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
 public class noteBackupActivity extends AppCompatActivity
                                 implements View.OnClickListener,
@@ -34,12 +38,19 @@ public class noteBackupActivity extends AppCompatActivity
     private int                 m_nFileCount = 0;
     private int                 m_nFileIndex = 0;
 
+    private IWXAPI              m_wxAPI;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_backup);
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
+
+        //通过WXAPIFactory工厂获取IWXApI的示例
+        m_wxAPI = WXAPIFactory.createWXAPI(this, noteConfig.APP_ID_WX);//,true);
+        //将应用的appid注册到微信
+        m_wxAPI.registerApp(noteConfig.APP_ID_WX);
 
         m_strUserID = "jin_bangfei-";
         if (Build.BRAND.compareTo("google") == 0)
@@ -206,5 +217,23 @@ public class noteBackupActivity extends AppCompatActivity
             m_prgBackup.setProgress(nPercent);
         else
             m_prgRestore.setProgress(nPercent);
+    }
+
+    protected void loginWX () {
+    /*
+        BaseConfig.g_nWXLoginResult = 0;
+        if (BaseConfig.g_jsnWXLoginUser != null)
+            BaseConfig.g_jsnWXLoginUser.clear();
+        BaseConfig.g_jsnWXLoginUser = null;
+    */
+        SendAuth.Req req = new SendAuth.Req();
+        req.scope = "snsapi_userinfo";
+        // req.scope = "snsapi_login";  //提示 scope参数错误，或者没有scope权限
+        req.state = "wechat_sdk_test";
+        m_wxAPI.sendReq(req);
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

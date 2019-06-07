@@ -204,6 +204,8 @@ public class noteListAdapter extends BaseAdapter {
     public Object getItem(int arg0) {
         if (m_lstSelItem.size() <= 0 || arg0 >= m_lstSelItem.size())
             return null;
+        if (m_lstSelItem.get(arg0).m_strFile.length() > 0 && !m_lstSelItem.get(arg0).m_bHadRead)
+            m_lstSelItem.get(arg0).readFromFile(m_lstSelItem.get(arg0).m_strFile);
         return m_lstSelItem.get(arg0);
     }
     public long getItemId(int position) {
@@ -211,6 +213,8 @@ public class noteListAdapter extends BaseAdapter {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
+        if (m_lstSelItem.get(position).m_strFile.length() > 0 && !m_lstSelItem.get(position).m_bHadRead)
+            m_lstSelItem.get(position).readFromFile(m_lstSelItem.get(position).m_strFile);
         noteListItemView itemView = new noteListItemView(m_context);
         itemView.setTextSize(80);
         itemView.setDataList(m_lstSelItem.get(position));
@@ -238,6 +242,7 @@ public class noteListAdapter extends BaseAdapter {
                     continue;
 
                 dataNoteItem noteItem = new dataNoteItem();
+                noteItem.m_strFile = file.getPath();
                 noteItem.readFromFile(file.getPath());
                 m_lstAllItem.add(noteItem);
                 if (noteConfig.m_noteTypeMng.getCurType().compareTo(noteConfig.m_noteTypeMng.m_strTotal) == 0) {

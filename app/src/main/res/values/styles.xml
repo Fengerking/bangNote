@@ -25,4 +25,20 @@
         <item name="android:background">@color/black_overlay</item>
     </style>
 
+    <style name="wx_login_style" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!--<item name="android:activityCloseExitAnimation">@anim/activity_close_exit</item>-->
+        <!--<item name="android:activityOpenExitAnimation">@anim/activity_close_exit</item>-->
+        <!--<item name="android:background">@color/color_transparent_9000</item>-->
+    </style>
+
+    <style name="noteFlashTheme" parent="@android:style/Theme.Light.NoTitleBar.Fullscreen">
+        <item name="android:windowBackground">@drawable/note_flash</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
 </resources>

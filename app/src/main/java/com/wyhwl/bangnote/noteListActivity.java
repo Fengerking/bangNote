@@ -54,8 +54,6 @@ public class noteListActivity extends AppCompatActivity
                                             AdapterView.OnItemClickListener,
                                             AdapterView.OnItemLongClickListener,
                                             View.OnClickListener {
-    public static final int     REQUEST_STORAGE     = 1;
-
     public static final int     ACTIVITY_BACKUP     = 1;
     public static final int     ACTIVITY_NOTEVIEW   = 2;
     public static final int     ACTIVITY_NOTEEDIT   = 3;
@@ -73,19 +71,17 @@ public class noteListActivity extends AppCompatActivity
 
     public  ArrayList<dataNoteItem>  m_lstRubbish = new ArrayList<dataNoteItem>();
 
+    private noteBaseInfo        m_noteInfo = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_list);
-
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null)
             actionBar.hide();
 
-        CheckWritePermission();
-        noteConfig.initConfig(this);
-        noteConfig.m_lstData = noteConfig.m_lstData;
-
+        m_noteInfo = new noteBaseInfo(this);
         initViews();
     }
 
@@ -150,7 +146,7 @@ public class noteListActivity extends AppCompatActivity
             }
         });
 
-        getTodayWeather();
+        m_lstView.postDelayed(()->m_noteInfo.getTodayWeather(), 5000);
     }
 
     public void onClick(View v) {
@@ -762,64 +758,5 @@ public class noteListActivity extends AppCompatActivity
         msgDialog.show();
     }
 
-    public void CheckWritePermission () {
-        String[] permissions = new String[]{Manifest.permission.CAMERA,
-                                            Manifest.permission.RECORD_AUDIO,
-                                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                            Manifest.permission.READ_EXTERNAL_STORAGE,
-                                            Manifest.permission.ACCESS_COARSE_LOCATION};
-        //检查权限
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            // 之前拒绝了权限，但没有点击 不再询问 这个时候让它继续请求权限
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.CAMERA)) {
-                Toast.makeText(this, "用户曾拒绝打开相机权限", Toast.LENGTH_SHORT).show();
-                ActivityCompat.requestPermissions(this, permissions, REQUEST_STORAGE);
-            } else {
-                //注册相机权限
-                ActivityCompat.requestPermissions(this, permissions, REQUEST_STORAGE);
-            }
-        }
-    }
-
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_STORAGE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //成功
-                    //Toast.makeText(this, "用户授权相机权限", Toast.LENGTH_SHORT).show();
-                    m_lstView.postDelayed(()->updateList(), 500);
-                } else {
-                    // 勾选了不再询问
-                    Toast.makeText(this, "用户拒绝相机权限", Toast.LENGTH_SHORT).show();
-                }
-                break;
-        }
-    }
-
-    public void getTodayWeather () {
-        String strURL = "https://www.tianqiapi.com/api/?version=v1";
-        OkHttpUtils
-                .get().url(strURL).id(101)
-                .build().execute(new httpDataCallBack());
-    }
-
-    public class httpDataCallBack extends StringCallback {
-        public void onError(Call call, Exception e, int id) {
-        }
-
-        public void onResponse(String response, int id) {
-            if (id == 101) {
-                JSONObject  jsnResult = JSON.parseObject(response);
-                noteConfig.m_strCityName = jsnResult.getString("city");
-                JSONArray   jsnData = jsnResult.getJSONArray("data");
-                JSONObject  jsnToday = jsnData.getJSONObject(0);
-                noteConfig.m_strWeather = jsnToday.getString("wea");
-                String strTemp1 = jsnToday.getString("tem2");
-                String strTemp2 = jsnToday.getString("tem1");
-                noteConfig.m_strWeather += " " + strTemp1 + "-" + strTemp2;
-            }
-        }
-    }
 
 }

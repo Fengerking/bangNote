@@ -26,6 +26,7 @@ public class dataNoteItem {
     public String               m_strVidFile = null;
 
     public boolean              m_bModified = false;
+    public boolean              m_bHadRead = false;
 
     private boolean             m_bSelect = false;
 
@@ -80,6 +81,7 @@ public class dataNoteItem {
 
         m_strDateTime = m_strDate + " " + m_strTime;
         m_bModified = false;
+        m_bHadRead = true;
         return 0;
     }
 
