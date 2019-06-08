@@ -94,16 +94,27 @@ public class noteImageView extends ImageView {
                 FileOutputStream fos = new FileOutputStream(m_strFileName);
                 Bitmap bmp = BitmapFactory.decodeStream(fis);
 
+                int nBmpW = bmp.getWidth();
+                int nBmpH = bmp.getHeight();
+                if (nBmpW * nBmpH > 2500 * 2500) {
+                    float fScale = (float)2500 * 2500 / (nBmpW * nBmpH);
+                    if (matBmp == null) {
+                        matBmp = new Matrix();
+                    }
+                    matBmp.postScale(fScale, fScale);
+                }
+
                 if (matBmp != null) {
                     Bitmap bmpNew = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matBmp, true);
                     bmpNew.compress(Bitmap.CompressFormat.JPEG, 65, fos);
+                    fos.close();
                     bmpNew.recycle();
                 } else {
                     bmp.compress(Bitmap.CompressFormat.JPEG, 65, fos);
+                    fos.close();
                 }
-                bmp.recycle();
                 fis.close();
-                fos.close();
+                bmp.recycle();
             }catch (Exception e) {
                 e.printStackTrace();
             }

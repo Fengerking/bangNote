@@ -416,20 +416,38 @@ public class noteListActivity extends AppCompatActivity
             if (dataItem.isSelect()) {
                 if (dataItem.m_strType.compareTo(noteConfig.m_noteTypeMng.m_strRubbish) == 0) {
                     lstDelFiles.add(dataItem.m_strFile);
+                    delDataItemContent (dataItem, false);
                 } else {
                     dataItem.m_strType = noteConfig.m_noteTypeMng.m_strRubbish;
                     dataItem.writeToFile();
                 }
             }
         }
-        for (int i = 0; i < lstDelFiles.size(); i++) {
-            noteConfig.m_lstData.delNoteFile(lstDelFiles.get(i));
-            File fileDel = new File (lstDelFiles.get(i));
+
+        for (int i = 0; i < lstDelFiles.size (); i++) {
+            String strDelFile = lstDelFiles.get(i);
+            noteConfig.m_lstData.delNoteFile(strDelFile);
+            File fileDel = new File (strDelFile);
             fileDel.delete();
         }
-        lstDelFiles.clear();
-
         updateList();
+    }
+
+    private void delDataItemContent (dataNoteItem dataItem, boolean bDelFile) {
+        for (int j = 0; j < dataItem.m_lstItem.size(); j++) {
+            dataNoteItem.dataContent dataContent = dataItem.m_lstItem.get(j);
+            if (dataContent.m_nType == noteConfig.m_nItemTypePict ||
+                    dataContent.m_nType == noteConfig.m_nItemTypeAudo ||
+                    dataContent.m_nType == noteConfig.m_nItemTypeVido) {
+                File filePic = new File (dataContent.m_strItem);
+                filePic.delete();
+            }
+        }
+        if (bDelFile) {
+            noteConfig.m_lstData.delNoteFile(dataItem.m_strFile);
+            File fileDel = new File(dataItem.m_strFile);
+            fileDel.delete();
+        }
     }
 
     protected void selectAllItems (boolean bSelect) {
@@ -649,18 +667,7 @@ public class noteListActivity extends AppCompatActivity
                 int             nCount = m_lstRubbish.size();
                 for (int i = 0; i < nCount; i++) {
                     dataNoteItem dataItem = m_lstRubbish.get(i);
-                    for (int j = 0; j < dataItem.m_lstItem.size(); j++) {
-                        dataNoteItem.dataContent dataContent = dataItem.m_lstItem.get(j);
-                        if (dataContent.m_nType == noteConfig.m_nItemTypePict ||
-                                dataContent.m_nType == noteConfig.m_nItemTypeAudo ||
-                                dataContent.m_nType == noteConfig.m_nItemTypeVido) {
-                            File filePic = new File (dataContent.m_strItem);
-                            filePic.delete();
-                        }
-                    }
-                    noteConfig.m_lstData.delNoteFile(dataItem.m_strFile);
-                    File fileDel = new File (dataItem.m_strFile);
-                    fileDel.delete();
+                    delDataItemContent (dataItem, true);
                 }
                 m_sldList.scrollToPage (1);
                 if (nCount > 0)
@@ -676,18 +683,7 @@ public class noteListActivity extends AppCompatActivity
                     chkNoteType = (CheckBox)layItems.getChildAt(i);
                     if (chkNoteType.isChecked()) {
                         dataNoteItem dataItem = m_lstRubbish.get(i);
-                        for (int j = 0; j < dataItem.m_lstItem.size(); j++) {
-                            dataNoteItem.dataContent dataContent = dataItem.m_lstItem.get(j);
-                            if (dataContent.m_nType == noteConfig.m_nItemTypePict ||
-                                    dataContent.m_nType == noteConfig.m_nItemTypeAudo ||
-                                    dataContent.m_nType == noteConfig.m_nItemTypeVido) {
-                                File filePic = new File (dataContent.m_strItem);
-                                filePic.delete();
-                            }
-                        }
-                        noteConfig.m_lstData.delNoteFile(dataItem.m_strFile);
-                        File fileDel = new File (dataItem.m_strFile);
-                        fileDel.delete();
+                        delDataItemContent (dataItem, true);
                     }
                 }
                 m_sldList.scrollToPage (1);
