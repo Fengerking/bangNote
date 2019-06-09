@@ -175,7 +175,7 @@ public class noteEditActivity extends AppCompatActivity
     private void addMediaView (String strFile, int nType) {
         View  vwAfter = null;
         // the focus view is edittext?
-        if (noteConfig.getNoteviewType(m_nFocusID) != noteConfig.m_nItemTypeText) {
+        if (noteConfig.getNoteviewType(m_nFocusID) == noteConfig.m_nItemTypeText) {
             View vwFocus = null, vwPrev = null;
             int nCount = m_layView.getChildCount();
             for (int i = 2; i < nCount; i++) {
@@ -198,10 +198,20 @@ public class noteEditActivity extends AppCompatActivity
                         } else {
                             vwAfter = vwFocus;
                         }
+                    } else {
+                        vwAfter = vwFocus;
                     }
                     break;
                 }
                 vwPrev = vwFocus;
+            }
+        } else {
+            int nCount = m_layView.getChildCount();
+            for (int i = 2; i < nCount; i++) {
+                 if (m_layView.getChildAt(i).getId() == m_nFocusID) {
+                     vwAfter = m_layView.getChildAt(i);
+                     break;
+                }
             }
         }
 

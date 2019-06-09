@@ -93,7 +93,7 @@ public class noteImageView extends ImageView {
                 FileInputStream fis = new FileInputStream (strFile);
                 FileOutputStream fos = new FileOutputStream(m_strFileName);
                 Bitmap bmp = BitmapFactory.decodeStream(fis);
-/*
+
                 int nBmpW = bmp.getWidth();
                 int nBmpH = bmp.getHeight();
                 if (nBmpW * nBmpH > 2500 * 2500) {
@@ -103,7 +103,7 @@ public class noteImageView extends ImageView {
                     }
                     matBmp.postScale(fScale, fScale);
                 }
-*/
+
                 if (matBmp != null) {
                     Bitmap bmpNew = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matBmp, true);
                     bmpNew.compress(Bitmap.CompressFormat.JPEG, 65, fos);

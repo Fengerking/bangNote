@@ -61,16 +61,25 @@ public class noteImageShow extends ImageView {
 
     public noteImageShow(Context context) {
         super(context);
-        m_context = context;
+        initView (context);
     }
 
     public noteImageShow(Context context, AttributeSet attrs) {
         super(context, attrs);
-        m_context = context;
+        initView (context);
     }
 
     public noteImageShow(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        initView (context);
+    }
+
+    private void initView (Context context) {
+        m_context = context;
+        setScaleType(ImageView.ScaleType.MATRIX);
+        DisplayMetrics dm = this.getResources().getDisplayMetrics();
+        m_nScrWidth = dm.widthPixels;
+        m_nScrHeight = dm.heightPixels;
     }
 
     public String getImageFile () {
@@ -80,11 +89,8 @@ public class noteImageShow extends ImageView {
     public void setImageFile (String strFile, boolean bCanZoom) {
         m_strFile = strFile;
         m_bCanZoom = bCanZoom;
-        setScaleType(ImageView.ScaleType.MATRIX);
-
-        DisplayMetrics dm = this.getResources().getDisplayMetrics();
-        m_nScrWidth = dm.widthPixels;
-        m_nScrHeight = dm.heightPixels;
+        if (strFile == null)
+            return;
 
         try {
             FileInputStream fis = new FileInputStream(strFile);
@@ -241,6 +247,19 @@ public class noteImageShow extends ImageView {
                     if (m_nScrWidth - m_nOffMovX - m_nOffsetX > m_nBmpWidth * m_fBmpScale)
                         m_nOffMovX = (int)(m_nScrWidth - m_nOffsetX - m_nBmpWidth * m_fBmpScale);
                     m_nowMatrix.postTranslate(m_nOffMovX, m_nOffMovY);
+                    if (m_nOffsetX >= 0 && (event.getX() > m_ptStart.x)) {
+                        if (m_imgListener != null)
+                            m_imgListener.onNoteImageShowEvent(this, event);
+                        return true;
+                    }
+                    if ((m_nScrWidth - m_nOffsetX + 1 >= m_nBmpWidth * m_fBmpScale) && (event.getX() < m_ptStart.x)) {
+                        if (m_imgListener != null)
+                            m_imgListener.onNoteImageShowEvent(this, event);
+                        return true;
+                    }
+                    setImageMatrix(m_nowMatrix);
+                    invalidate();
+                    return true;
                 } else if (m_nMode == MODE_ZOOM) {
                     float newDist = spacing(event);
                     if (newDist > 10f) {

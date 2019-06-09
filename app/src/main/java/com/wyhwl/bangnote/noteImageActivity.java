@@ -1,28 +1,20 @@
 package com.wyhwl.bangnote;
 
-import android.annotation.SuppressLint;
-import android.content.ComponentName;
-import android.content.Context;
-import android.graphics.Matrix;
 import android.net.Uri;
-import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.View;
-import android.view.ViewConfiguration;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.TextView;
+
 
 import com.wyhwl.bangnote.view.*;
 
 public class noteImageActivity extends AppCompatActivity
                 implements noteImageShow.noteImageShowListener {
-    private noteImageShow       m_imgShow = null;
+    private noteImageSlider     m_imgSlider = null;
+
     private String              m_strImgFile = null;
     private ImageButton         m_btnZoomIn = null;
     private ImageButton         m_btnZoomOut = null;
@@ -35,9 +27,6 @@ public class noteImageActivity extends AppCompatActivity
     private int                 m_nFileCount = 0;
     private int                 m_nCurIndex = 0;
 
-    private VelocityTracker     mVelocityTracker = null;
-    private int                 mMaxVelocity;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +35,14 @@ public class noteImageActivity extends AppCompatActivity
         if (actionBar != null)
             actionBar.hide();
 
+        initViews ();
+    }
+
+    protected void onStop () {
+        super.onStop();
+    }
+
+    private void initViews (){
         m_btnZoomIn = (ImageButton)findViewById(R.id.btnZoomIn);
         m_btnZoomIn.setVisibility(View.INVISIBLE);
         m_btnZoomOut = (ImageButton)findViewById(R.id.btnZoomOut);
@@ -53,42 +50,36 @@ public class noteImageActivity extends AppCompatActivity
         m_btnZoomOut.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 m_bHideZoom = false;
-                m_imgShow.zoomOut();
+                m_imgSlider.getCurView().zoomOut();
             }
         });
         m_btnZoomIn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 m_bHideZoom = false;
-                m_imgShow.zoomIn();
+                m_imgSlider.getCurView().zoomIn();
             }
         });
 
         m_btnZoomIn.setOnLongClickListener(new View.OnLongClickListener() {
             public boolean onLongClick(View v) {
                 m_bHideZoom = true;
-                m_imgShow.postDelayed(()->hideZoomButtons(), 200);
+                m_imgSlider.postDelayed(()->hideZoomButtons(), 200);
                 return true;
             }
         });
         m_btnZoomOut.setOnLongClickListener(new View.OnLongClickListener() {
             public boolean onLongClick(View v) {
                 m_bHideZoom = true;
-                m_imgShow.postDelayed(()->hideZoomButtons(), 200);
+                m_imgSlider.postDelayed(()->hideZoomButtons(), 200);
                 return true;
             }
         });
 
-        ViewConfiguration config = ViewConfiguration.get(this);
-        mMaxVelocity = config.getScaledMinimumFlingVelocity();
-
-        m_imgShow = findViewById(R.id.imgShow);
-        m_imgShow.setNoteImageShowListener (this);
+        m_imgSlider = (noteImageSlider)findViewById(R.id.imgShow);
+        m_imgSlider.setOnNoteImageShowListener(this);
         Uri uri = getIntent().getData();
         if (uri != null)
             m_strImgFile = uri.toString();
-        if (m_strImgFile != null)
-            m_imgShow.setImageFile(m_strImgFile, true);
-
         m_nFileCount = getIntent().getIntExtra("FileCount", 0);
         if(m_nFileCount > 0) {
             m_strFileList = getIntent().getStringArrayExtra("FileList");
@@ -98,24 +89,13 @@ public class noteImageActivity extends AppCompatActivity
                     break;
                 }
             }
+            m_imgSlider.setImageFiles(m_strFileList, m_nFileCount, m_nCurIndex);
         }
 
-        m_imgShow.postDelayed(()->hideSystemViews(), 500);
-    }
-
-    protected void onStop () {
-        super.onStop();
-        if (mVelocityTracker != null) {
-            mVelocityTracker.recycle();
-            mVelocityTracker = null;
-        }
+        m_imgSlider.postDelayed(()->hideSystemViews(), 500);
     }
 
     public int onNoteImageShowEvent (View view, MotionEvent ev){
-        if(mVelocityTracker == null)
-            mVelocityTracker = VelocityTracker.obtain();
-        mVelocityTracker.addMovement(ev);
-
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 m_nLastY = (int)ev.getY();
@@ -131,51 +111,12 @@ public class noteImageActivity extends AppCompatActivity
                         m_btnZoomIn.setVisibility(View.VISIBLE);
                         m_btnZoomOut.setVisibility(View.VISIBLE);
                         m_bHideZoom = true;
-                        m_imgShow.postDelayed(()->hideZoomButtons(), 3000);
+                        m_imgSlider.postDelayed(()->hideZoomButtons(), 3000);
                     }
-                }
-                mVelocityTracker.computeCurrentVelocity(1000);
-                int initVelocity = (int) mVelocityTracker.getXVelocity() / 10;
-                mVelocityTracker.clear();
-                if (initVelocity > mMaxVelocity) {
-                    // Left ?  -1
-                    openNextFile(false);
-                } else if (initVelocity < -mMaxVelocity) {
-                    // right ? +1
-                    openNextFile(true);
                 }
                 break;
         }
         return 0;
-    }
-
-    private void openNextFile (boolean bNext) {
-        if (m_nFileCount <= 1) {
-            if (m_strImgFile.compareTo(m_strFileList[0]) != 0) {
-                m_strImgFile = m_strFileList[0];
-                m_imgShow.setImageFile(m_strImgFile, true);
-            }
-            return;
-        }
-
-        for (int i = 0; i < m_nFileCount; i++) {
-            if (m_strFileList[i].compareTo(m_strImgFile) == 0) {
-                m_nCurIndex = i;
-                break;
-            }
-        }
-        if (bNext) {
-            m_nCurIndex++;
-            if (m_nCurIndex == m_nFileCount)
-                m_nCurIndex = 0;
-        }
-        if (!bNext) {
-            m_nCurIndex--;
-            if (m_nCurIndex < 0)
-                m_nCurIndex = m_nFileCount - 1;
-        }
-        m_strImgFile = m_strFileList[m_nCurIndex];
-        m_imgShow.setImageFile(m_strImgFile, true);
     }
 
     private void hideZoomButtons () {
@@ -186,7 +127,7 @@ public class noteImageActivity extends AppCompatActivity
     }
 
     private void hideSystemViews () {
-        m_imgShow.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
+        m_imgSlider.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
                 | View.SYSTEM_UI_FLAG_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
