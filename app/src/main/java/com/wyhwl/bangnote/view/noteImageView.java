@@ -91,7 +91,7 @@ public class noteImageView extends ImageView {
                 }
 
                 FileInputStream fis = new FileInputStream (strFile);
-                FileOutputStream fos = new FileOutputStream(m_strFileName);
+                noteFileOutputStream fos = new noteFileOutputStream(m_strFileName);
                 Bitmap bmp = BitmapFactory.decodeStream(fis);
 
                 int nBmpW = bmp.getWidth();
@@ -125,7 +125,7 @@ public class noteImageView extends ImageView {
         }
 
         try {
-            FileInputStream fis = new FileInputStream (m_strFileName);
+            noteFileInputStream fis = new noteFileInputStream (m_strFileName);
             Bitmap bmp = BitmapFactory.decodeStream(fis);
             setImageBitmap(bmp);
             fis.close();

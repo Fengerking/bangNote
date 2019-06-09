@@ -16,6 +16,7 @@ import android.util.Log;
 
 import java.io.FileInputStream;
 import android.media.ExifInterface;
+import com.wyhwl.bangnote.base.*;
 
 public class noteImageShow extends ImageView {
     private static final int MODE_NONE = 0;
@@ -93,7 +94,7 @@ public class noteImageShow extends ImageView {
             return;
 
         try {
-            FileInputStream fis = new FileInputStream(strFile);
+            noteFileInputStream fis = new noteFileInputStream(strFile);
             Bitmap bmp = BitmapFactory.decodeStream(fis);
             fis.close();
 

@@ -167,7 +167,7 @@ public class noteTypeMng {
         m_lstType.clear();
 
         try {
-            FileInputStream fis = new FileInputStream (m_strFile);
+            noteFileInputStream fis = new noteFileInputStream (m_strFile);
             BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 
             String          strLine = null;
@@ -220,7 +220,7 @@ public class noteTypeMng {
 
     public void writeToFile () {
         try {
-            FileOutputStream fos = new FileOutputStream (m_strFile);
+            noteFileOutputStream fos = new noteFileOutputStream (m_strFile);
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 
             for (int i = 0; i < m_lstType.size(); i++) {

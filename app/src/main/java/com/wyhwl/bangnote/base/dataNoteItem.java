@@ -67,7 +67,7 @@ public class dataNoteItem {
         m_strFile = strFile;
         m_lstItem.clear();
         try {
-            FileInputStream fis = new FileInputStream (strFile);
+            noteFileInputStream fis = new noteFileInputStream (strFile);
             BufferedReader br = new BufferedReader(new InputStreamReader(fis));
             String strLine = null;
             while((strLine = br.readLine())!=null) {
@@ -151,7 +151,7 @@ public class dataNoteItem {
 
     public int writeToFile () {
         try {
-            FileOutputStream fos = new FileOutputStream (m_strFile);
+            noteFileOutputStream fos = new noteFileOutputStream (m_strFile);
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 
             bw.write((noteConfig.m_strTagNoteTitle +"\n").toCharArray());

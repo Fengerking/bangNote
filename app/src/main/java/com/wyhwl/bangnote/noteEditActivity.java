@@ -610,7 +610,7 @@ public class noteEditActivity extends AppCompatActivity
         String  strName = "";
         String  strText = "";
         try {
-            FileOutputStream fos = new FileOutputStream (m_strNoteFile);
+            noteFileOutputStream fos = new noteFileOutputStream (m_strNoteFile);
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
 
             strName = noteConfig.m_strTagNoteTitle; bw.write((strName+"\n").toCharArray());

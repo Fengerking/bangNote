@@ -113,7 +113,7 @@ public class noteListItemView extends TextView {
         Bitmap bmpItem = null;
         if (m_dataItem.m_strImgFile != null) {
             try {
-                FileInputStream fis = new FileInputStream (m_dataItem.m_strImgFile);
+                noteFileInputStream fis = new noteFileInputStream (m_dataItem.m_strImgFile);
                 bmpItem = BitmapFactory.decodeStream(fis);
                 fis.close();
             }catch (Exception e) {

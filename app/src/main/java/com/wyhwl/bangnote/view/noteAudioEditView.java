@@ -196,8 +196,8 @@ public class noteAudioEditView extends FrameLayout
             m_recorder = null;
             if (m_strTmpFile != null) {
                 try {
-                    FileInputStream fis = new FileInputStream (m_strTmpFile);
-                    FileOutputStream fos = new FileOutputStream (m_strRecFile, true);
+                    noteFileInputStream fis = new noteFileInputStream (m_strTmpFile);
+                    noteFileOutputStream fos = new noteFileOutputStream (m_strRecFile, true);
                     byte[] buffer = new byte[1024];
                     int byteRead;
                     while (-1 != (byteRead = fis.read(buffer))) {
