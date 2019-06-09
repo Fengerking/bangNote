@@ -53,17 +53,13 @@ public class noteImageActivity extends AppCompatActivity
         m_btnZoomOut.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 m_bHideZoom = false;
-                m_imgShow.m_nowMatrix.postScale((float)0.8, (float)0.8, m_nLastX, m_nLastY);
-                m_imgShow.setImageMatrix(m_imgShow.m_nowMatrix);
-                m_imgShow.invalidate();
+                m_imgShow.zoomOut();
             }
         });
         m_btnZoomIn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 m_bHideZoom = false;
-                m_imgShow.m_nowMatrix.postScale((float)1.2, (float)1.2, m_nLastX, m_nLastY);
-                m_imgShow.setImageMatrix(m_imgShow.m_nowMatrix);
-                m_imgShow.invalidate();
+                m_imgShow.zoomIn();
             }
         });
 

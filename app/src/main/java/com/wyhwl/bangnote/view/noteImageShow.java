@@ -37,6 +37,17 @@ public class noteImageShow extends ImageView {
     public int          m_nBmpWidth = 0;
     public int          m_nBmpHeight= 0;
 
+    public int          m_nScrWidth = 0;
+    public int          m_nScrHeight = 0;
+
+    public float        m_fMovScale = 0;
+    public float        m_fBmpScale = 1;
+
+    public int          m_nOffsetX = 0;
+    public int          m_nOffsetY = 0;
+    public int          m_nOffMovX = 0;
+    public int          m_nOffMovY = 0;
+
     private noteImageShowListener   m_imgListener = null;
 
     // The event listener function
@@ -70,6 +81,10 @@ public class noteImageShow extends ImageView {
         m_strFile = strFile;
         m_bCanZoom = bCanZoom;
         setScaleType(ImageView.ScaleType.MATRIX);
+
+        DisplayMetrics dm = this.getResources().getDisplayMetrics();
+        m_nScrWidth = dm.widthPixels;
+        m_nScrHeight = dm.heightPixels;
 
         try {
             FileInputStream fis = new FileInputStream(strFile);
@@ -106,9 +121,7 @@ public class noteImageShow extends ImageView {
                 setImageBitmap(bmp);
             }
 
-            DisplayMetrics dm = this.getResources().getDisplayMetrics();
-            float scale = (float)dm.widthPixels / m_nBmpWidth;
-
+            float scale = (float)m_nScrWidth / m_nBmpWidth;
             if (!m_bCanZoom) {
                 ViewGroup.LayoutParams param = (ViewGroup.LayoutParams) getLayoutParams();
                 param.height = (int) (m_nBmpHeight * scale);
@@ -117,10 +130,16 @@ public class noteImageShow extends ImageView {
 
             m_nowMatrix.reset();
             m_nowMatrix.setScale(scale, scale, 0, 0);
+            m_fBmpScale = scale;
+
+            m_nOffsetX = 0;
+            m_nOffsetY = 0;
             if (m_bCanZoom) {
                 int nHeight = (int)(m_nBmpHeight * scale);
-                if (nHeight < dm.heightPixels) {
-                    m_nowMatrix.postTranslate(0, (dm.heightPixels - nHeight) / 2);
+                if (nHeight < m_nScrHeight) {
+                    m_nOffsetY = (m_nScrHeight - nHeight) / 2;
+                    m_nowMatrix.postTranslate(0, m_nOffsetY);
+                    Log.e("DebugScale", "Trans 00  X= " + m_nOffsetX + "  Y=  " + m_nOffsetY);
                 }
             }
             setImageMatrix(m_nowMatrix);
@@ -155,32 +174,80 @@ public class noteImageShow extends ImageView {
 
             case MotionEvent.ACTION_UP:
                 m_nMode = MODE_NONE;
+                // double click to zoom 1:1
                 if (System.currentTimeMillis() - m_nLastClickTime < 250) {
                     m_nowMatrix.setScale(1, 1);
-                    DisplayMetrics dm = this.getResources().getDisplayMetrics();
-                    int nX = (m_nBmpWidth - dm.widthPixels) / 2;
-                    int nY = (m_nBmpHeight - dm.heightPixels) / 2;
+                    m_fBmpScale = 1;
+                    int nX = (m_nBmpWidth - m_nScrWidth) / 2;
+                    int nY = (m_nBmpHeight - m_nScrHeight) / 2;
                     m_nowMatrix.setTranslate (-nX, -nY);
+                    Log.e("DebugScale", "Trans 22   -" +  nX + "  -" + nX);
                     setImageMatrix(m_nowMatrix);
                     invalidate();
                 }
                 m_nLastClickTime = System.currentTimeMillis();
+                if (m_nOffMovX != 0 || m_nOffMovY != 0) {
+
+                    Log.e("DebugScale", "Trans MOv  X= " + m_nOffMovX + "  Y=  " + m_nOffMovY);
+
+                    m_nOffsetX += m_nOffMovX;
+                    m_nOffsetY += m_nOffMovY;
+                    m_nOffMovX = 0;
+                    m_nOffMovY = 0;
+                    Log.e("DebugScale", "Trans UP  X= " + m_nOffsetX + "  Y=  " + m_nOffsetY);
+
+                }
                 break;
 
             case MotionEvent.ACTION_POINTER_UP:
                 m_nMode = MODE_NONE;
+                if (m_fMovScale != 0) {
+                     if (m_fMovScale > 1)
+                        m_nOffsetX = m_nOffsetX - (int)((m_ptMid.x - m_nOffsetX) * (m_fMovScale - 1));
+                    else
+                        m_nOffsetX = m_nOffsetX + (int)((m_ptMid.x - m_nOffsetX) * (1 - m_fMovScale));
+                    if (m_fMovScale > 1)
+                        m_nOffsetY = m_nOffsetY - (int)((m_ptMid.y - m_nOffsetY) * (m_fMovScale - 1));
+                    else
+                        m_nOffsetY = m_nOffsetY + (int)((m_ptMid.y - m_nOffsetY) * (1 - m_fMovScale));
+                    m_fBmpScale = m_fBmpScale * m_fMovScale;
+                    m_fMovScale = 0;
+
+                    if (m_fBmpScale * m_nBmpWidth < m_nScrWidth) {
+                        m_fBmpScale = (float)m_nScrWidth / m_nBmpWidth;
+                        m_nowMatrix.reset();
+                        m_nowMatrix.setScale(m_fBmpScale, m_fBmpScale);
+
+                        m_nOffsetX = 0;
+                        m_nOffsetY = 0;
+                        int nHeight = (int)(m_nBmpHeight * m_fBmpScale);
+                        if (nHeight < m_nScrHeight) {
+                            m_nOffsetY = (m_nScrHeight - nHeight) / 2;
+                            m_nowMatrix.postTranslate(0, m_nOffsetY);
+                        }
+                        setImageMatrix(m_nowMatrix);
+                        invalidate();
+                    }
+                }
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 if (m_nMode == MODE_DRAG) {
                     m_nowMatrix.set(m_oldMatrix);
-                    m_nowMatrix.postTranslate(event.getX() - m_ptStart.x, event.getY() - m_ptStart.y);
+                    m_nOffMovX = (int)(event.getX() - m_ptStart.x);
+                    m_nOffMovY = (int)(event.getY() - m_ptStart.y);
+                    if (m_nOffsetX + m_nOffMovX > 0)
+                        m_nOffMovX = -m_nOffsetX;
+                    if (m_nScrWidth - m_nOffMovX - m_nOffsetX > m_nBmpWidth * m_fBmpScale)
+                        m_nOffMovX = (int)(m_nScrWidth - m_nOffsetX - m_nBmpWidth * m_fBmpScale);
+                    m_nowMatrix.postTranslate(m_nOffMovX, m_nOffMovY);
                 } else if (m_nMode == MODE_ZOOM) {
                     float newDist = spacing(event);
                     if (newDist > 10f) {
                         m_nowMatrix.set(m_oldMatrix);
                         float scale = newDist / m_oldDist;
                         m_nowMatrix.postScale(scale, scale, m_ptMid.x, m_ptMid.y);
+                        m_fMovScale = scale;
                     }
                 }
                 setImageMatrix(m_nowMatrix);
@@ -204,4 +271,17 @@ public class noteImageShow extends ImageView {
         point.set(x / 2, y / 2);
     }
 
+    public void zoomIn () {
+        m_nowMatrix.postScale((float)1.2, (float)1.2,  m_nScrWidth / 2, m_nScrHeight / 2);
+        m_fBmpScale = (float)(m_fBmpScale * 1.2);
+        setImageMatrix(m_nowMatrix);
+        invalidate();
+    }
+
+    public void zoomOut () {
+        m_nowMatrix.postScale((float)0.8, (float)0.8,  m_nScrWidth / 2, m_nScrHeight / 2);
+        m_fBmpScale = (float)(m_fBmpScale * 0.8);
+        setImageMatrix(m_nowMatrix);
+        invalidate();
+    }
 }
