@@ -54,7 +54,7 @@ public class noteAudioEditView extends FrameLayout
 
     // The event listener function
     public interface audioChangeListener {
-        public void onAudioChange (String strAudioFile);
+        public void onAudioChange (View view, String strAudioFile);
     }
 
     public void setAudioChangeListener (audioChangeListener listener) {
@@ -103,7 +103,6 @@ public class noteAudioEditView extends FrameLayout
 
         m_btnStop.setEnabled(false);
         m_btnPlay.setEnabled(false);
-        m_btnDelete.setEnabled(false);
 
         m_strRecFile = noteConfig.getNoteAudioFile();
     }
@@ -123,7 +122,6 @@ public class noteAudioEditView extends FrameLayout
             m_btnStop.setEnabled(false);
             m_btnStart.setEnabled(true);
             m_btnPlay.setEnabled(true);
-            m_btnDelete.setEnabled(true);
         }
     }
 
@@ -147,6 +145,8 @@ public class noteAudioEditView extends FrameLayout
                 File fileDel = new File(m_strRecFile);
                 fileDel.delete();
                 m_vwRecStatus.deleteRecord();
+                if (m_audioListener != null)
+                    m_audioListener.onAudioChange(this, null);
                 break;
         }
     }
@@ -178,10 +178,9 @@ public class noteAudioEditView extends FrameLayout
         m_btnStop.setEnabled(true);
         m_btnStart.setEnabled(false);
         m_btnPlay.setEnabled(false);
-        m_btnDelete.setEnabled(false);
 
         if (m_audioListener != null)
-            m_audioListener.onAudioChange(m_strRecFile);
+            m_audioListener.onAudioChange(this, m_strRecFile);
 
         return 1;
     }
@@ -224,7 +223,6 @@ public class noteAudioEditView extends FrameLayout
         m_btnStop.setEnabled(false);
         m_btnStart.setEnabled(true);
         m_btnPlay.setEnabled(true);
-        m_btnDelete.setEnabled(true);
     }
 
     private void startPlay () {
@@ -257,7 +255,6 @@ public class noteAudioEditView extends FrameLayout
         m_btnStop.setEnabled(true);
         m_btnStart.setEnabled(false);
         m_btnPlay.setEnabled(false);
-        m_btnDelete.setEnabled(false);
     }
 
     private class RecordAmplitude extends AsyncTask<Void, Integer, Void> {

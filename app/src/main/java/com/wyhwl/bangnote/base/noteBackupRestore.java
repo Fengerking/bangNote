@@ -69,6 +69,7 @@ public class noteBackupRestore {
         for (int i = 0; i < lstZipFiles.size(); i++) {
             unzipFolder(lstZipFiles.get(i), noteConfig.m_strRootPath);
         }
+
         return 1;
     }
 

@@ -253,9 +253,11 @@ public class noteListActivity extends AppCompatActivity
             } else if (strCommand.compareTo("恢复备份") == 0) {
                 noteBackupRestore noteBackup = new noteBackupRestore(this);
                 if (noteBackup.restoreNote () > 0) {
-                    showMsgDlg("恢复笔记成功", null);
+                    noteConfig.m_noteTypeMng.readFromFile();
                     noteConfig.m_lstData.fillFileList(noteConfig.m_strNotePath);
+                    fillLeftList(false);
                     updateList();
+                    showMsgDlg("恢复笔记成功", null);
                 } else {
                     showMsgDlg("恢复笔记失败", null);
                 }

@@ -216,6 +216,26 @@ public class noteTypeMng {
 
             m_lstType.add(itemType);
         }
+
+        if (noteConfig.m_nShowSecurity == 0) {
+            boolean bFound = false;
+            noteTypeItem    itemDefault = null;
+            for (int i = 0; i < m_lstType.size(); i++) {
+                itemType = m_lstType.get(i);
+                if (itemType.m_nLevel == -3) {
+                    itemDefault = itemType;
+                }
+                if (itemType.m_nUsing > 0) {
+                    if (itemType.m_nLevel > 10) {
+                        itemType.m_nUsing = 0;
+                        bFound = true;
+                        break;
+                    }
+                }
+            }
+            if (bFound && itemDefault != null)
+                itemDefault.m_nUsing = 1;
+        }
     }
 
     public void writeToFile () {

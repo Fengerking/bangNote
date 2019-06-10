@@ -131,6 +131,10 @@ public class noteBackupActivity extends AppCompatActivity
     }
 
     private void noteBackup () {
+        if (m_strUserID.length() < 6) {
+            showMsgDlg ("远程备份", "请先登录微信！");
+            return;
+        }
         m_prgBackup.setProgress(0);
         m_prgRestore.setProgress(0);
         m_bUploading = true;
@@ -172,6 +176,10 @@ public class noteBackupActivity extends AppCompatActivity
     }
 
     private void noteRestore () {
+        if (m_strUserID.length() < 6) {
+            showMsgDlg ("远程备份", "请先登录微信！");
+            return;
+        }
         m_prgBackup.setProgress(0);
         m_prgRestore.setProgress(0);
         m_bUploading = false;

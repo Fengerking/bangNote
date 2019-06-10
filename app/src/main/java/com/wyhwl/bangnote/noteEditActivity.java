@@ -210,6 +210,7 @@ public class noteEditActivity extends AppCompatActivity
             for (int i = 2; i < nCount; i++) {
                  if (m_layView.getChildAt(i).getId() == m_nFocusID) {
                      vwAfter = m_layView.getChildAt(i);
+                     vwAfter = addNoteView(vwAfter, noteConfig.m_nItemTypeText);
                      break;
                 }
             }
@@ -249,8 +250,8 @@ public class noteEditActivity extends AppCompatActivity
         onResizeView();
     }
 
-    private void deleteImageView () {
-        if (noteConfig.getNoteviewType(m_nFocusID) == noteConfig.m_nItemTypeText)
+    private void deleteMediaView (View view) {
+        if (view == null && noteConfig.getNoteviewType(m_nFocusID) == noteConfig.m_nItemTypeText)
             return;
         View    vwPrev = null;
         View    vwItem = null;
@@ -258,10 +259,18 @@ public class noteEditActivity extends AppCompatActivity
         int nCount = m_layView.getChildCount();
         for (int i = 2; i < nCount; i++) {
             vwItem = m_layView.getChildAt(i);
-            if (vwItem.getId() == m_nFocusID) {
-                vwNext = m_layView.getChildAt(i+1);
-                m_layView.removeView(vwItem);
-                break;
+            if (view == null) {
+                if (vwItem.getId() == m_nFocusID) {
+                    vwNext = m_layView.getChildAt(i + 1);
+                    m_layView.removeView(vwItem);
+                    break;
+                }
+            } else {
+                if (vwItem == view) {
+                    vwNext = m_layView.getChildAt(i + 1);
+                    m_layView.removeView(vwItem);
+                    break;
+                }
             }
             vwPrev = vwItem;
         }
@@ -342,7 +351,7 @@ public class noteEditActivity extends AppCompatActivity
                 break;
 
             case R.id.imbDelPic:
-                deleteImageView ();
+                deleteMediaView (null);
                 break;
 
             case R.id.imbAudio:
@@ -429,8 +438,10 @@ public class noteEditActivity extends AppCompatActivity
         }
     }
 
-    public void onAudioChange (String strFile) {
+    public void onAudioChange (View view, String strFile) {
         noteConfig.m_bNoteModified = true;
+        if (strFile == null)
+            deleteMediaView(view);
     }
 
     public void onResizeView () {
