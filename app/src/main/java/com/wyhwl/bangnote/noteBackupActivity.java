@@ -4,6 +4,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +28,9 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 public class noteBackupActivity extends AppCompatActivity
                                 implements View.OnClickListener,
                                             noteAliyunOSS.onOssProgressListener {
+    private final int           BMSG_PROCESS     = 100;
+    private final int           BMSG_END         = 200;
+
     private noteAliyunOSS       m_noteOSS = null;
     private String              m_strUserID = "";
     private String              m_strUserName = "";
@@ -41,6 +46,8 @@ public class noteBackupActivity extends AppCompatActivity
     private boolean             m_bUploading = true;
     private int                 m_nFileCount = 0;
     private int                 m_nFileIndex = 0;
+
+    private backupHandler       m_hdlBackup = null;
 
     private IWXAPI              m_wxAPI;
 
@@ -105,6 +112,8 @@ public class noteBackupActivity extends AppCompatActivity
         if (m_strUserID.length() > 6) {
             m_txtWechat.setText (m_strUserName + "已经登录，可以远程备份和恢复");
         }
+
+        m_hdlBackup = new backupHandler();
     }
 
     public void onClick(View v) {
@@ -139,40 +148,10 @@ public class noteBackupActivity extends AppCompatActivity
         m_prgRestore.setProgress(0);
         m_bUploading = true;
 
-        ProgressDialog dlgWait = new ProgressDialog(this);
-        dlgWait.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dlgWait.setMessage("wait...");
-        dlgWait.setIndeterminate(true);
-        dlgWait.setCancelable(false);
-
         noteBackupRestore noteBackup = new noteBackupRestore(this);
         noteBackup.backupNote();
 
-        if (m_noteOSS.m_lstFileList.size() <= 0)
-            m_noteOSS.getFileList(m_strUserID);
-
-        File fPath = new File(noteConfig.m_strBackPath);
-        File[] fList = fPath.listFiles();
-        if (fList != null) {
-            m_nFileIndex = 0;
-            m_nFileCount = fList.length;
-            for (int i = 0; i < fList.length; i++) {
-                File file = fList[i];
-                if (file.isHidden())
-                    continue;
-                if (file.isDirectory())
-                    continue;
-                if (findInList (file.getPath()))
-                    continue;
-                m_noteOSS.uploadFile(file.getPath());
-                m_nFileIndex = i;
-            }
-        }
-        dlgWait.cancel();
-        showMsgDlg ("远程备份", "远程备份成功！");
-
-        m_prgBackup.setProgress(0);
-        m_prgRestore.setProgress(0);
+        backupThread (0);
     }
 
     private void noteRestore () {
@@ -184,36 +163,7 @@ public class noteBackupActivity extends AppCompatActivity
         m_prgRestore.setProgress(0);
         m_bUploading = false;
 
-        ProgressDialog dlgWait = new ProgressDialog(this);
-        dlgWait.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        dlgWait.setMessage("wait...");
-        dlgWait.setIndeterminate(true);
-        dlgWait.setCancelable(false);
-
-        if (m_noteOSS.m_lstFileList.size() <= 0)
-            m_noteOSS.getFileList(m_strUserID);
-
-        String strFile = null;
-        m_nFileCount = m_noteOSS.m_lstFileList.size();
-        m_nFileIndex = 0;
-        for (int i = 0; i < m_noteOSS.m_lstFileList.size(); i++) {
-            strFile = noteConfig.m_strBackPath + m_noteOSS.m_lstFileList.get (i);
-            File backFile = new File(strFile);
-            if (!backFile.exists()) {
-                m_noteOSS.downlaodFile(m_noteOSS.m_lstFileList.get (i), noteConfig.m_strBackPath);
-            }
-            m_nFileIndex = i;
-        }
-
-        noteBackupRestore noteBackup = new noteBackupRestore(this);
-        noteBackup.restoreNote();
-        noteConfig.m_bNoteModified = true;
-        noteConfig.m_lstData.fillFileList(noteConfig.m_strNotePath);
-        dlgWait.cancel();
-        showMsgDlg ("远程恢复", "远程恢复完成！");
-
-        m_prgBackup.setProgress(0);
-        m_prgRestore.setProgress(0);
+        backupThread (1);
     }
 
     private void wechatLogin () {
@@ -248,13 +198,97 @@ public class noteBackupActivity extends AppCompatActivity
     public void onOssProgress (int nProgress, int nTotal){
         int nCurPages = m_nFileIndex * 100 / m_nFileCount;
         int nPercent = nCurPages + (nProgress * 100 / nTotal) / m_nFileCount;
-        if (m_bUploading)
-            m_prgBackup.setProgress(nPercent);
-        else
-            m_prgRestore.setProgress(nPercent);
+        Message msg = m_hdlBackup.obtainMessage(BMSG_PROCESS, nPercent, 0, null);
+        msg.sendToTarget();
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
+    private void backupThread(int nType) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                m_btnWechat.setEnabled(false);
+                m_btnBackup.setEnabled(false);
+                m_btnRestore.setEnabled(false);
+                if (nType == 0)
+                    uloadFiles ();
+                else
+                    downloadFiles();
+                Message msg = m_hdlBackup.obtainMessage(BMSG_END, 0, 0, null);
+                msg.sendToTarget();
+            }
+        }).start();
+    }
+
+    private void uloadFiles () {
+        if (m_noteOSS.m_lstFileList.size() <= 0)
+            m_noteOSS.getFileList(m_strUserID);
+
+        File fPath = new File(noteConfig.m_strBackPath);
+        File[] fList = fPath.listFiles();
+        if (fList != null) {
+            m_nFileIndex = 0;
+            m_nFileCount = fList.length;
+            for (int i = 0; i < fList.length; i++) {
+                File file = fList[i];
+                if (file.isHidden())
+                    continue;
+                if (file.isDirectory())
+                    continue;
+                if (findInList (file.getPath()))
+                    continue;
+                m_noteOSS.uploadFile(file.getPath());
+                m_nFileIndex = i;
+            }
+        }
+    }
+
+    private void downloadFiles () {
+        if (m_noteOSS.m_lstFileList.size() <= 0)
+            m_noteOSS.getFileList(m_strUserID);
+
+        String strFile = null;
+        m_nFileCount = m_noteOSS.m_lstFileList.size();
+        m_nFileIndex = 0;
+        for (int i = 0; i < m_noteOSS.m_lstFileList.size(); i++) {
+            strFile = noteConfig.m_strBackPath + m_noteOSS.m_lstFileList.get (i);
+            File backFile = new File(strFile);
+            if (!backFile.exists()) {
+                m_noteOSS.downlaodFile(m_noteOSS.m_lstFileList.get (i), noteConfig.m_strBackPath);
+            }
+            m_nFileIndex = i;
+        }
+
+        noteBackupRestore noteBackup = new noteBackupRestore(this);
+        noteBackup.restoreNote();
+        noteConfig.m_bNoteModified = true;
+        noteConfig.m_lstData.fillFileList(noteConfig.m_strNotePath);
+    }
+
+    class backupHandler extends Handler {
+        public void handleMessage(Message msg) {
+            if (msg.what == BMSG_PROCESS) {
+                if (m_bUploading)
+                    m_prgBackup.setProgress(msg.arg1);
+                else
+                    m_prgRestore.setProgress(msg.arg1);
+            } else if (msg.what == BMSG_END) {
+                if (m_bUploading)
+                    showMsgDlg ("远程备份", "远程备份成功！");
+                else
+                    showMsgDlg ("远程恢复", "远程恢复完成！");
+
+                m_prgBackup.setProgress(0);
+                m_prgRestore.setProgress(0);
+
+                m_btnWechat.setEnabled(true);
+                m_btnBackup.setEnabled(true);
+                m_btnRestore.setEnabled(true);
+            }
+        }
     }
 }
