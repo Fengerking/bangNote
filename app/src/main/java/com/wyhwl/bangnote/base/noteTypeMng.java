@@ -226,7 +226,7 @@ public class noteTypeMng {
                     itemDefault = itemType;
                 }
                 if (itemType.m_nUsing > 0) {
-                    if (itemType.m_nLevel > 10) {
+                    if (itemType.m_nLevel >= 10) {
                         itemType.m_nUsing = 0;
                         bFound = true;
                         break;

@@ -76,4 +76,14 @@
         android:textColor="@color/colorText"
         android:text=""/>
 
+    <TextView
+        android:id="@+id/txtVersion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="160dp"
+        android:textSize="18dp"
+        android:textColor="@color/colorText"
+        android:text="V1.0.0"/>
+
 </LinearLayout>

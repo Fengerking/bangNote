@@ -183,26 +183,34 @@ public class noteImageShow extends ImageView {
                 m_nMode = MODE_NONE;
                 // double click to zoom 1:1
                 if (System.currentTimeMillis() - m_nLastClickTime < 250) {
-                    m_nowMatrix.setScale(1, 1);
-                    m_fBmpScale = 1;
-                    int nX = (m_nBmpWidth - m_nScrWidth) / 2;
-                    int nY = (m_nBmpHeight - m_nScrHeight) / 2;
-                    m_nowMatrix.setTranslate (-nX, -nY);
-                    Log.e("DebugScale", "Trans 22   -" +  nX + "  -" + nX);
+                    if (m_fBmpScale == 1) {
+                        m_fBmpScale = (float)m_nScrWidth / m_nBmpWidth;
+                        m_nowMatrix.reset();
+                        m_nowMatrix.setScale(m_fBmpScale, m_fBmpScale);
+                        m_nOffsetX = 0;
+                        int nHeight = (int)(m_nBmpHeight * m_fBmpScale);
+                        if (nHeight < m_nScrHeight) {
+                            m_nOffsetY = (m_nScrHeight - nHeight) / 2;
+                            m_nowMatrix.postTranslate(0, m_nOffsetY);
+                         }
+                    } else {
+                        m_fBmpScale = 1;
+                        m_nowMatrix.reset();
+                        m_nowMatrix.setScale(m_fBmpScale, m_fBmpScale);
+                        m_nOffsetX = -(m_nBmpWidth - m_nScrWidth) / 2;
+                        m_nOffMovY = -(m_nBmpHeight - m_nScrHeight) / 2;
+                        m_nowMatrix.postTranslate(m_nOffsetX, m_nOffMovY);
+                    }
                     setImageMatrix(m_nowMatrix);
                     invalidate();
-                }
-                m_nLastClickTime = System.currentTimeMillis();
-                if (m_nOffMovX != 0 || m_nOffMovY != 0) {
-
-                    Log.e("DebugScale", "Trans MOv  X= " + m_nOffMovX + "  Y=  " + m_nOffMovY);
-
-                    m_nOffsetX += m_nOffMovX;
-                    m_nOffsetY += m_nOffMovY;
-                    m_nOffMovX = 0;
-                    m_nOffMovY = 0;
-                    Log.e("DebugScale", "Trans UP  X= " + m_nOffsetX + "  Y=  " + m_nOffsetY);
-
+                } else {
+                    m_nLastClickTime = System.currentTimeMillis();
+                    if (m_nOffMovX != 0 || m_nOffMovY != 0) {
+                        m_nOffsetX += m_nOffMovX;
+                        m_nOffsetY += m_nOffMovY;
+                        m_nOffMovX = 0;
+                        m_nOffMovY = 0;
+                    }
                 }
                 break;
 

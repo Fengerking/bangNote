@@ -1,5 +1,6 @@
 package com.wyhwl.bangnote;
 
+import android.content.pm.PackageManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +12,8 @@ public class noteAboutActivity extends AppCompatActivity
                                     implements View.OnClickListener {
     private TextView        m_txtFeatureInfo = null;
     private TextView        m_txtContactInfo = null;
+    private String          m_strVersion = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -18,6 +21,11 @@ public class noteAboutActivity extends AppCompatActivity
         ActionBar actionBar = getSupportActionBar();
         actionBar.hide();
 
+        try {
+            m_strVersion = this.getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            //bldVer = this.getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+        }
         initViews ();
     }
 
@@ -34,6 +42,8 @@ public class noteAboutActivity extends AppCompatActivity
 
         m_txtContactInfo.setText ("1、邮件：fengernote@163.com \n" +
                                   "2、QQ： 2598425114 \n");
+
+        ((TextView)findViewById(R.id.txtVersion)).setText(m_strVersion);
     }
 
     public void onClick(View v) {
