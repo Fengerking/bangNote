@@ -27,9 +27,15 @@
     <ClInclude Include="notePC.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CDlgNote.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="notePC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CDlgNote.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

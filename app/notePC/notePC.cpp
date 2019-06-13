@@ -3,11 +3,13 @@
 
 #include "header.h"
 #include "notePC.h"
+#include "CDlgNote.h"
 
 #define MAX_LOADSTRING 100
 
 // Global Variables:
-HINSTANCE hInst;                                // current instance
+HINSTANCE	hInst;                                // current instance
+CDlgNote *	m_pDlgNote = NULL;
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 
@@ -84,12 +86,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
-   {
       return FALSE;
-   }
-
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
+
+   m_pDlgNote = new CDlgNote(hInst, hWnd);
+   m_pDlgNote->CreateDlg();
 
    return TRUE;
 }
@@ -124,6 +126,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_DESTROY:
+		delete m_pDlgNote;
         PostQuitMessage(0);
         break;
     default:
@@ -132,7 +135,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-// Message handler for about box.
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
