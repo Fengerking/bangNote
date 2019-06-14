@@ -125,21 +125,21 @@ public class dataNoteItem {
             } else if (strLine.compareTo(noteConfig.m_strTagNotePict) == 0) {
                 dataContent content = new dataContent();
                 content.m_nType = noteConfig.m_nItemTypePict;
-                content.m_strItem = br.readLine();
+                content.m_strItem = noteConfig.m_strNotePath + br.readLine();
                 if (m_strImgFile == null)
                     m_strImgFile = content.m_strItem;
                 m_lstItem.add(content);
             } else if (strLine.compareTo(noteConfig.m_strTagNoteAudo) == 0) {
                 dataContent content = new dataContent();
                 content.m_nType = noteConfig.m_nItemTypeAudo;
-                content.m_strItem = br.readLine();
+                content.m_strItem = noteConfig.m_strNotePath + br.readLine();
                 if (m_strAudFile == null)
                     m_strAudFile = content.m_strItem;
                 m_lstItem.add(content);
             } else if (strLine.compareTo(noteConfig.m_strTagNoteVido) == 0) {
                 dataContent content = new dataContent();
                 content.m_nType = noteConfig.m_nItemTypeVido;
-                content.m_strItem = br.readLine();
+                content.m_strItem = noteConfig.m_strNotePath + br.readLine();
                 if (m_strVidFile == null)
                     m_strVidFile = content.m_strItem;
                 m_lstItem.add(content);
@@ -168,6 +168,7 @@ public class dataNoteItem {
             bw.write((noteConfig.m_strTagNoteType +"\n").toCharArray());
             bw.write((m_strType +"\n").toCharArray());
 
+            int     nNotePathLen = noteConfig.m_strNotePath.length();
             dataContent itemData = null;
             int nCount = m_lstItem.size();
             for (int i = 0; i < nCount; i++) {
@@ -177,13 +178,13 @@ public class dataNoteItem {
                     bw.write((itemData.m_strItem +"\n").toCharArray());
                 } else if (itemData.m_nType == noteConfig.m_nItemTypePict) {
                     bw.write((noteConfig.m_strTagNotePict +"\n").toCharArray());
-                    bw.write((itemData.m_strItem +"\n").toCharArray());
+                    bw.write((itemData.m_strItem.substring(nNotePathLen) +"\n").toCharArray());
                 } else if (itemData.m_nType == noteConfig.m_nItemTypeAudo) {
                     bw.write((noteConfig.m_strTagNoteAudo +"\n").toCharArray());
-                    bw.write((itemData.m_strItem +"\n").toCharArray());
+                    bw.write((itemData.m_strItem.substring(nNotePathLen) +"\n").toCharArray());
                 } else if (itemData.m_nType == noteConfig.m_nItemTypeVido) {
                     bw.write((noteConfig.m_strTagNoteVido +"\n").toCharArray());
-                    bw.write((itemData.m_strItem +"\n").toCharArray());
+                    bw.write((itemData.m_strItem.substring(nNotePathLen) +"\n").toCharArray());
                 }
             }
             bw.flush();

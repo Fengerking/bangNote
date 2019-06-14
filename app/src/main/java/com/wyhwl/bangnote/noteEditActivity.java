@@ -645,6 +645,7 @@ public class noteEditActivity extends AppCompatActivity
             strName = noteConfig.m_strTagNoteType; bw.write((strName+"\n").toCharArray());
             strText = m_dataItem.m_strType; bw.write((strText+"\n").toCharArray());
 
+            int     nNotePathLen = noteConfig.m_strNotePath.length();
             for (int i = 2; i < nCount; i++) {
                 vwItem = m_layView.getChildAt(i);
                 if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypeText) {
@@ -658,7 +659,7 @@ public class noteEditActivity extends AppCompatActivity
                 } else if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypePict) {
                     noteImageView noteImage = (noteImageView)vwItem;
                     strName = noteConfig.m_strTagNotePict; bw.write((strName+"\n").toCharArray());
-                    strText = noteImage.getImageFileName(); bw.write((strText+"\n").toCharArray());
+                    strText = noteImage.getImageFileName().substring(nNotePathLen); bw.write((strText+"\n").toCharArray());
                 } else if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypeAudo) {
                     noteAudioEditView noteAudio = (noteAudioEditView)vwItem;
                     String strAudioFile = noteAudio.getAudioFile();
@@ -666,7 +667,7 @@ public class noteEditActivity extends AppCompatActivity
                         File fileAudio = new File (strAudioFile);
                         if (fileAudio.exists()) {
                             strName = noteConfig.m_strTagNoteAudo; bw.write((strName+"\n").toCharArray());
-                            strText = strAudioFile; bw.write((strText+"\n").toCharArray());
+                            strText = strAudioFile.substring(nNotePathLen); bw.write((strText+"\n").toCharArray());
                         }
                     }
                 }

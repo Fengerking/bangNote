@@ -27,6 +27,9 @@ protected:
 	virtual INT_PTR			OnReceiveMsg (HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual bool			CenterDlg (void);
 
+	virtual int				initDlg(void);
+	virtual int				saveNote(void);
+
 protected:
 	HINSTANCE				m_hInst;
 	HWND					m_hParent;
