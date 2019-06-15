@@ -191,9 +191,19 @@ public class noteAudioPlayView extends FrameLayout
         }
     }
 
+    public void pausePlay () {
+        if (!m_bPlaying)
+            return;
+        if (m_player != null)
+            m_player.pause();
+        m_bPlaying = false;
+    }
+
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnAudioPlay:
+                if (m_listener != null)
+                    m_listener.onAudioPlayChange(this, v.getId());
                 if (m_player != null) {
                     m_player.start();
                     m_bPlaying = true;

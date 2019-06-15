@@ -217,6 +217,16 @@ public class noteListAdapter extends BaseAdapter {
         return itemView;
     }
 
+    public int getSelectNum () {
+        int     nNum = 0;
+        for (int i = 0; i < m_lstAllItem.size(); i++) {
+            if (m_lstAllItem.get(i).isSelect()) {
+                nNum++;
+            }
+        }
+        return nNum;
+    }
+
     public void fillFileList(String strPath) {
         m_lstSelItem.clear();
         m_lstAllItem.clear();

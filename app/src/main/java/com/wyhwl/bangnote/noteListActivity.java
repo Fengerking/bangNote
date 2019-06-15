@@ -72,6 +72,7 @@ public class noteListActivity extends AppCompatActivity
     public  ArrayList<dataNoteItem>  m_lstRubbish = new ArrayList<dataNoteItem>();
 
     private noteBaseInfo        m_noteInfo = null;
+    private boolean             m_bSelectMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,6 +201,13 @@ public class noteListActivity extends AppCompatActivity
 
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (parent == (View)m_lstView) {
+            if (m_bSelectMode) {
+                noteConfig.m_lstData.getNoteItem(position).setSelect();
+                view.invalidate();
+                if (noteConfig.m_lstData.getSelectNum() <= 0)
+                    m_bSelectMode = false;
+                return;
+            }
             dataNoteItem noteItem = noteConfig.m_lstData.getNoteItem(position);
             Intent intent = new Intent(noteListActivity.this, noteViewActivity.class);
             intent.setData(Uri.parse(noteItem.m_strFile));
@@ -293,6 +301,12 @@ public class noteListActivity extends AppCompatActivity
             noteListItemView noteView = (noteListItemView) view;
             noteView.getDataList().setSelect();
             noteView.invalidate();
+            if (noteView.getDataList().isSelect()) {
+                m_bSelectMode = true;
+            } else {
+                if (noteConfig.m_lstData.getSelectNum() <= 0)
+                    m_bSelectMode = false;
+            }
         } else if (parent == (View)m_lstViewLeft) {
             TextView tvType = (TextView)view.findViewById(R.id.name);
             String strType = tvType.getText().toString();
@@ -461,9 +475,11 @@ public class noteListActivity extends AppCompatActivity
             if (bSelect) {
                 if (!dataItem.isSelect())
                     dataItem.setSelect();
+                m_bSelectMode = true;
             } else {
                 if (dataItem.isSelect())
                     dataItem.setSelect();
+                m_bSelectMode = false;
             }
         }
         m_lstView.setAdapter(noteConfig.m_lstData);

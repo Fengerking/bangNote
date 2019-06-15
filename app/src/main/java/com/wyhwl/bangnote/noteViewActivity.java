@@ -28,6 +28,7 @@ import com.wyhwl.bangnote.view.*;
 public class noteViewActivity extends AppCompatActivity
                             implements noteImageShow.noteImageShowListener,
                                         AdapterView.OnItemSelectedListener,
+                                        noteAudioPlayView.audioPlayViewListener,
                                         View.OnClickListener {
     private TextView        m_txtWinTitle = null;
     private String          m_strNoteFile = null;
@@ -276,6 +277,21 @@ public class noteViewActivity extends AppCompatActivity
         return 0;
     }
 
+    public void onAudioPlayChange (View view, int nCommand) {
+        if (nCommand == R.id.btnAudioPlay) {
+            View    vwChild = null;
+            int nCount = m_layView.getChildCount();
+            for (int i = 0; i < nCount; i++) {
+                vwChild = m_layView.getChildAt(i);
+                if (noteConfig.getNoteviewType(vwChild) == noteConfig.m_nItemTypeAudo) {
+                    if (vwChild == view)
+                        continue;
+                    ((noteAudioPlayView)vwChild).pausePlay();
+                }
+            }
+        }
+    }
+
     private void openNoteImageActivity () {
         if (m_noteImage == null)
             return;
@@ -381,6 +397,7 @@ public class noteViewActivity extends AppCompatActivity
                             dataItem.m_nType == noteConfig.m_nItemTypeMusc) {
                 noteAudioPlayView audView = new noteAudioPlayView(this, noteConfig.m_nItemTypeAudo);
                 m_layView.addView(audView);
+                audView.setAudioPlayListener(this);
                 ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)audView.getLayoutParams();
                 param.width = -1;
                 audView.setLayoutParams(param);

@@ -119,6 +119,8 @@ public class noteListItemView extends TextView {
             }catch (Exception e) {
                 e.printStackTrace();
             }
+        } else if (m_dataItem.m_strAudFile != null) {
+            bmpItem = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.note_music_icon);
         } else {
             bmpItem = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.noteitem_icon);
         }
