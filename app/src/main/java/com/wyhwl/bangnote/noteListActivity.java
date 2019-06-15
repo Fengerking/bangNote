@@ -282,6 +282,12 @@ public class noteListActivity extends AppCompatActivity
                     Intent intent = new Intent(noteListActivity.this, LockActivity.class);
                     startActivityForResult(intent, ACTIVITY_NOTEUNLOCK);
                 } else {
+                    if (noteConfig.m_noteTypeMng.haveSecurityType()) {
+                        if (noteConfig.m_nShowSecurity == 0) {
+                            m_sldList.scrollToPage (1);
+                            return;
+                        }
+                    }
                     Intent intent = new Intent(noteListActivity.this, LockSettingActivity.class);
                     startActivityForResult(intent, ACTIVITY_NOTESETKEY);
                 }
@@ -320,6 +326,7 @@ public class noteListActivity extends AppCompatActivity
                     File fileDel = new File (strKeyFile);
                     if (fileDel.exists())
                         fileDel.delete();
+                    noteApplication.getInstance().m_strLockKey = "";
 
                     Toast.makeText(this,"开启秘密笔记！",Toast.LENGTH_SHORT).show();
                 }

@@ -100,8 +100,10 @@ public class noteAudioPlayView extends FrameLayout
         m_btnPlay = (ImageButton)audioView.findViewById(R.id.btnAudioPlay);
         m_btnPlay.setOnClickListener(this);
         m_btnPause = (ImageButton)audioView.findViewById(R.id.btnAudioPause);
-        if (m_btnPause != null)
+        if (m_btnPause != null) {
             m_btnPause.setOnClickListener(this);
+            m_btnPause.setVisibility(View.INVISIBLE);
+        }
         m_btnDelete = (ImageButton)audioView.findViewById(R.id.btnAudioDelete);
         if (m_btnDelete != null)
             m_btnDelete.setOnClickListener(this);
@@ -197,6 +199,8 @@ public class noteAudioPlayView extends FrameLayout
         if (m_player != null)
             m_player.pause();
         m_bPlaying = false;
+        m_btnPlay.setVisibility(View.VISIBLE);
+        m_btnPause.setVisibility(View.INVISIBLE);
     }
 
     public void onClick(View v) {
@@ -207,15 +211,14 @@ public class noteAudioPlayView extends FrameLayout
                 if (m_player != null) {
                     m_player.start();
                     m_bPlaying = true;
+                    m_btnPause.setVisibility(View.VISIBLE);
+                    m_btnPlay.setVisibility(View.INVISIBLE);
                     postDelayed(()->updatePos(), 200);
                 }
                 break;
 
             case R.id.btnAudioPause:
-                if (m_player != null) {
-                    m_player.pause();
-                    m_bPlaying = false;
-                }
+                pausePlay();
                 break;
 
             case R.id.btnAudioDelete:
@@ -227,8 +230,7 @@ public class noteAudioPlayView extends FrameLayout
 
     public void onCompletion(MediaPlayer mp) {
         m_player.seekTo(0);
-        m_player.pause();
-        m_bPlaying = false;
+        pausePlay();
     }
 
     public void onPrepared(MediaPlayer mp) {

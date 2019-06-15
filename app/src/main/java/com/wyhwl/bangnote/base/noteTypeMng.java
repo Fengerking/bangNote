@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import com.wyhwl.bangnote.R;
 
 public class noteTypeMng {
+    public final static  int            m_nSecurityLevel    = 10;
+    public final static  int            m_nTypeTotal        = -1;
+    public final static  int            m_nTypeRubbish      = -2;
+    public final static  int            m_nTypeDefault      = -3;
+
     public String                       m_strFile       = null;
     public ArrayList<noteTypeItem>      m_lstType       = null;
     public String                       m_strRubbish    = "垃圾笔记";
@@ -62,7 +67,7 @@ public class noteTypeMng {
     }
     public int getLevel (int nIndex) {
         if (nIndex < 0 || nIndex >= m_lstType.size())
-            return -1;
+            return m_nTypeTotal;
         return m_lstType.get(nIndex).m_nLevel;
     }
     public int getLevel (String strName) {
@@ -145,12 +150,21 @@ public class noteTypeMng {
         return false;
     }
 
+    public boolean haveSecurityType () {
+        for (int i = 0; i < m_lstType.size(); i++) {
+            if (m_lstType.get(i).m_nLevel >= m_nSecurityLevel) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public ArrayList<String> getListName (boolean bNewNote) {
         ArrayList<String> lstName = new ArrayList<String> ();
         for (int i = 0; i < m_lstType.size(); i++) {
-            if (m_lstType.get(i).m_nLevel == -1)  // total type
+            if (m_lstType.get(i).m_nLevel == m_nTypeTotal)  // total type
                 continue;
-            if (bNewNote && m_lstType.get(i).m_nLevel == -2)  // rubbish
+            if (bNewNote && m_lstType.get(i).m_nLevel == m_nTypeRubbish)  // rubbish
                 continue;
             if (noteConfig.m_nShowSecurity == 0) {
                 if (m_lstType.get(i).m_nLevel >= 10)
@@ -182,11 +196,11 @@ public class noteTypeMng {
                 itemType.m_nLevel = Integer.parseInt(strLine.substring(2));
 
                 itemType.m_nImage = m_nTypeImage[m_lstType.size()%6];
-                if (itemType.m_nLevel == -1)
+                if (itemType.m_nLevel == m_nTypeTotal)
                     itemType.m_nImage = R.drawable.notetype_aa;
-                else if (itemType.m_nLevel == -2)
+                else if (itemType.m_nLevel == m_nTypeRubbish)
                     itemType.m_nImage = R.drawable.lajitong;
-                else if (itemType.m_nLevel == -3)
+                else if (itemType.m_nLevel == m_nTypeDefault)
                     itemType.m_nImage = m_nTypeImage[0];
                 m_lstType.add(itemType);
             }
@@ -198,20 +212,20 @@ public class noteTypeMng {
         if (m_lstType.size() == 0) {
             itemType = new noteTypeItem ();
             itemType.m_strName = m_strDefault;
-            itemType.m_nLevel = -3;
+            itemType.m_nLevel = m_nTypeDefault;
             itemType.m_nImage = m_nTypeImage[0];
             m_lstType.add(itemType);
 
             itemType = new noteTypeItem ();
             itemType.m_strName = m_strTotal;
-            itemType.m_nLevel = -1;
+            itemType.m_nLevel = m_nTypeTotal;
             itemType.m_nUsing = 1;
             itemType.m_nImage = R.drawable.notetype_aa;
             m_lstType.add(itemType);
 
             itemType = new noteTypeItem ();
             itemType.m_strName = m_strRubbish;
-            itemType.m_nLevel = -2;
+            itemType.m_nLevel = m_nTypeRubbish;
             itemType.m_nImage = R.drawable.lajitong;
 
             m_lstType.add(itemType);
@@ -222,11 +236,11 @@ public class noteTypeMng {
             noteTypeItem    itemDefault = null;
             for (int i = 0; i < m_lstType.size(); i++) {
                 itemType = m_lstType.get(i);
-                if (itemType.m_nLevel == -3) {
+                if (itemType.m_nLevel == m_nTypeDefault) {
                     itemDefault = itemType;
                 }
                 if (itemType.m_nUsing > 0) {
-                    if (itemType.m_nLevel >= 10) {
+                    if (itemType.m_nLevel >= m_nSecurityLevel) {
                         itemType.m_nUsing = 0;
                         bFound = true;
                         break;

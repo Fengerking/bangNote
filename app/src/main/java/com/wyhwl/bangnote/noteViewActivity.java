@@ -363,6 +363,8 @@ public class noteViewActivity extends AppCompatActivity
         m_nWordCount = 0;
         m_dataItem.readFromFile(m_strNoteFile);
         m_txtTitle.setText(m_dataItem.m_strTitle);
+        if (m_dataItem.m_strTitle.length()<=0)
+            m_txtTitle.setText("无标题");
         m_txtDate.setText(m_dataItem.m_strDate);
         m_txtTime.setText(m_dataItem.m_strTime);
         m_txtWeather.setText(m_dataItem.m_strCity + " " + m_dataItem.m_strWeat);

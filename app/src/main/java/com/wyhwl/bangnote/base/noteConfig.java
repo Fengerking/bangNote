@@ -85,7 +85,7 @@ public class noteConfig {
 
     public static void initConfig(Context context) {
         File file = Environment.getExternalStorageDirectory();
-        m_strRootPath = file.getPath() + "/bangTest/";
+        m_strRootPath = file.getPath() + "/bangNote/";
         m_strNotePath = m_strRootPath + ".data/";
         m_strBackPath = m_strRootPath + ".backup/";
         file = new File(m_strRootPath);

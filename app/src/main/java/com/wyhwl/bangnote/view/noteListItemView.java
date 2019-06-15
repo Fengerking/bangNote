@@ -126,6 +126,8 @@ public class noteListItemView extends TextView {
         }
         if (bmpItem != null) {
             int nOff = 12;
+            if (m_dataItem.m_strImgFile == null && m_dataItem.m_strAudFile != null)
+                nOff = 24;
             Rect rcSrc = new Rect(0, 0, bmpItem.getWidth(), bmpItem.getHeight());
             Rect rcDst = new Rect(rcItem.left + nOff, rcItem.top + nOff, rcItem.left + (rcItem.bottom - rcItem.top) - nOff * 2, rcItem.bottom - nOff * 2);
             canvas.drawBitmap(bmpItem, rcSrc, rcDst, m_pntRect);
