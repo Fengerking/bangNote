@@ -12,12 +12,12 @@
     </com.wyhwl.bangnote.view.noteAudioRecStatus>
 
     <ImageButton
-        android:id="@+id/btnAudioStop"
+        android:id="@+id/btnAudioPlay"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginLeft="16dp"
         android:layout_gravity="center_vertical"
-        android:background="@drawable/note_audio_stop"/>
+        android:background="@drawable/note_audio_play"/>
 
     <ImageButton
         android:id="@+id/btnAudioStart"
@@ -28,12 +28,12 @@
         android:background="@drawable/note_audio_start"/>
 
     <ImageButton
-        android:id="@+id/btnAudioPlay"
+        android:id="@+id/btnAudioStop"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginLeft="16dp"
         android:layout_gravity="center_vertical"
-        android:background="@drawable/note_audio_play"/>
+        android:background="@drawable/note_audio_stop"/>
 
     <ImageButton
         android:id="@+id/btnAudioDelete"

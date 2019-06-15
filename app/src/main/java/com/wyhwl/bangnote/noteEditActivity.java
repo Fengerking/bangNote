@@ -8,6 +8,7 @@ import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
@@ -46,8 +47,10 @@ public class noteEditActivity extends AppCompatActivity
                     noteImageView.onNoteImageListener,
                     AdapterView.OnItemSelectedListener,
                     noteAudioEditView.audioChangeListener,
+                    noteAudioPlayView.audioPlayViewListener,
                     OnClickListener {
     private static int      RESULT_LOAD_IMAGE       = 10;
+    private static int      RESULT_LOAD_AUDIO       = 11;
     private static int      RESULT_CAPTURE_IMAGE    = 20;
     private TextView        m_txtBarTitle = null;
     private noteEditText    m_edtTitle = null;
@@ -64,6 +67,7 @@ public class noteEditActivity extends AppCompatActivity
     private int             m_nFocusID = 0;
     private String          m_strNoteFile = null;
     private String          m_strImageFile = null;
+    private String          m_strMusicFile = null;
     private dataNoteItem    m_dataItem = null;
     private boolean         m_bNewNote = true;
     private boolean         m_bReadFromFile = false;
@@ -112,6 +116,7 @@ public class noteEditActivity extends AppCompatActivity
         ((ImageButton)findViewById(R.id.imbSaveNote)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbDelPic)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbAudio)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbMusic)).setOnClickListener(this);
 
         m_txtBarTitle = (TextView)findViewById(R.id.txtBarTitle);
 
@@ -155,6 +160,11 @@ public class noteEditActivity extends AppCompatActivity
         } else if (nType == noteConfig.m_nItemTypeAudo){
             noteAudioEditView noteAudio = new noteAudioEditView(this);
             vwNew = noteAudio;
+        } else if (nType == noteConfig.m_nItemTypeMusc){
+            noteAudioPlayView noteMusic = new noteAudioPlayView(this, noteConfig.m_nItemTypeMusc);
+            if (m_strMusicFile != null)
+                noteMusic.setAudioFile(m_strMusicFile);
+            vwNew = noteMusic;
         } else {
             return null;
         }
@@ -230,6 +240,14 @@ public class noteEditActivity extends AppCompatActivity
             audView.setLayoutParams(param);
             vwLast = audView;
             noteConfig.m_bNoteModified = true;
+        } else if (nType == noteConfig.m_nItemTypeMusc) {
+            noteAudioPlayView audView = (noteAudioPlayView) addNoteView(vwAfter, noteConfig.m_nItemTypeMusc);
+            audView.setAudioPlayListener(this);
+            ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)audView.getLayoutParams();
+            param.width = -1;
+            audView.setLayoutParams(param);
+            vwLast = audView;
+            noteConfig.m_bNoteModified = true;
         }
 
         int nCount = m_layView.getChildCount();
@@ -298,6 +316,7 @@ public class noteEditActivity extends AppCompatActivity
         }catch (Exception e) {
             e.printStackTrace();
         }
+        Intent  intent = null;
         int     themeId = AlertDialog.THEME_HOLO_DARK;;
         int     nID     = v.getId();
         switch (nID) {
@@ -345,7 +364,7 @@ public class noteEditActivity extends AppCompatActivity
                 break;
 
             case R.id.imbNewPic:
-                Intent intent = new Intent("android.intent.action.GET_CONTENT");
+                intent = new Intent("android.intent.action.GET_CONTENT");
                 intent.setType("image/*");
                 startActivityForResult(intent, RESULT_LOAD_IMAGE);//打开系统相册
                 break;
@@ -356,6 +375,13 @@ public class noteEditActivity extends AppCompatActivity
 
             case R.id.imbAudio:
                 addMediaView(null, noteConfig.m_nItemTypeAudo);
+                break;
+
+            case R.id.imbMusic:
+                m_strMusicFile = null;
+                intent = new Intent("android.intent.action.GET_CONTENT");
+                intent.setType("audio/*");
+                startActivityForResult(intent, RESULT_LOAD_AUDIO);
                 break;
 
             case R.id.imbSaveNote:
@@ -444,6 +470,11 @@ public class noteEditActivity extends AppCompatActivity
             deleteMediaView(view);
     }
 
+    public void onAudioPlayChange (View view, int nCommand) {
+        if (nCommand == R.id.btnAudioDelete)
+            deleteMediaView(view);
+    }
+
     public void onResizeView () {
         int nHeight = 0;
         int nCount = m_layView.getChildCount();
@@ -483,30 +514,49 @@ public class noteEditActivity extends AppCompatActivity
             if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
                 String id = docId.split(":")[1];
                 String selection = MediaStore.Images.Media._ID + "=" + id;
-                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
+                if (requestCode == RESULT_LOAD_IMAGE) {
+                    imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection, requestCode);
+                } else if (requestCode == RESULT_LOAD_AUDIO) {
+                    imagePath = getImagePath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, selection, requestCode);
+                }
             } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
                 Uri contentUri = ContentUris.withAppendedId(Uri.parse("content:" +
-                        "//downloads/public_downloads"), Long.valueOf(docId));
-                imagePath = getImagePath(contentUri, null);
+                                                        "//downloads/public_downloads"), Long.valueOf(docId));
+                imagePath = getImagePath(contentUri, null, requestCode);
             }
         } else if ("content".equalsIgnoreCase(uri.getScheme())) {
             //如果是content类型的uri，则使用普通方式处理
-            imagePath = getImagePath(uri, null);
+            //imagePath = getImagePath(uri, null, requestCode);
+            String strName = uri.getEncodedPath();
+            int nPos = strName.indexOf(File.separatorChar, 2);
+            strName = strName.substring(nPos);
+            File file = Environment.getExternalStorageDirectory();
+            String strExtPath = file.getPath();
+            imagePath = strExtPath + strName;
         } else if ("file".equalsIgnoreCase(uri.getScheme())) {
             //如果是File类型的uri，直接获取图片路径即可
             imagePath = uri.getPath();
         }
-
-        addMediaView(imagePath, noteConfig.m_nItemTypePict);
+        if (imagePath != null) {
+            if (requestCode == RESULT_LOAD_IMAGE) {
+                addMediaView(imagePath, noteConfig.m_nItemTypePict);
+            } else if (requestCode == RESULT_LOAD_AUDIO) {
+                m_strMusicFile = imagePath;
+                addMediaView(imagePath, noteConfig.m_nItemTypeMusc);
+            }
+        }
     }
 
-    private String getImagePath(Uri uri, String selection) {
+    private String getImagePath(Uri uri, String selection, int requestCode) {
         String path = null;
         //通过uri和selection来获取真实的图片路径
         Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                if (requestCode == RESULT_LOAD_IMAGE)
+                    path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                else if (requestCode == RESULT_LOAD_AUDIO)
+                    path = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
             }
             cursor.close();
         }
@@ -572,10 +622,14 @@ public class noteEditActivity extends AppCompatActivity
                 if (dataItem.m_nType == noteConfig.m_nItemTypePict) {
                     noteImageView noteImage = (noteImageView)addNoteView(null, noteConfig.m_nItemTypePict);
                     noteImage.setImageFile(dataItem.m_strItem, true);
-                } if (dataItem.m_nType == noteConfig.m_nItemTypeAudo) {
+                } else if (dataItem.m_nType == noteConfig.m_nItemTypeAudo) {
                     noteAudioEditView noteAudio = (noteAudioEditView)addNoteView(null, noteConfig.m_nItemTypeAudo);
                     noteAudio.setAudioFile(dataItem.m_strItem);
                     noteAudio.setAudioChangeListener(this);
+                } else if (dataItem.m_nType == noteConfig.m_nItemTypeMusc) {
+                    noteAudioPlayView noteMusic = (noteAudioPlayView)addNoteView(null, noteConfig.m_nItemTypeMusc);
+                    noteMusic.setAudioFile(dataItem.m_strItem);
+                    //noteMusic.setAudioChangeListener(this);
                 }
             }
         }
@@ -670,6 +724,11 @@ public class noteEditActivity extends AppCompatActivity
                             strText = strAudioFile.substring(nNotePathLen); bw.write((strText+"\n").toCharArray());
                         }
                     }
+                } else if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypeMusc) {
+                    noteAudioPlayView noteMusic = (noteAudioPlayView)vwItem;
+                    String strAudioFile = noteMusic.getAudioFile();
+                    strName = noteConfig.m_strTagNoteMusc; bw.write((strName+"\n").toCharArray());
+                    strText = strAudioFile.substring(nNotePathLen); bw.write((strText+"\n").toCharArray());
                 }
             }
             bw.flush();

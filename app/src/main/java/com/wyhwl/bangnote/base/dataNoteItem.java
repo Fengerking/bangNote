@@ -143,6 +143,13 @@ public class dataNoteItem {
                 if (m_strVidFile == null)
                     m_strVidFile = content.m_strItem;
                 m_lstItem.add(content);
+            } else if (strLine.compareTo(noteConfig.m_strTagNoteMusc) == 0) {
+                dataContent content = new dataContent();
+                content.m_nType = noteConfig.m_nItemTypeMusc;
+                content.m_strItem = noteConfig.m_strNotePath + br.readLine();
+                if (m_strAudFile == null)
+                    m_strAudFile = content.m_strItem;
+                m_lstItem.add(content);
             }
         }catch (Exception e) {
             e.printStackTrace();
@@ -184,6 +191,9 @@ public class dataNoteItem {
                     bw.write((itemData.m_strItem.substring(nNotePathLen) +"\n").toCharArray());
                 } else if (itemData.m_nType == noteConfig.m_nItemTypeVido) {
                     bw.write((noteConfig.m_strTagNoteVido +"\n").toCharArray());
+                    bw.write((itemData.m_strItem.substring(nNotePathLen) +"\n").toCharArray());
+                } else if (itemData.m_nType == noteConfig.m_nItemTypeMusc) {
+                    bw.write((noteConfig.m_strTagNoteMusc +"\n").toCharArray());
                     bw.write((itemData.m_strItem.substring(nNotePathLen) +"\n").toCharArray());
                 }
             }

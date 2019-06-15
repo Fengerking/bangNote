@@ -24,6 +24,7 @@ public class noteImageShow extends ImageView {
     private static final int MODE_ZOOM = 2;
 
     private Context     m_context   = null;
+    private int         m_nID       = 0;
     private String      m_strFile   = null;
     private int         m_nMode     = MODE_NONE;
     private float       m_oldDist   = 0;
@@ -77,10 +78,15 @@ public class noteImageShow extends ImageView {
 
     private void initView (Context context) {
         m_context = context;
+        m_nID = noteConfig.getImagViewID ();
         setScaleType(ImageView.ScaleType.MATRIX);
         DisplayMetrics dm = this.getResources().getDisplayMetrics();
         m_nScrWidth = dm.widthPixels;
         m_nScrHeight = dm.heightPixels;
+    }
+
+    public int getId() {
+        return m_nID;
     }
 
     public String getImageFile () {

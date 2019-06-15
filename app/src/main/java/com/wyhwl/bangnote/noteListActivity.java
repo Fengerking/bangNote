@@ -181,6 +181,7 @@ public class noteListActivity extends AppCompatActivity
 
             case R.id.imbSearchAll:
             case R.id.imbSearchSelect:
+                m_layToolBarList.setVisibility(View.VISIBLE);
                 m_layToolBarSearch.setVisibility(View.INVISIBLE);
                 String strFilter = ((EditText)findViewById(R.id.edtSearch)).getText().toString();
                 if (strFilter.length() <= 0)

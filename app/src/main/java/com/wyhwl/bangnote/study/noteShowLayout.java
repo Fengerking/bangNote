@@ -196,7 +196,7 @@ public class noteShowLayout extends FrameLayout
                 imgView.setImageFile(dataItem.m_strItem, false);
                 imgView.setNoteImageShowListener(this);
             } else if (dataItem.m_nType == noteConfig.m_nItemTypeAudo) {
-                noteAudioPlayView audView = new noteAudioPlayView(m_context);
+                noteAudioPlayView audView = new noteAudioPlayView(m_context, noteConfig.m_nItemTypeAudo);
                 m_layView.addView(audView);
                 ViewGroup.LayoutParams param = (ViewGroup.LayoutParams) audView.getLayoutParams();
                 param.width = -1;

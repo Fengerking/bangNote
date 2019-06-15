@@ -32,6 +32,7 @@ public class noteConfig {
     public static int           m_nItemTypePict = 1;
     public static int           m_nItemTypeAudo = 2;
     public static int           m_nItemTypeVido = 3;
+    public static int           m_nItemTypeMusc = 4;
 
     public static noteListAdapter     m_lstData = null;
     public static boolean       m_bNoteModified = false;
@@ -39,6 +40,7 @@ public class noteConfig {
     public static int           m_nImagID = 10001;
     public static int           m_nAudoID = 20001;
     public static int           m_nVidoID = 30001;
+    public static int           m_nMuscID = 40001;
 
     public static int           m_nTextColor = 0XFFCCCCCC;
     public static int           m_nTextSize = 24;
@@ -68,6 +70,7 @@ public class noteConfig {
     public static String        m_strTagNotePict    = "[notePict]";
     public static String        m_strTagNoteAudo    = "[noteAudo]";
     public static String        m_strTagNoteVido    = "[noteVido]";
+    public static String        m_strTagNoteMusc    = "[noteMusc]";
 
     public static String[]      m_lstWeekDays       = {"日", "一", "二", "三", "四", "五", "六"};
 
@@ -82,9 +85,9 @@ public class noteConfig {
 
     public static void initConfig(Context context) {
         File file = Environment.getExternalStorageDirectory();
-        m_strRootPath = file.getPath() + "/bangNote/";
-        m_strNotePath = file.getPath() + "/bangNote/.data/";
-        m_strBackPath = file.getPath() + "/bangNote/.backup/";
+        m_strRootPath = file.getPath() + "/bangTest/";
+        m_strNotePath = m_strRootPath + ".data/";
+        m_strBackPath = m_strRootPath + ".backup/";
         file = new File(m_strRootPath);
         file.mkdir();
         file = new File(m_strNotePath);
@@ -114,6 +117,9 @@ public class noteConfig {
     public static int       getVidoViewID () {
         return m_nVidoID++;
     }
+    public static int       getMuscViewID () {
+        return m_nMuscID++;
+    }
 
     public static int       getNoteviewType (View vwNote) {
         int nID = vwNote.getId();
@@ -125,6 +131,8 @@ public class noteConfig {
             return m_nItemTypeAudo;
         else if (nID < 40000)
             return m_nItemTypeVido;
+        else if (nID < 50000)
+            return m_nItemTypeMusc;
         else
             return -1;
     }
@@ -137,6 +145,8 @@ public class noteConfig {
             return m_nItemTypeAudo;
         else if (nID < 40000)
             return m_nItemTypeVido;
+        else if (nID < 50000)
+            return m_nItemTypeMusc;
         else
             return -1;
     }

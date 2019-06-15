@@ -366,6 +366,8 @@ public class noteViewActivity extends AppCompatActivity
             if (dataItem.m_nType == noteConfig.m_nItemTypeText) {
                 txtView = new TextView(this);
                 m_layView.addView(txtView);
+                //txtView.setLongClickable(true);
+                //txtView.setTextIsSelectable(true);
                 txtView.setText(dataItem.m_strItem);
                 txtView.setTextSize(noteConfig.m_nTextSize);
                 txtView.setTextColor(noteConfig.m_nTextColor);
@@ -375,8 +377,9 @@ public class noteViewActivity extends AppCompatActivity
                 m_layView.addView(imgView);
                 imgView.setImageFile (dataItem.m_strItem, false);
                 imgView.setNoteImageShowListener(this);
-            } else if (dataItem.m_nType == noteConfig.m_nItemTypeAudo) {
-                noteAudioPlayView audView = new noteAudioPlayView(this);
+            } else if (dataItem.m_nType == noteConfig.m_nItemTypeAudo ||
+                            dataItem.m_nType == noteConfig.m_nItemTypeMusc) {
+                noteAudioPlayView audView = new noteAudioPlayView(this, noteConfig.m_nItemTypeAudo);
                 m_layView.addView(audView);
                 ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)audView.getLayoutParams();
                 param.width = -1;
@@ -399,10 +402,18 @@ public class noteViewActivity extends AppCompatActivity
     }
 
     public void onResizeView () {
-        int nHeight = 0;
+        int     nHeight = 0;
+        View    vwChild = null;
         int nCount = m_layView.getChildCount();
         for (int i = 0; i < nCount; i++) {
-            nHeight += m_layView.getChildAt(i).getHeight();
+            vwChild = m_layView.getChildAt(i);
+            if (noteConfig.getNoteviewType(vwChild) == noteConfig.m_nItemTypeText) {
+                int nLines = ((TextView)vwChild).getLineCount();
+                int nLineH = ((TextView)vwChild).getLineHeight();
+                nHeight += nLines * nLineH;
+            } else {
+                nHeight += vwChild.getHeight();
+            }
         }
         ViewGroup.LayoutParams param = (ViewGroup.LayoutParams)m_layView.getLayoutParams();
         param.height = nHeight + 600;
