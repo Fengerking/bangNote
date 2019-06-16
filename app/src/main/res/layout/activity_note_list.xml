@@ -70,6 +70,15 @@
                     android:layout_marginBottom="2dp"
                     android:layout_toLeftOf="@+id/imbDelNote"
                     android:background="@drawable/note_new"/>
+                <ImageButton
+                    android:id="@+id/imbCalendar"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_toLeftOf="@+id/imbNewNote"
+                    android:background="@drawable/note_search_calendar"/>
             </RelativeLayout>
         </LinearLayout>
 

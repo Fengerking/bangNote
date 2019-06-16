@@ -57,6 +57,7 @@ public class noteListActivity extends AppCompatActivity
     public static final int     ACTIVITY_NOTESETKEY     = 4;
     public static final int     ACTIVITY_NOTEUNLOCK     = 5;
     public static final int     ACTIVITY_NOTEABOUT      = 6;
+    public static final int     ACTIVITY_CALENDAR       = 7;
 
     private ListView            m_lstView = null;
     private noteListSlider      m_sldList = null;
@@ -116,6 +117,7 @@ public class noteListActivity extends AppCompatActivity
         ((ImageButton)findViewById(R.id.imbSearchNote)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbSearchAll)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbSearchSelect)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbCalendar)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.appBack)).setOnClickListener(this);
 
         m_layToolBarList = (LinearLayout) findViewById(R.id.ntlList);
@@ -195,6 +197,11 @@ public class noteListActivity extends AppCompatActivity
                 m_lstView.invalidate();
                 InputMethodManager imm = (InputMethodManager) this.getSystemService(this.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(((EditText)findViewById(R.id.edtSearch)).getWindowToken(), 0);
+                break;
+
+            case R.id.imbCalendar:
+                intent = new Intent(noteListActivity.this, noteCalendarActivity.class);
+                startActivityForResult(intent, ACTIVITY_CALENDAR);
                 break;
         }
     }

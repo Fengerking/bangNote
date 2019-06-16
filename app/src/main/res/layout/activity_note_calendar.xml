@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorView"
+    tools:context=".noteListActivity">
+
+    <RelativeLayout
+        android:id="@+id/ntlMain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/colorPrimary">
+
+        <LinearLayout
+            android:id="@+id/ntlCalendar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/colorPrimary">
+
+            <ImageButton
+                android:id="@+id/imbBack"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                android:layout_marginLeft="2dp"
+                android:background="@drawable/app_back"/>
+
+            <TextView
+                android:id="@+id/txtCalendar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:layout_gravity="center_vertical"
+                android:textColor="@color/colorWhite"
+                android:textSize="24dp"
+                android:text="2019-06"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layYear"
+        android:layout_width="match_parent"
+        android:layout_height="320dp"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
+
+        <ListView
+            android:id="@+id/lstYear"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="2dp"
+            android:background="@color/colorView"
+            android:divider="@null">
+        </ListView>
+
+        <com.wyhwl.bangnote.view.noteCalendarView
+            android:id="@+id/cldDate"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginRight="32dp"
+            android:layout_toRightOf="@id/lstYear">
+
+        </com.wyhwl.bangnote.view.noteCalendarView>
+
+        <ListView
+            android:id="@+id/lstMonth"
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:background="@color/colorView"
+            android:divider="@null">
+        </ListView>
+
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/noteView_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="2dp"
+        android:background="@color/colorBlack" />
+
+    <ListView
+        android:id="@+id/vwNoteList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorView"
+        android:divider="@null">
+    </ListView>
+
+</LinearLayout>
