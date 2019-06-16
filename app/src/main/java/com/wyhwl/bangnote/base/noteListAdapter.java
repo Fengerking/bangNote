@@ -271,7 +271,6 @@ public class noteListAdapter extends BaseAdapter {
     }
 
     public class dateComparator implements Comparator<Object> {
-        @SuppressWarnings("unchecked")
         public int compare(Object o1, Object o2) {
             dataNoteItem noteItem1 = (dataNoteItem)o1;
             dataNoteItem noteItem2 = (dataNoteItem)o2;

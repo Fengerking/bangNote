@@ -41,6 +41,47 @@
                 android:textSize="24dp"
                 android:text="2019-06"/>
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ImageButton
+                    android:id="@+id/imbMonth"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/note_month"/>
+                <ImageButton
+                    android:id="@+id/imbDay"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_toLeftOf="@+id/imbMonth"
+                    android:background="@drawable/note_oneday"/>
+                <ImageButton
+                    android:id="@+id/imbNoteSel"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_toLeftOf="@+id/imbDay"
+                    android:background="@drawable/note_date_sel"/>
+                <ImageButton
+                    android:id="@+id/imbNoteAll"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginBottom="2dp"
+                    android:layout_toLeftOf="@+id/imbNoteSel"
+                    android:background="@drawable/note_date_all"/>
+            </RelativeLayout>
+
         </LinearLayout>
 
     </RelativeLayout>

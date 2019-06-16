@@ -14,12 +14,15 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
 
 import com.wyhwl.bangnote.base.dataNoteItem;
 import com.wyhwl.bangnote.base.noteConfig;
 import com.wyhwl.bangnote.base.noteDateAdapter;
+import com.wyhwl.bangnote.base.noteListAdapter;
 import com.wyhwl.bangnote.view.*;
 
 public class noteCalendarActivity extends AppCompatActivity
@@ -37,6 +40,9 @@ public class noteCalendarActivity extends AppCompatActivity
     private int                 m_nYear = 0;
     private int                 m_nMonth = 0;
     private int                 m_nDay = 0;
+
+    private boolean             m_bDayMode = true;
+    private boolean             m_bNoteAll = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +63,11 @@ public class noteCalendarActivity extends AppCompatActivity
 
     private void initViews () {
         ((ImageButton)findViewById(R.id.imbBack)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbNoteSel)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbNoteAll)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbMonth)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbDay)).setOnClickListener(this);
+
         m_txtDate = (TextView)findViewById(R.id.txtCalendar);
         m_vwCalendar = (noteCalendarView)findViewById(R.id.cldDate);
         m_vwCalendar.setNoteDateChangeListener(this);
@@ -129,6 +140,34 @@ public class noteCalendarActivity extends AppCompatActivity
             case R.id.imbBack:
                 finish();
                 break;
+
+            case R.id.imbNoteAll:
+                if (!m_bNoteAll) {
+                    m_bNoteAll = true;
+                    m_vwCalendar.setNoteAll(true);
+                }
+                break;
+
+            case R.id.imbNoteSel:
+                if (m_bNoteAll) {
+                    m_bNoteAll = false;
+                    m_vwCalendar.setNoteAll(false);
+                }
+                break;
+
+            case R.id.imbMonth:
+                if (m_bDayMode) {
+                    m_bDayMode = false;
+                    onNoteDateChange(null, m_nYear, m_nMonth, m_nDay);
+                }
+                break;
+
+            case R.id.imbDay:
+                if (!m_bDayMode) {
+                    m_bDayMode = true;
+                    onNoteDateChange(null, m_nYear, m_nMonth, m_nDay);
+                }
+                break;
         }
     }
 
@@ -136,21 +175,80 @@ public class noteCalendarActivity extends AppCompatActivity
         m_nYear = nYear;
         m_nMonth = nMonth;
         m_nDay = nDay;
+        String strDdte = String.format(" %d年 %02d月 %02d日", nYear, nMonth, nDay);
+        m_txtDate.setText(strDdte);
         m_noteAdapter.m_lstItem.clear();
         String strDate = String.format("%d-%02d-%02d", nYear, nMonth, nDay);
         dataNoteItem dataItem = null;
-        int nNoteSize = noteConfig.m_lstData.m_lstAllItem.size();
-        for (int i = 0; i < nNoteSize; i++) {
-            dataItem = noteConfig.m_lstData.m_lstAllItem.get(i);
-            if (noteConfig.m_nShowSecurity == 0) {
-                if (dataItem.isSecurity())
-                    continue;
+
+        if (m_bDayMode && m_bNoteAll) {
+            int nNoteSize = noteConfig.m_lstData.m_lstAllItem.size();
+            for (int i = 0; i < nNoteSize; i++) {
+                dataItem = noteConfig.m_lstData.m_lstAllItem.get(i);
+                if (noteConfig.m_nShowSecurity == 0) {
+                    if (dataItem.isSecurity())
+                        continue;
+                }
+                if (strDate.compareTo(dataItem.m_strDate) == 0) {
+                    m_noteAdapter.m_lstItem.add(dataItem);
+                }
             }
-            if (strDate.compareTo(dataItem.m_strDate) == 0) {
-                m_noteAdapter.m_lstItem.add(dataItem);
+        } else if (m_bDayMode && !m_bNoteAll) {
+            int nNoteSize = noteConfig.m_lstData.m_lstSelItem.size();
+            for (int i = 0; i < nNoteSize; i++) {
+                dataItem = noteConfig.m_lstData.m_lstSelItem.get(i);
+                if (noteConfig.m_nShowSecurity == 0) {
+                    if (dataItem.isSecurity())
+                        continue;
+                }
+                if (strDate.compareTo(dataItem.m_strDate) == 0) {
+                    m_noteAdapter.m_lstItem.add(dataItem);
+                }
+            }
+        } else if (!m_bDayMode && m_bNoteAll) {
+            String strDate1 = String.format("%d-%02d-%02d", nYear, nMonth, 0);
+            String strDate2 = String.format("%d-%02d-%02d", nYear, nMonth, 32);
+            int nNoteSize = noteConfig.m_lstData.m_lstAllItem.size();
+            for (int i = 0; i < nNoteSize; i++) {
+                dataItem = noteConfig.m_lstData.m_lstAllItem.get(i);
+                if (noteConfig.m_nShowSecurity == 0) {
+                    if (dataItem.isSecurity())
+                        continue;
+                }
+                if (strDate1.compareTo(dataItem.m_strDate) < 0 &&
+                        strDate2.compareTo(dataItem.m_strDate) > 0) {
+                    m_noteAdapter.m_lstItem.add(dataItem);
+                }
+            }
+        } else if (!m_bDayMode && !m_bNoteAll) {
+            String strDate1 = String.format("%d-%02d-%02d", nYear, nMonth, 0);
+            String strDate2 = String.format("%d-%02d-%02d", nYear, nMonth, 32);
+            int nNoteSize = noteConfig.m_lstData.m_lstSelItem.size();
+            for (int i = 0; i < nNoteSize; i++) {
+                dataItem = noteConfig.m_lstData.m_lstSelItem.get(i);
+                if (noteConfig.m_nShowSecurity == 0) {
+                    if (dataItem.isSecurity())
+                        continue;
+                }
+                if (strDate1.compareTo(dataItem.m_strDate) < 0 &&
+                        strDate2.compareTo(dataItem.m_strDate) > 0) {
+                    m_noteAdapter.m_lstItem.add(dataItem);
+                }
             }
         }
+
         m_lstViewNote.setAdapter(m_noteAdapter);
         m_lstViewNote.invalidate();
+
+        Comparator comp = new dateComparator();
+        Collections.sort(m_noteAdapter.m_lstItem, comp);
+    }
+
+    public class dateComparator implements Comparator<Object> {
+        public int compare(Object o1, Object o2) {
+            dataNoteItem noteItem1 = (dataNoteItem)o1;
+            dataNoteItem noteItem2 = (dataNoteItem)o2;
+            return noteItem2.m_strDateTime.compareTo(noteItem1.m_strDateTime);
+        }
     }
 }

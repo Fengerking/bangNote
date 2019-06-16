@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import com.wyhwl.bangnote.view.noteListItemView;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class noteDateAdapter extends BaseAdapter {
     private Context m_context                    = null;

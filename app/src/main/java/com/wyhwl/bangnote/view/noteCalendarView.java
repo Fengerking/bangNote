@@ -6,7 +6,9 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 import java.util.Date;
 
@@ -20,6 +22,7 @@ public class noteCalendarView extends View {
     private int         m_nYear = 0;
     private int         m_nMonth = 0;
     private int         m_nDate = 0;
+    private boolean     m_bNoteAll = true;
 
     private int         m_nWeekDay = 0;
     private String[]    m_strDays = null;
@@ -44,6 +47,9 @@ public class noteCalendarView extends View {
     private Paint       m_pntTextDate = null;
     private Paint       m_pntTextSlct = null;
     private Paint       m_pntTextNote = null;
+
+    private VelocityTracker mVelocityTracker = null;
+    private int             mMaxVelocity;
 
     private LunarCalendar   m_lunar = null;
 
@@ -89,7 +95,7 @@ public class noteCalendarView extends View {
         m_pntTextDate.setTextSize(60);
 
         m_pntTextSlct = new Paint();
-        m_pntTextSlct.setColor(0XFF000055);
+        m_pntTextSlct.setColor(0XFFAAAA00);
         m_pntTextSlct.setTextSize(60);
 
         m_pntTextNote = new Paint();
@@ -105,6 +111,9 @@ public class noteCalendarView extends View {
         m_nMonth = date.getMonth() + 1;
         m_nDate = date.getDate();
         updateDate();
+
+        ViewConfiguration config = ViewConfiguration.get(m_context);
+        mMaxVelocity = config.getScaledMinimumFlingVelocity();
     }
 
     public void setYearMonth (int nYear, int nMonth) {
@@ -119,6 +128,20 @@ public class noteCalendarView extends View {
         }
         if (!bUpdate)
             return;
+
+        updateDate();
+        invalidate();
+
+        if (m_listener != null && m_nIndexSelect > 0) {
+            updateSelDate (m_nIndexSelect);
+            m_listener.onNoteDateChange(this, m_nSelYear, m_nSelMonth, m_nSelDate);
+        }
+    }
+
+    public void setNoteAll (boolean bAll) {
+        if (m_bNoteAll == bAll)
+            return;
+        m_bNoteAll = bAll;
 
         updateDate();
         invalidate();
@@ -186,6 +209,10 @@ public class noteCalendarView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
+        if(mVelocityTracker == null)
+            mVelocityTracker = VelocityTracker.obtain();
+        mVelocityTracker.addMovement(ev);
+
         int x = (int) ev.getX();
         int y = (int) ev.getY();
         switch (ev.getAction()){
@@ -196,10 +223,42 @@ public class noteCalendarView extends View {
                 break;
 
             case MotionEvent.ACTION_UP:
-                updateSelectDay (x, y);
+                mVelocityTracker.computeCurrentVelocity(1000);
+                int initVelocity = (int) mVelocityTracker.getXVelocity() / 2;
+                mVelocityTracker.clear();
+                if (initVelocity > mMaxVelocity) {
+                    // Left ?  -1
+                    setNextMonth(false);
+                } else if (initVelocity < -mMaxVelocity) {
+                    // right ? +1
+                    setNextMonth(true);
+                } else {
+                    updateSelectDay(x, y);
+                }
                 break;
         }
         return true;
+    }
+
+    private  void setNextMonth (boolean bNext) {
+        int nMonth = m_nMonth;
+        int nYear = m_nYear;
+        if (bNext) {
+            if (nMonth == 12) {
+                nMonth = 1;
+                nYear++;
+            } else {
+                nMonth++;
+            }
+        } else {
+            if (nMonth == 1) {
+                nMonth = 12;
+                nYear--;
+            } else {
+                nMonth--;
+            }
+        }
+        setYearMonth(nYear, nMonth);
     }
 
     private void updateSelectDay (int nX, int nY) {
@@ -310,15 +369,29 @@ public class noteCalendarView extends View {
         int nCount = 0;
         String strDate = String.format("%d-%02d-%02d", m_nSelYear, m_nSelMonth, m_nSelDate);
         dataNoteItem dataItem = null;
-        int nNoteSize = noteConfig.m_lstData.m_lstAllItem.size();
-        for (int i = 0; i < nNoteSize; i++) {
-            dataItem = noteConfig.m_lstData.m_lstAllItem.get(i);
-            if (noteConfig.m_nShowSecurity == 0) {
-                if (dataItem.isSecurity())
-                    continue;
+
+        if (m_bNoteAll) {
+            int nNoteSize = noteConfig.m_lstData.m_lstAllItem.size();
+            for (int i = 0; i < nNoteSize; i++) {
+                dataItem = noteConfig.m_lstData.m_lstAllItem.get(i);
+                if (noteConfig.m_nShowSecurity == 0) {
+                    if (dataItem.isSecurity())
+                        continue;
+                }
+                if (strDate.compareTo(dataItem.m_strDate) == 0)
+                    nCount++;
             }
-            if (strDate.compareTo(dataItem.m_strDate) == 0)
-                nCount++;
+        } else {
+            int nNoteSize = noteConfig.m_lstData.m_lstSelItem.size();
+            for (int i = 0; i < nNoteSize; i++) {
+                dataItem = noteConfig.m_lstData.m_lstSelItem.get(i);
+                if (noteConfig.m_nShowSecurity == 0) {
+                    if (dataItem.isSecurity())
+                        continue;
+                }
+                if (strDate.compareTo(dataItem.m_strDate) == 0)
+                    nCount++;
+            }
         }
         return nCount;
     }
