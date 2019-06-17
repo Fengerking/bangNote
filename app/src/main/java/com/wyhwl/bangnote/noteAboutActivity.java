@@ -69,13 +69,14 @@ public class noteAboutActivity extends AppCompatActivity
         m_txtFeatureInfo = (TextView)findViewById(R.id.txtFeatureDetail);
         m_txtContactInfo = (TextView)findViewById(R.id.txtContactInfo);
 
-        m_txtFeatureInfo.setText("1、可以方便插入图片，相机，录音机素材。\n" +
-                                 "2、支持远程云备份，同步不同设备。\n" +
-                                 "3、支持私密笔记。\n" +
-                                 "4、方便搜索，阅读。\n");
+        m_txtFeatureInfo.setText("1、可以方便插入录音，音乐。\n" +
+                                 "2、可以方便插入图片，相机。\n" +
+                                 "3、远程云备份，不同设备之间同步。\n" +
+                                 "4、支持私密笔记。\n" +
+                                 "5、方便搜索，阅读。\n");
 
         m_txtContactInfo.setText ("1、邮件：fengernote@163.com \n" +
-                                  "2、QQ： 2598425114 \n");
+                                  "2、QQ：  2598425114 \n");
 
         ((TextView)findViewById(R.id.txtVersion)).setText(m_strVersion);
     }

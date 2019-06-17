@@ -442,6 +442,9 @@ public class noteViewActivity extends AppCompatActivity
 
         int nIndex = m_nCurIndex+1;
         m_txtWinTitle.setText(m_strTitle + " ("+nIndex+"/"+m_nFileCount+")");
+        if (m_nFileCount >= 100 && nIndex >= 10) {
+            m_txtWinTitle.setText(m_strTitle.substring (0, 2) + " ("+nIndex+"/"+m_nFileCount+")");
+        }
     }
 
     private void showNormalDialog(){
