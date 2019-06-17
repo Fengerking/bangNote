@@ -1,12 +1,16 @@
 package com.wyhwl.bangnote;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import java.io.File;
 
 public class noteAboutActivity extends AppCompatActivity
                                     implements View.OnClickListener {
@@ -52,5 +56,15 @@ public class noteAboutActivity extends AppCompatActivity
                 finish();
                 break;
         }
+    }
+
+    protected void installApk(String strAPK) {
+        Intent intent = new Intent();
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        File file = new File(strAPK);
+        Uri uri = Uri.fromFile(file);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setDataAndType(uri, "application/vnd.android.package-archive");
+        this.startActivity(intent);
     }
 }
