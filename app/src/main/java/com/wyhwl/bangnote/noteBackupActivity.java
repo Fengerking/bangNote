@@ -1,9 +1,7 @@
 package com.wyhwl.bangnote;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
@@ -11,19 +9,17 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.wyhwl.bangnote.base.*;
-
+import android.util.Log;
 import java.io.File;
 
 import com.tencent.mm.opensdk.modelmsg.SendAuth;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
+
+import com.wyhwl.bangnote.base.*;
 
 public class noteBackupActivity extends AppCompatActivity
                                 implements View.OnClickListener,
@@ -198,6 +194,9 @@ public class noteBackupActivity extends AppCompatActivity
     public void onOssProgress (int nProgress, int nTotal){
         int nCurPages = m_nFileIndex * 100 / m_nFileCount;
         int nPercent = nCurPages + (nProgress * 100 / nTotal) / m_nFileCount;
+        String strInfo = String.format("Index: %d  Total: %d  Prog: %d  Total: %d  Percent: %d",
+                                            m_nFileIndex, m_nFileCount, nProgress, nTotal, nPercent);
+        Log.v ("noteBackup", strInfo);
         Message msg = m_hdlBackup.obtainMessage(BMSG_PROCESS, nPercent, 0, null);
         msg.sendToTarget();
     }
@@ -232,17 +231,23 @@ public class noteBackupActivity extends AppCompatActivity
         File[] fList = fPath.listFiles();
         if (fList != null) {
             m_nFileIndex = 0;
-            m_nFileCount = fList.length;
+            m_nFileCount = 0;
             for (int i = 0; i < fList.length; i++) {
                 File file = fList[i];
-                if (file.isHidden())
+                if (file.isHidden() || file.isDirectory())
                     continue;
-                if (file.isDirectory())
+                if (findInList (file.getPath()))
+                    continue;
+                m_nFileCount++;
+            }
+            for (int i = 0; i < fList.length; i++) {
+                File file = fList[i];
+                if (file.isHidden() || file.isDirectory())
                     continue;
                 if (findInList (file.getPath()))
                     continue;
                 m_noteOSS.uploadFile(file.getPath());
-                m_nFileIndex = i;
+                m_nFileIndex++;
             }
         }
     }
@@ -252,15 +257,22 @@ public class noteBackupActivity extends AppCompatActivity
             m_noteOSS.getFileList(m_strUserID);
 
         String strFile = null;
-        m_nFileCount = m_noteOSS.m_lstFileList.size();
+        m_nFileCount = 0;
         m_nFileIndex = 0;
         for (int i = 0; i < m_noteOSS.m_lstFileList.size(); i++) {
             strFile = noteConfig.m_strBackPath + m_noteOSS.m_lstFileList.get (i);
             File backFile = new File(strFile);
             if (!backFile.exists()) {
-                m_noteOSS.downlaodFile(m_noteOSS.m_lstFileList.get (i), noteConfig.m_strBackPath);
+                m_nFileCount++;
             }
-            m_nFileIndex = i;
+        }
+        for (int i = 0; i < m_noteOSS.m_lstFileList.size(); i++) {
+            strFile = noteConfig.m_strBackPath + m_noteOSS.m_lstFileList.get (i);
+            File backFile = new File(strFile);
+            if (!backFile.exists()) {
+                m_noteOSS.downlaodFile(m_noteOSS.m_lstFileList.get (i), noteConfig.m_strBackPath);
+                m_nFileIndex++;
+            }
         }
 
         noteBackupRestore noteBackup = new noteBackupRestore(this);

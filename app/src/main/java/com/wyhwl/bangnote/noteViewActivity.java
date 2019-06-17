@@ -386,7 +386,7 @@ public class noteViewActivity extends AppCompatActivity
                 m_layView.addView(txtView);
                 //txtView.setLongClickable(true);
                 //txtView.setTextIsSelectable(true);
-                txtView.setMaxHeight(1024000);
+                //txtView.setMaxHeight(1024000);
                 txtView.setText(dataItem.m_strItem);
                 txtView.setTextSize(noteConfig.m_nTextSize);
                 txtView.setTextColor(noteConfig.m_nTextColor);

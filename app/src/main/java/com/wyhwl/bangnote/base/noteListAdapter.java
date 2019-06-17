@@ -50,11 +50,11 @@ public class noteListAdapter extends BaseAdapter {
             for (i = 0; i < m_lstAllItem.size(); i++) {
                 dataItem = m_lstAllItem.get(i);
                 if (noteConfig.m_nShowSecurity == 0) {
-                    if (noteConfig.m_noteTypeMng.getLevel(dataItem.m_strType) >= 10) {
+                    if (noteConfig.m_noteTypeMng.getLevel(dataItem.m_strType) >= noteConfig.m_noteTypeMng.m_nSecurityLevel) {
                         continue;
                     }
-                    m_lstSelItem.add(dataItem);
                 }
+                m_lstSelItem.add(dataItem);
             }
         } else {
             for (i = 0; i < m_lstAllItem.size(); i++) {
