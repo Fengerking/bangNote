@@ -140,6 +140,33 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
 
+        <ImageView
+            android:id="@+id/vwNoteHand"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="100dp"
+            android:background="@drawable/note_hand"/>
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="145dp"
+            android:layout_marginLeft="1dp"
+            android:layout_toRightOf="@id/vwNoteHand"
+            android:background="@drawable/note_arrow_right"/>
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="145dp"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@id/vwNoteHand"
+            android:background="@drawable/note_arrow_left"/>
+
         <ListView
             android:id="@+id/vwNoteList"
             android:layout_width="match_parent"
