@@ -47,12 +47,22 @@
     </RelativeLayout>
 
     <ImageButton
+        android:id="@+id/btnAudioDelete"
+        android:layout_width="46dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginLeft="8dp"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/note_audio_cancel"/>
+
+    <ImageButton
         android:id="@+id/btnAudioPlay"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginTop="4dp"
         android:layout_marginLeft="4dp"
-        android:layout_toRightOf="@id/laySeekBar"
+        android:layout_toLeftOf="@id/btnAudioDelete"
         android:layout_gravity="center_vertical"
         android:background="@drawable/note_audio_play"/>
 
@@ -62,18 +72,8 @@
         android:layout_height="48dp"
         android:layout_marginTop="4dp"
         android:layout_marginLeft="4dp"
-        android:layout_toRightOf="@id/laySeekBar"
+        android:layout_toLeftOf="@id/btnAudioDelete"
         android:layout_gravity="center_vertical"
         android:background="@drawable/note_audio_pause"/>
-
-    <ImageButton
-        android:id="@+id/btnAudioDelete"
-        android:layout_width="46dp"
-        android:layout_height="46dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginLeft="8dp"
-        android:layout_toRightOf="@id/btnAudioPause"
-        android:layout_gravity="center_vertical"
-        android:background="@drawable/note_audio_cancel"/>
 
 </RelativeLayout>

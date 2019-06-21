@@ -25,14 +25,21 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".noteCalendarActivity"
+            android:name=".mediaSelectActivity"
             android:screenOrientation="portrait">
             <intent-filter>
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".noteAboutActivity"></activity>
+        <activity
+            android:name=".noteCalendarActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".noteAboutActivity" />
         <activity
             android:name=".noteFlashActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
@@ -40,7 +47,6 @@
             android:theme="@style/noteFlashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -92,8 +98,8 @@
             android:name=".wxapi.WXEntryActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:exported="true"
-            android:theme="@style/wx_login_style"></activity>
-        <activity android:name=".lock.LauncherActivity"></activity>
+            android:theme="@style/wx_login_style" />
+        <activity android:name=".lock.LauncherActivity" />
         <activity android:name=".lock.LockActivity">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />

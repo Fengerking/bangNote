@@ -295,6 +295,7 @@
                         android:id="@+id/lstNoteTypeMng"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_below="@+id/right_divider"
                         android:layout_alignParentBottom="true"
                         android:layout_marginBottom="16dp">
                     </ListView>

@@ -1,46 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="50dp">
 
     <com.wyhwl.bangnote.view.noteAudioRecStatus
         android:id="@+id/viewRecStatus"
         android:layout_width="132dp"
-        android:layout_height="match_parent">
+        android:layout_height="48dp">
     </com.wyhwl.bangnote.view.noteAudioRecStatus>
 
     <ImageButton
-        android:id="@+id/btnAudioPlay"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginLeft="16dp"
-        android:layout_gravity="center_vertical"
-        android:background="@drawable/note_audio_play"/>
-
-    <ImageButton
-        android:id="@+id/btnAudioStart"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginLeft="16dp"
-        android:background="@drawable/note_audio_start"/>
+        android:id="@+id/btnAudioDelete"
+        android:layout_width="43dp"
+        android:layout_height="43dp"
+        android:layout_marginTop="4dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="12dp"
+        android:background="@drawable/note_audio_cancel"/>
 
     <ImageButton
         android:id="@+id/btnAudioStop"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginLeft="16dp"
-        android:layout_gravity="center_vertical"
+        android:layout_marginTop="2dp"
+        android:layout_marginRight="16dp"
+        android:layout_toLeftOf="@id/btnAudioDelete"
         android:background="@drawable/note_audio_stop"/>
 
     <ImageButton
-        android:id="@+id/btnAudioDelete"
-        android:layout_width="42dp"
-        android:layout_height="42dp"
-        android:layout_marginLeft="16dp"
-        android:layout_gravity="center_vertical"
-        android:background="@drawable/note_audio_cancel"/>
+        android:id="@+id/btnAudioStart"
+        android:layout_width="41dp"
+        android:layout_height="41dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="16dp"
+        android:layout_toLeftOf="@id/btnAudioStop"
+        android:background="@drawable/note_audio_start"/>
 
-</LinearLayout>
+    <ImageButton
+        android:id="@+id/btnAudioPlay"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="16dp"
+        android:layout_toLeftOf="@id/btnAudioStart"
+        android:background="@drawable/note_audio_play"/>
+
+</RelativeLayout>

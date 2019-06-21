@@ -52,6 +52,8 @@ public class noteEditActivity extends AppCompatActivity
     private static int      RESULT_LOAD_IMAGE       = 10;
     private static int      RESULT_LOAD_AUDIO       = 11;
     private static int      RESULT_CAPTURE_IMAGE    = 20;
+    private static int      RESULT_LOAD_MEDIA       = 50;
+
     private TextView        m_txtBarTitle = null;
     private noteEditText    m_edtTitle = null;
     private TextView        m_txtDate = null;
@@ -117,6 +119,7 @@ public class noteEditActivity extends AppCompatActivity
         ((ImageButton)findViewById(R.id.imbDelPic)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbAudio)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbMusic)).setOnClickListener(this);
+        ((ImageButton)findViewById(R.id.imbMusic)).setVisibility(View.INVISIBLE);
 
         m_txtBarTitle = (TextView)findViewById(R.id.txtBarTitle);
 
@@ -364,9 +367,11 @@ public class noteEditActivity extends AppCompatActivity
                 break;
 
             case R.id.imbNewPic:
-                intent = new Intent("android.intent.action.GET_CONTENT");
-                intent.setType("image/*");
-                startActivityForResult(intent, RESULT_LOAD_IMAGE);//打开系统相册
+               //intent = new Intent("android.intent.action.GET_CONTENT");
+               //intent.setType("image/*");
+               // startActivityForResult(intent, RESULT_LOAD_IMAGE);//打开系统相册
+                intent = new Intent(noteEditActivity.this, mediaSelectActivity.class);
+                startActivityForResult(intent, RESULT_LOAD_MEDIA);
                 break;
 
             case R.id.imbDelPic:
@@ -501,6 +506,21 @@ public class noteEditActivity extends AppCompatActivity
             if (!file.exists())
                 return;
             addMediaView(m_strImageFile, noteConfig.m_nItemTypePict);
+            return;
+        } else if (requestCode == RESULT_LOAD_MEDIA && resultCode == RESULT_OK) {
+            if (data == null)
+                return;
+            int nFileNum = data.getIntExtra("FileCount", 0);
+            String[] strFiles = data.getStringArrayExtra("FileList");
+            for (int i = 0; i < nFileNum; i++) {
+                int nMediaType = mediaSelectAdapter.getMediaType(strFiles[i]);
+                if (nMediaType == mediaSelectAdapter.m_nMediaImage) {
+                    addMediaView(strFiles[i], noteConfig.m_nItemTypePict);
+                } else if (nMediaType == mediaSelectAdapter.m_nMediaAudio) {
+                    m_strMusicFile = strFiles[i];
+                    addMediaView(strFiles[i], noteConfig.m_nItemTypeMusc);
+                }
+            }
             return;
         }
 
