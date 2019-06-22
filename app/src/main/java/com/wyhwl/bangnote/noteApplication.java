@@ -26,7 +26,7 @@ public class noteApplication extends Application {
        super.onCreate();
        m_hInstance = this;
 
-       closeAndroidPDialog ();
+       //closeAndroidPDialog ();
 
        CrashReport.initCrashReport(getApplicationContext(), "6c790217f8", false);
     }

@@ -521,6 +521,7 @@ public class noteEditActivity extends AppCompatActivity
                     addMediaView(strFiles[i], noteConfig.m_nItemTypeMusc);
                 }
             }
+            m_layView.postDelayed(()->onResizeView(), 200);
             return;
         }
 

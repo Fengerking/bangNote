@@ -4,8 +4,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.media.ExifInterface;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,6 +79,30 @@ public class mediaSelectItemView extends View {
                 FileInputStream fis = new FileInputStream (m_itmMedia.m_strFile);
                 bmpItem = BitmapFactory.decodeStream(fis);
                 fis.close();
+
+                Matrix matBmp = null;
+                ExifInterface ei = new ExifInterface(m_itmMedia.m_strFile);
+                int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        matBmp = new Matrix();
+                        matBmp.postRotate(90);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        matBmp = new Matrix();
+                        matBmp.postRotate(180);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        matBmp = new Matrix();
+                        matBmp.postRotate(270);
+                        break;
+                }
+
+                if (matBmp != null) {
+                    Bitmap bmpNew = Bitmap.createBitmap(bmpItem, 0, 0, bmpItem.getWidth(), bmpItem.getHeight(), matBmp, true);
+                    bmpItem.recycle();
+                    bmpItem = bmpNew;
+                }
             }catch (Exception e) {
                 e.printStackTrace();
             }

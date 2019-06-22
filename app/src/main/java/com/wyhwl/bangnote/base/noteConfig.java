@@ -152,31 +152,37 @@ public class noteConfig {
     }
 
     public static String    getNoteTextFile () {
-        Date dateNow = new Date(System.currentTimeMillis());
-        SimpleDateFormat fmtDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        m_strNoteFile = m_strNotePath + "txt_" + fmtDate.format(dateNow) + ".bnt";
+        m_strNoteFile = getNoteFileName("txt_", ".bnt");
         return m_strNoteFile;
     }
 
     public static String    getNotePictFile () {
-        Date dateNow = new Date(System.currentTimeMillis());
-        SimpleDateFormat fmtDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        m_strNoteFile = m_strNotePath + "pic_" + fmtDate.format(dateNow) + ".bnp";
+        m_strNoteFile = getNoteFileName("pic_", ".bnp");
         return m_strNoteFile;
     }
 
     public static String    getNoteZipFile () {
-        Date dateNow = new Date(System.currentTimeMillis());
-        SimpleDateFormat fmtDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        m_strNoteFile = m_strBackPath + "bck_" + fmtDate.format(dateNow) + ".bnz";
+        m_strNoteFile = getNoteFileName("bck_", ".bnz");
         return m_strNoteFile;
     }
 
     public static String    getNoteAudioFile () {
+        m_strNoteFile = getNoteFileName("aud_", ".bna");
+        return m_strNoteFile;
+    }
+
+    public static String    getNoteFileName (String strPrev, String strExt) {
         Date dateNow = new Date(System.currentTimeMillis());
         SimpleDateFormat fmtDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-        m_strNoteFile = m_strNotePath + "aud_" + fmtDate.format(dateNow) + ".bna";
-        return m_strNoteFile;
+        String strTime = fmtDate.format(dateNow);
+        String strFileName = "";
+        for (int i = 0; i < 1000; i++) {
+            strFileName = m_strNotePath + strPrev + strTime + "-" + i + strExt;
+            File fileCheck = new File (strFileName);
+            if (!fileCheck.exists())
+                break;
+        }
+        return strFileName;
     }
 
     public static String    getNoteLockKeyFile () {

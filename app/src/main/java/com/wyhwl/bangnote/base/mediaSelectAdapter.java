@@ -1,6 +1,7 @@
 package com.wyhwl.bangnote.base;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Environment;
 import android.view.View;
@@ -29,7 +30,7 @@ public class mediaSelectAdapter extends BaseAdapter {
     private     String                  m_strSdcard = null;
     private     String                  m_strFolder = null;
     private     ArrayList<mediaItem>    m_lstItems = null;
-    private     int                     m_nSortType = 1;
+    private     int                     m_nSortType = 3;
 
 
     public class mediaItem {
@@ -38,6 +39,7 @@ public class mediaSelectAdapter extends BaseAdapter {
         public String       m_strName = null;
         public long         m_lTime = 0;
         public int          m_nType = 0;
+        public Bitmap       m_bmpThumb = null;
     }
 
     public mediaSelectAdapter (Context context) {
@@ -128,13 +130,13 @@ public class mediaSelectAdapter extends BaseAdapter {
                 return -1;
 
             if (m_nSortType == 0) // time down
-                return (int) (noteItem2.m_lTime - noteItem1.m_lTime);
+                return noteItem2.m_lTime >= noteItem1.m_lTime ? 1 : -1;
             else if (m_nSortType == 1) // time up
-                return (int)(noteItem1.m_lTime - noteItem2.m_lTime);
+                return noteItem1.m_lTime >= noteItem2.m_lTime ? 1 : -1;
             else if (m_nSortType == 2) // time up
-                return noteItem2.m_strName.compareTo(noteItem1.m_strName);
+                return noteItem2.m_strName.compareToIgnoreCase(noteItem1.m_strName);
             else if (m_nSortType == 3) // time up
-                return noteItem1.m_strName.compareTo(noteItem2.m_strName);
+                return noteItem1.m_strName.compareToIgnoreCase(noteItem2.m_strName);
             else
                 return (int)(noteItem2.m_lTime - noteItem1.m_lTime);
         }
@@ -184,11 +186,9 @@ public class mediaSelectAdapter extends BaseAdapter {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            convertView = LayoutInflater.from(m_context).inflate(R.layout.media_select_item, parent, false);
-            mediaSelectItemView vwItem = (mediaSelectItemView)convertView.findViewById(R.id.ivMediaItem);
-            vwItem.setMediaItem (m_lstItems.get(position));
-        }
-        return convertView;
+        View vmLayout = LayoutInflater.from(m_context).inflate(R.layout.media_select_item, parent, false);
+        mediaSelectItemView vwItem = (mediaSelectItemView)vmLayout.findViewById(R.id.ivMediaItem);
+        vwItem.setMediaItem (m_lstItems.get(position));
+        return vmLayout;
     }
 }

@@ -112,7 +112,7 @@
         android:id="@+id/grdMedia"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:numColumns="auto_fit"
+        android:numColumns="3"
         android:columnWidth="120dp"
         android:stretchMode="columnWidth"
         android:verticalSpacing="2dp"
