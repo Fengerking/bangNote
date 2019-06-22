@@ -1,5 +1,8 @@
 package com.wyhwl.bangnote.base;
 
+import android.graphics.Bitmap;
+import android.view.View;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
@@ -18,6 +21,9 @@ public class dataNoteItem {
     public String               m_strType = "";
     public String               m_strCity = "";
     public String               m_strWeat = "";
+
+    public View                 m_view = null;
+    public Bitmap               m_thumb = null;
 
     public String               m_strDateTime = "";
     public String               m_strFirstLine = "";

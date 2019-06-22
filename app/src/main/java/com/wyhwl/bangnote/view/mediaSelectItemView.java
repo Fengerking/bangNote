@@ -75,37 +75,10 @@ public class mediaSelectItemView extends View {
         } else if (m_itmMedia.m_nType == mediaSelectAdapter.m_nMediaBack) {
             bmpItem = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.media_back);
         } else {
-            try {
-                FileInputStream fis = new FileInputStream (m_itmMedia.m_strFile);
-                bmpItem = BitmapFactory.decodeStream(fis);
-                fis.close();
-
-                Matrix matBmp = null;
-                ExifInterface ei = new ExifInterface(m_itmMedia.m_strFile);
-                int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                switch (orientation) {
-                    case ExifInterface.ORIENTATION_ROTATE_90:
-                        matBmp = new Matrix();
-                        matBmp.postRotate(90);
-                        break;
-                    case ExifInterface.ORIENTATION_ROTATE_180:
-                        matBmp = new Matrix();
-                        matBmp.postRotate(180);
-                        break;
-                    case ExifInterface.ORIENTATION_ROTATE_270:
-                        matBmp = new Matrix();
-                        matBmp.postRotate(270);
-                        break;
-                }
-
-                if (matBmp != null) {
-                    Bitmap bmpNew = Bitmap.createBitmap(bmpItem, 0, 0, bmpItem.getWidth(), bmpItem.getHeight(), matBmp, true);
-                    bmpItem.recycle();
-                    bmpItem = bmpNew;
-                }
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
+            if (m_itmMedia.m_thumb == null)
+                bmpItem = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.media_image);
+            else
+                bmpItem = m_itmMedia.m_thumb;
         }
 
         int nTextH = 80;
@@ -116,7 +89,8 @@ public class mediaSelectItemView extends View {
             Rect rcSrc = new Rect(0, 0, bmpItem.getWidth(), bmpItem.getHeight());
             Rect rcDst = new Rect(nOff, nOff, nW-nOff, nH-nTextH-nOff);
             canvas.drawBitmap(bmpItem, rcSrc, rcDst, m_pntRect);
-            bmpItem.recycle();
+            if (bmpItem != m_itmMedia.m_thumb)
+                bmpItem.recycle();
         }
 
         if (m_itmMedia.m_nType >= mediaSelectAdapter.m_nMediaImage && m_itmMedia.m_nType <= mediaSelectAdapter.m_nMediaVideo) {

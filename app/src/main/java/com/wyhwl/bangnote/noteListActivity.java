@@ -99,6 +99,7 @@ public class noteListActivity extends AppCompatActivity
     }
 
     protected void onStop() {
+        noteConfig.m_lstData.stopUpdate();
         super.onStop();
     }
 

@@ -1,6 +1,11 @@
 package com.wyhwl.bangnote.base;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -9,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collections;
 
-import com.wyhwl.bangnote.base.*;
+import com.wyhwl.bangnote.base.dataNoteItem;
 import com.wyhwl.bangnote.view.*;
 
 public class noteListAdapter extends BaseAdapter {
@@ -17,11 +22,25 @@ public class noteListAdapter extends BaseAdapter {
     public  ArrayList<dataNoteItem>     m_lstAllItem    = null;
     public  ArrayList<dataNoteItem>     m_lstSelItem    = null;
 
+    private boolean                     m_bCanceled     = false;
+    private boolean                     m_bFinished     = true;
+
     public noteListAdapter (Context context) {
         m_context = context;
         m_lstAllItem = new ArrayList<dataNoteItem>();
         m_lstSelItem = new ArrayList<dataNoteItem>();
         fillFileList(noteConfig.m_strNotePath);
+    }
+
+    public void stopUpdate () {
+        while (!m_bFinished) {
+            m_bCanceled = true;
+            try {
+                Thread.sleep(50);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public dataNoteItem getNoteItem (int nIndex) {
@@ -211,9 +230,25 @@ public class noteListAdapter extends BaseAdapter {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
-        noteListItemView itemView = new noteListItemView(m_context);
-        itemView.setTextSize(80);
-        itemView.setDataList(m_lstSelItem.get(position));
+        dataNoteItem dataItem = m_lstSelItem.get(position);
+        noteListItemView itemView = null;
+        if (convertView == null) {
+            itemView = new noteListItemView(m_context);
+            itemView.setTextSize(80);
+
+        } else {
+            for (int i = 0; i < m_lstSelItem.size(); i++) {
+                if (m_lstSelItem.get(i).m_view == convertView) {
+                    m_lstSelItem.get(i).m_view = null;
+                    break;
+                }
+            }
+            itemView = (noteListItemView)convertView;
+        }
+        itemView.setDataList(dataItem);
+        dataItem.m_view = itemView;
+
+        itemView.invalidate();
         return itemView;
     }
 
@@ -268,6 +303,8 @@ public class noteListAdapter extends BaseAdapter {
             Comparator comp = new dateComparator();
             Collections.sort(m_lstSelItem, comp);
         }
+
+        updateThumbThread();
     }
 
     public class dateComparator implements Comparator<Object> {
@@ -276,5 +313,43 @@ public class noteListAdapter extends BaseAdapter {
             dataNoteItem noteItem2 = (dataNoteItem)o2;
             return noteItem2.m_strDateTime.compareTo(noteItem1.m_strDateTime);
         }
+    }
+
+    private void updateThumbThread() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                m_bFinished = false;
+
+                int             nCount = m_lstAllItem.size();
+                dataNoteItem    dataItem = null;
+                for (int i = 0; i < nCount; i++) {
+                    dataItem = m_lstAllItem.get(i);
+                    if (dataItem.m_thumb == null && dataItem.m_strImgFile != null) {
+                        Bitmap bmpFile = null;
+                        try {
+                            noteFileInputStream fis = new noteFileInputStream(dataItem.m_strImgFile);
+                            bmpFile = BitmapFactory.decodeStream(fis);
+                            fis.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        int nBmpW = bmpFile.getWidth();
+                        int nBmpH = bmpFile.getHeight();
+                        if (nBmpW * nBmpH > 200 * 200) {
+                            float fScale = (float)200 / nBmpW;
+                            Matrix matBmp = new Matrix();
+                            matBmp.postScale(fScale, fScale);
+                            dataItem.m_thumb = Bitmap.createBitmap(bmpFile, 0, 0, bmpFile.getWidth(), bmpFile.getHeight(), matBmp, true);
+                            bmpFile.recycle();
+                        }
+                    }
+                    if (m_bCanceled)
+                        break;
+                }
+                m_bFinished = true;
+            }
+        }).start();
     }
 }

@@ -36,6 +36,11 @@ public class mediaSelectActivity extends AppCompatActivity
         initViews();
     }
 
+    protected void onStop () {
+        m_mediaAdpater.setFolder(null);
+        super.onStop();
+    }
+
     private void initViews() {
         ((ImageButton) findViewById(R.id.imbBack)).setOnClickListener(this);
         ((ImageButton) findViewById(R.id.imbSelect)).setOnClickListener(this);
@@ -77,13 +82,13 @@ public class mediaSelectActivity extends AppCompatActivity
                 break;
 
             case R.id.imbSortTimeDown:
-                m_mediaAdpater.sortItem(1);
+                m_mediaAdpater.sortItem(0);
                 m_grdMedia.setAdapter(m_mediaAdpater);
                 m_grdMedia.invalidate();
                 break;
 
             case R.id.imbSortTimeUp:
-                m_mediaAdpater.sortItem(0);
+                m_mediaAdpater.sortItem(1);
                 m_grdMedia.setAdapter(m_mediaAdpater);
                 m_grdMedia.invalidate();
                 break;
@@ -125,12 +130,13 @@ public class mediaSelectActivity extends AppCompatActivity
         mediaSelectItemView vwItem = (mediaSelectItemView)view.findViewById(R.id.ivMediaItem);
         mediaItem item = vwItem.getMediaItem();
         if (item.m_nType == mediaSelectAdapter.m_nMediaFolder || item.m_nType == mediaSelectAdapter.m_nMediaBack) {
-            int nPos = vwItem.getMediaItem().m_strFile.lastIndexOf(File.separator);
-            String strPath = vwItem.getMediaItem().m_strFile.substring(nPos+1);
-            m_txtPath.setText(strPath);
             m_mediaAdpater.setFolder(vwItem.getMediaItem().m_strFile);
             m_grdMedia.setAdapter(m_mediaAdpater);
             m_grdMedia.invalidate();
+
+            int nPos = vwItem.getMediaItem().m_strFile.lastIndexOf(File.separator);
+            String strPath = vwItem.getMediaItem().m_strFile.substring(nPos+1);
+            m_txtPath.setText(strPath + "(" + (m_mediaAdpater.getCount() - 1) + ")");
         } else {
             item.m_bSelect = !item.m_bSelect;
             vwItem.invalidate();

@@ -112,12 +112,16 @@ public class noteListItemView extends TextView {
 
         Bitmap bmpItem = null;
         if (m_dataItem.m_strImgFile != null) {
-            try {
-                noteFileInputStream fis = new noteFileInputStream (m_dataItem.m_strImgFile);
-                bmpItem = BitmapFactory.decodeStream(fis);
-                fis.close();
-            }catch (Exception e) {
-                e.printStackTrace();
+            if (m_dataItem.m_thumb == null) {
+                try {
+                    noteFileInputStream fis = new noteFileInputStream(m_dataItem.m_strImgFile);
+                    bmpItem = BitmapFactory.decodeStream(fis);
+                    fis.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                bmpItem = m_dataItem.m_thumb;
             }
         } else if (m_dataItem.m_strAudFile != null) {
             bmpItem = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.note_music_icon);
