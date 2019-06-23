@@ -131,7 +131,7 @@ public class noteListSlider extends ViewGroup {
                         nMov = nRight - nPos;
                     }
                 }
-                if (Math.abs(dY) < Math.abs(nMov) && y > 300) {
+                if (Math.abs(dY) < Math.abs(nMov)) {
                     scrollBy(nMov, 0);
 
                     if (m_nLastMov > 0 && nMov < 0)
@@ -151,8 +151,8 @@ public class noteListSlider extends ViewGroup {
                     noteConfig.m_nMoveLastTime = System.currentTimeMillis();
                 else
                     noteConfig.m_nMoveLastTime = 0;
-                if(y > 300)
-                    scrollToPage(-1);
+
+                scrollToPage(-1);
                 break;
         }
 

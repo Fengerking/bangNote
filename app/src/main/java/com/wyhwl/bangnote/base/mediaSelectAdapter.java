@@ -28,16 +28,16 @@ import com.wyhwl.bangnote.view.mediaSelectItemView;
 public class mediaSelectAdapter extends BaseAdapter {
     public final  static int           MSG_MEDIA_UPDATE_VIEW   = 1000;
 
+    public final  static int           m_nMediaBack     = -1;
     public final  static int           m_nMediaFolder   = 0;
     public final  static int           m_nMediaImage    = 1;
     public final  static int           m_nMediaAudio    = 2;
     public final  static int           m_nMediaVideo    = 3;
-    public final  static int           m_nMediaBack     = 4;
 
     private     Context                 m_context = null;
     private     String                  m_strSdcard = null;
     private     String                  m_strFolder = null;
-    private     ArrayList<mediaItem>    m_lstItems = null;
+    public      ArrayList<mediaItem>    m_lstItems = null;
     private     int                     m_nSortType = 3;
 
     private     boolean                 m_bFinished = true;
@@ -47,7 +47,7 @@ public class mediaSelectAdapter extends BaseAdapter {
 
 
     public class mediaItem {
-        public boolean      m_bSelect = false;
+        public int          m_nSelect = 0;
         public String       m_strFile = null;
         public String       m_strName = null;
         public long         m_lTime = 0;
@@ -93,22 +93,8 @@ public class mediaSelectAdapter extends BaseAdapter {
 
                 nMediaType = -1;
                 if (file.isDirectory()) {
-                    File fSubFolder = new File(file.getPath());
-                    File[] fSubList = fSubFolder.listFiles();
-                    if (fSubList != null) {
-                        for (int j = 0; j < fSubList.length; j++) {
-                            File subfile = fSubList[j];
-                            if (subfile.isHidden())
-                                continue;
-                            if (subfile.isDirectory()) {
-                                nMediaType = m_nMediaFolder;
-                                break;
-                            } else if (getMediaType (subfile.getPath()) > 0) {
-                                nMediaType = m_nMediaFolder;
-                                break;
-                            }
-                        }
-                    }
+                    if (haveMediaInFolder (file.getPath()))
+                        nMediaType = m_nMediaFolder;
                 } else {
                     nMediaType = getMediaType (file.getPath());
                 }
@@ -142,6 +128,33 @@ public class mediaSelectAdapter extends BaseAdapter {
         }
 
         updateThumbThread ();
+    }
+
+    private boolean haveMediaInFolder (String strFolder) {
+        File fFolder = new File(strFolder);
+        File[] fList = fFolder.listFiles();
+        if (fList == null)
+            return false;
+
+        int i = 0;
+        for (i = 0; i < fList.length; i++) {
+            File file = fList[i];
+            if (file.isHidden() || file.isDirectory())
+                continue;
+            if (getMediaType (file.getPath()) > 0)
+                return true;
+        }
+
+        for (i = 0; i < fList.length; i++) {
+            File file = fList[i];
+            if (file.isHidden())
+                continue;
+            if (file.isDirectory()) {
+                if (haveMediaInFolder (file.getPath()))
+                    return true;
+            }
+        }
+        return false;
     }
 
     public void sortItem (int nSorttype) {
@@ -301,11 +314,6 @@ public class mediaSelectAdapter extends BaseAdapter {
                         if (dataItem.m_thumb != null && !m_bCanceled) {
                             Message msg = m_updHandler.obtainMessage(MSG_MEDIA_UPDATE_VIEW, i, 0, null);
                             msg.sendToTarget();
-                        }
-                        try {
-                            Thread.sleep(50);
-                        } catch (Exception e) {
-                            e.printStackTrace();
                         }
                     }
 

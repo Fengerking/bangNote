@@ -65,7 +65,7 @@
                 android:layout_marginTop="2dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginBottom="2dp"
-                android:layout_toLeftOf="@+id/imbSortTimeDown"
+                android:layout_toLeftOf="@+id/imbSelect"
                 android:background="@drawable/sort_num_up"/>
 
             <ImageButton
@@ -85,8 +85,18 @@
                 android:layout_marginTop="2dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginBottom="2dp"
-                android:layout_toLeftOf="@+id/imbSortNameDown"
+                android:layout_toLeftOf="@+id/imbSortTimeUp"
                 android:background="@drawable/sort_text_up"/>
+
+            <ImageButton
+                android:id="@+id/imbImageShow"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="2dp"
+                android:layout_toLeftOf="@+id/imbSortNameUp"
+                android:background="@drawable/media_select_play"/>
 
         </RelativeLayout>
 

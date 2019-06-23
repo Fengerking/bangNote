@@ -100,7 +100,12 @@ public class noteImageShow extends ImageView {
             return;
 
         try {
-            noteFileInputStream fis = new noteFileInputStream(strFile);
+            FileInputStream fis = null;
+            String strExt = strFile.substring(strFile.length() - 4);
+            if (strExt.compareTo(".bnp") == 0)
+                fis = new noteFileInputStream(strFile);
+            else
+                fis = new FileInputStream(strFile);
             Bitmap bmp = BitmapFactory.decodeStream(fis);
             fis.close();
 

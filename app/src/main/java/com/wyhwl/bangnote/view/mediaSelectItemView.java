@@ -95,7 +95,7 @@ public class mediaSelectItemView extends View {
 
         if (m_itmMedia.m_nType >= mediaSelectAdapter.m_nMediaImage && m_itmMedia.m_nType <= mediaSelectAdapter.m_nMediaVideo) {
             bmpItem = null;
-            if (m_itmMedia.m_bSelect) {
+            if (m_itmMedia.m_nSelect > 0) {
                 bmpItem = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.media_select);
             } else {
                 //bmpItem = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.media_unselect);
@@ -106,10 +106,20 @@ public class mediaSelectItemView extends View {
                 Rect rcDst = new Rect(nW - nOff, 0, nW, nOff);
                 canvas.drawBitmap(bmpItem, rcSrc, rcDst, m_pntRect);
                 bmpItem.recycle();
+
+                String strNum = String.format("%d", m_itmMedia.m_nSelect);
+                m_pntText.setColor(0XFF000000);
+                rcDst.top = 50;
+                if (m_itmMedia.m_nSelect >= 10)
+                    rcDst.left += 10;
+                else
+                    rcDst.left += 30;
+                drawRectText (strNum, rcDst, canvas, m_pntText, 0);
             }
         }
 
         Rect rcText = new Rect(4, nH - 30, nW - 4, nH - 4);
+        m_pntText.setColor(0XFFCCCCCC);
         drawRectText (m_itmMedia.m_strName, rcText, canvas, m_pntText, 1);
     }
 

@@ -69,6 +69,7 @@ public class noteListActivity extends AppCompatActivity
     private ListView            m_lstViewLeft = null;
     private ListView            m_lstViewRight = null;
     private String              m_strNewNote = "新建笔记";
+    private String              m_strCalendar = "日历笔记";
 
     public  ArrayList<dataNoteItem>  m_lstRubbish = new ArrayList<dataNoteItem>();
 
@@ -120,6 +121,8 @@ public class noteListActivity extends AppCompatActivity
         ((ImageButton)findViewById(R.id.imbSearchSelect)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbCalendar)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.appBack)).setOnClickListener(this);
+
+        ((ImageButton)findViewById(R.id.imbCalendar)).setVisibility(View.INVISIBLE);
 
         m_layToolBarList = (LinearLayout) findViewById(R.id.ntlList);
         //m_layToolBarList.setVisibility(View.INVISIBLE);
@@ -235,6 +238,9 @@ public class noteListActivity extends AppCompatActivity
             if (strType.compareTo(m_strNewNote) == 0) {
                 Intent intent = new Intent(noteListActivity.this, noteEditActivity.class);
                 startActivityForResult(intent, ACTIVITY_NOTEEDIT);
+            } else if (strType.compareTo(m_strCalendar) == 0) {
+                Intent intent = new Intent(noteListActivity.this, noteCalendarActivity.class);
+                startActivityForResult(intent, ACTIVITY_CALENDAR);
             } else {
                 noteConfig.m_noteTypeMng.setCurType(strType);
                 noteConfig.m_lstData.updNoteType(strType);
@@ -366,8 +372,8 @@ public class noteListActivity extends AppCompatActivity
         noteTypeMng.noteTypeItem    itemType;
         if (nType == 4) {
             mapItem = new HashMap<String, Object>();
-            mapItem.put("name", m_strNewNote);
-            mapItem.put("img", R.drawable.newnote);
+            mapItem.put("name", m_strCalendar);
+            mapItem.put("img", R.drawable.note_search_calendar);
             listItem.add(mapItem);
             return;
         }
@@ -831,7 +837,6 @@ public class noteListActivity extends AppCompatActivity
         msgDialog.setPositiveButton("确定", null);
         msgDialog.show();
     }
-
 
     public void CheckWritePermission () {
         String[] permissions = new String[]{

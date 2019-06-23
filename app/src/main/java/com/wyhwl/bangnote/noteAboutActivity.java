@@ -1,5 +1,6 @@
 package com.wyhwl.bangnote;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -101,7 +102,7 @@ public class noteAboutActivity extends AppCompatActivity
         if (m_noteOSS.m_lstFileList.size() <= 0)
             m_noteOSS.getFileList(m_strApp);
         if (m_noteOSS.m_lstFileList.size() <= 0) {
-            showMsgDlg ("检查结果", "没有发现新版本。");
+            showMsgDlg ("检查结果", "没有发现新版本。", false);
             return;
         }
 
@@ -112,7 +113,7 @@ public class noteAboutActivity extends AppCompatActivity
                 break;
         }
         if (m_strAPKFile.length() < 12) {
-            showMsgDlg ("检查结果", "没有发现新版本。");
+            showMsgDlg ("检查结果", "没有发现新版本。", false);
             return;
         }
 
@@ -120,13 +121,11 @@ public class noteAboutActivity extends AppCompatActivity
         String  strVer = m_strAPKFile.substring(10, nDot);
         int     nVer = Integer.parseInt(strVer);
         if (m_nVerNum >= nVer) {
-            showMsgDlg ("检查结果", "你已经安装了最新版本！");
+            showMsgDlg ("检查结果", "你已经安装了最新版本！", false);
             return;
         }
 
-        m_prgDownload.setProgress(0);
-        m_hdlDownload = new downlaodHandler();
-        downlaodThread();
+        showMsgDlg ("检查结果", "发行新版本，确认要更新吗？", true);
     }
 
     public void onOssProgress (int nProgress, int nTotal){
@@ -172,14 +171,30 @@ public class noteAboutActivity extends AppCompatActivity
         this.startActivity(intent);
     }
 
-    private void showMsgDlg(String strTitle, String strMsg){
+    private void showMsgDlg(String strTitle, String strMsg, boolean bConfirm){
         final AlertDialog.Builder msgDialog = new AlertDialog.Builder(noteAboutActivity.this);
         msgDialog.setIcon(R.drawable.app_menu_icon);
         if (strTitle != null)
             msgDialog.setTitle(strTitle);
         if (strMsg != null)
             msgDialog.setMessage(strMsg);
-        msgDialog.setPositiveButton("确定", null);
+        if (bConfirm) {
+            msgDialog.setNeutralButton("取消",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                        }
+                    });
+        }
+        msgDialog.setPositiveButton("确定",
+            new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    if (bConfirm) {
+                        m_prgDownload.setProgress(0);
+                        m_hdlDownload = new downlaodHandler();
+                        downlaodThread();
+                    }
+                }
+            });
         msgDialog.show();
     }
 }

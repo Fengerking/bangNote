@@ -60,7 +60,7 @@
                     android:layout_marginTop="2dp"
                     android:layout_marginRight="8dp"
                     android:layout_marginBottom="2dp"
-                    android:layout_toLeftOf="@+id/imbMonth"
+                    android:layout_alignParentRight="true"
                     android:background="@drawable/note_oneday"/>
                 <ImageButton
                     android:id="@+id/imbNoteSel"
@@ -69,7 +69,7 @@
                     android:layout_marginTop="2dp"
                     android:layout_marginRight="8dp"
                     android:layout_marginBottom="2dp"
-                    android:layout_toLeftOf="@+id/imbDay"
+                    android:layout_toLeftOf="@+id/imbMonth"
                     android:background="@drawable/note_date_sel"/>
                 <ImageButton
                     android:id="@+id/imbNoteAll"
@@ -78,7 +78,7 @@
                     android:layout_marginTop="2dp"
                     android:layout_marginRight="8dp"
                     android:layout_marginBottom="2dp"
-                    android:layout_toLeftOf="@+id/imbNoteSel"
+                    android:layout_toLeftOf="@+id/imbMonth"
                     android:background="@drawable/note_date_all"/>
             </RelativeLayout>
 

@@ -34,6 +34,11 @@ public class noteCalendarActivity extends AppCompatActivity
     private noteCalendarView    m_vwCalendar = null;
     private TextView            m_txtDate = null;
 
+    private ImageButton         m_btnSel = null;
+    private ImageButton         m_btnAll = null;
+    private ImageButton         m_btnDay = null;
+    private ImageButton         m_btnMonth = null;
+
     private ListView            m_lstViewNote = null;
     private noteDateAdapter     m_noteAdapter = null;
 
@@ -67,6 +72,13 @@ public class noteCalendarActivity extends AppCompatActivity
         ((ImageButton)findViewById(R.id.imbNoteAll)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbMonth)).setOnClickListener(this);
         ((ImageButton)findViewById(R.id.imbDay)).setOnClickListener(this);
+
+        m_btnSel = (ImageButton)findViewById(R.id.imbNoteSel);
+        m_btnAll = (ImageButton)findViewById(R.id.imbNoteAll);
+        m_btnAll.setVisibility(View.INVISIBLE);
+        m_btnDay = (ImageButton)findViewById(R.id.imbDay);
+        m_btnMonth = (ImageButton)findViewById(R.id.imbMonth);
+        m_btnDay.setVisibility(View.INVISIBLE);
 
         m_txtDate = (TextView)findViewById(R.id.txtCalendar);
         m_vwCalendar = (noteCalendarView)findViewById(R.id.cldDate);
@@ -145,6 +157,8 @@ public class noteCalendarActivity extends AppCompatActivity
                 if (!m_bNoteAll) {
                     m_bNoteAll = true;
                     m_vwCalendar.setNoteAll(true);
+                    m_btnSel.setVisibility(View.VISIBLE);
+                    m_btnAll.setVisibility(View.INVISIBLE);
                 }
                 break;
 
@@ -152,21 +166,23 @@ public class noteCalendarActivity extends AppCompatActivity
                 if (m_bNoteAll) {
                     m_bNoteAll = false;
                     m_vwCalendar.setNoteAll(false);
+                    m_btnSel.setVisibility(View.INVISIBLE);
+                    m_btnAll.setVisibility(View.VISIBLE);
                 }
                 break;
 
             case R.id.imbMonth:
-                if (m_bDayMode) {
-                    m_bDayMode = false;
-                    onNoteDateChange(null, m_nYear, m_nMonth, m_nDay);
-                }
+                m_bDayMode = false;
+                onNoteDateChange(null, m_nYear, m_nMonth, m_nDay);
+                m_btnDay.setVisibility(View.VISIBLE);
+                m_btnMonth.setVisibility(View.INVISIBLE);
                 break;
 
             case R.id.imbDay:
-                if (!m_bDayMode) {
-                    m_bDayMode = true;
-                    onNoteDateChange(null, m_nYear, m_nMonth, m_nDay);
-                }
+                m_bDayMode = true;
+                onNoteDateChange(null, m_nYear, m_nMonth, m_nDay);
+                m_btnDay.setVisibility(View.INVISIBLE);
+                m_btnMonth.setVisibility(View.VISIBLE);
                 break;
         }
     }
@@ -175,7 +191,7 @@ public class noteCalendarActivity extends AppCompatActivity
         m_nYear = nYear;
         m_nMonth = nMonth;
         m_nDay = nDay;
-        String strDdte = String.format(" %d年 %02d月 %02d日", nYear, nMonth, nDay);
+        String strDdte = String.format(" %d 年 %02d 月 %02d 日", nYear, nMonth, nDay);
         m_txtDate.setText(strDdte);
         m_noteAdapter.m_lstItem.clear();
         String strDate = String.format("%d-%02d-%02d", nYear, nMonth, nDay);
