@@ -37,6 +37,7 @@ public class mediaSelectActivity extends AppCompatActivity
     private ImageButton             m_btnTimeDown = null;
 
     private boolean                 m_bSelectMode = false;
+    private boolean                 m_bVideoOnly = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,7 @@ public class mediaSelectActivity extends AppCompatActivity
     }
 
     protected void onStop () {
-        m_mediaAdpater.setFolder(null);
+        m_mediaAdpater.setFolder(null, false);
         super.onStop();
     }
 
@@ -65,6 +66,7 @@ public class mediaSelectActivity extends AppCompatActivity
         ((ImageButton) findViewById(R.id.imbSortNameUp)).setOnClickListener(this);
         ((ImageButton) findViewById(R.id.imbSortTimeDown)).setOnClickListener(this);
         ((ImageButton) findViewById(R.id.imbSortTimeUp)).setOnClickListener(this);
+        ((ImageButton) findViewById(R.id.imbVideo)).setOnClickListener(this);
         ((ImageButton) findViewById(R.id.imbImageShow)).setOnClickListener(this);
         m_txtPath = (TextView)findViewById(R.id.txtPath);
 
@@ -92,6 +94,18 @@ public class mediaSelectActivity extends AppCompatActivity
             case R.id.imbSelect:
                 returnSelect ();
                 finish();
+                break;
+
+
+            case R.id.imbVideo:
+                String strFolder = m_mediaAdpater.getFolder();
+                m_bVideoOnly = !m_bVideoOnly;
+                if (m_bVideoOnly)
+                    m_mediaAdpater.setFolder(strFolder, true);
+                else
+                    m_mediaAdpater.setFolder(strFolder, false);
+                m_grdMedia.setAdapter(m_mediaAdpater);
+                m_grdMedia.invalidate();
                 break;
 
             case R.id.imbImageShow:
@@ -162,6 +176,14 @@ public class mediaSelectActivity extends AppCompatActivity
     }
 
     private void showImage (String strCurFile) {
+        if (strCurFile != null) {
+            if (mediaSelectAdapter.getMediaType(strCurFile) == mediaSelectAdapter.m_nMediaVideo) {
+                Intent intent = new Intent(mediaSelectActivity.this, noteVideoActivity.class);
+                intent.setData(Uri.parse(strCurFile));
+                startActivity(intent);
+                return;
+            }
+        }
         int nImageCount = 0;
         int nCount = m_mediaAdpater.m_lstItems.size();
         for (int i = 0; i < nCount; i++) {
@@ -172,7 +194,7 @@ public class mediaSelectActivity extends AppCompatActivity
         if (nImageCount <= 0)
             return;
 
-        m_mediaAdpater.setFolder(null);
+        m_mediaAdpater.setFolder(null, false);
 
         String strFiles[] = new String[nImageCount];
         nImageCount = 0;
@@ -196,7 +218,7 @@ public class mediaSelectActivity extends AppCompatActivity
         mediaSelectItemView vwItem = (mediaSelectItemView)view.findViewById(R.id.ivMediaItem);
         mediaItem item = vwItem.getMediaItem();
         if (item.m_nType == mediaSelectAdapter.m_nMediaFolder || item.m_nType == mediaSelectAdapter.m_nMediaBack) {
-            m_mediaAdpater.setFolder(vwItem.getMediaItem().m_strFile);
+            m_mediaAdpater.setFolder(vwItem.getMediaItem().m_strFile, m_bVideoOnly);
             m_grdMedia.setAdapter(m_mediaAdpater);
             m_grdMedia.invalidate();
 

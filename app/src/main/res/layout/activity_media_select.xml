@@ -89,13 +89,23 @@
                 android:background="@drawable/sort_text_up"/>
 
             <ImageButton
+                android:id="@+id/imbVideo"
+                android:layout_width="31dp"
+                android:layout_height="31dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="2dp"
+                android:layout_toLeftOf="@+id/imbSortNameUp"
+                android:background="@drawable/media_select_video"/>
+
+            <ImageButton
                 android:id="@+id/imbImageShow"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginTop="2dp"
                 android:layout_marginRight="8dp"
                 android:layout_marginBottom="2dp"
-                android:layout_toLeftOf="@+id/imbSortNameUp"
+                android:layout_toLeftOf="@+id/imbVideo"
                 android:background="@drawable/media_select_play"/>
 
         </RelativeLayout>

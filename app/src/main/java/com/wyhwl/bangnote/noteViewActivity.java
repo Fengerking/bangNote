@@ -300,8 +300,15 @@ public class noteViewActivity extends AppCompatActivity
         }
         m_lLastShowTime = System.currentTimeMillis();
 
-        Intent intent = new Intent(noteViewActivity.this, noteImageActivity.class);
         String strImgFile = m_noteImage.getImageFile();
+        if (mediaSelectAdapter.getMediaType(strImgFile) == mediaSelectAdapter.m_nMediaVideo) {
+            Intent intent = new Intent(noteViewActivity.this, noteVideoActivity.class);
+            intent.setData(Uri.parse(strImgFile));
+            startActivity(intent);
+            return;
+        }
+
+        Intent intent = new Intent(noteViewActivity.this, noteImageActivity.class);
         intent.setData(Uri.parse(strImgFile));
 
         int nImageCount = 0;
@@ -392,7 +399,12 @@ public class noteViewActivity extends AppCompatActivity
                 txtView.setTextColor(noteConfig.m_nTextColor);
                 m_nWordCount += dataItem.m_strItem.length();
             } else if (dataItem.m_nType == noteConfig.m_nItemTypePict) {
-                noteImageShow imgView = new noteImageShow(this);
+                noteImageShow imgView = new noteImageShow(this,true);
+                m_layView.addView(imgView);
+                imgView.setImageFile (dataItem.m_strItem, false);
+                imgView.setNoteImageShowListener(this);
+            } else if (dataItem.m_nType == noteConfig.m_nItemTypeVido) {
+                noteImageShow imgView = new noteImageShow(this, false);
                 m_layView.addView(imgView);
                 imgView.setImageFile (dataItem.m_strItem, false);
                 imgView.setNoteImageShowListener(this);

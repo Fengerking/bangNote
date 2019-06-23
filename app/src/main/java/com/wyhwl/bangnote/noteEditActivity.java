@@ -70,6 +70,7 @@ public class noteEditActivity extends AppCompatActivity
     private String          m_strNoteFile = null;
     private String          m_strImageFile = null;
     private String          m_strMusicFile = null;
+    private String          m_strVideoFile = null;
     private dataNoteItem    m_dataItem = null;
     private boolean         m_bNewNote = true;
     private boolean         m_bReadFromFile = false;
@@ -156,8 +157,12 @@ public class noteEditActivity extends AppCompatActivity
             noteEditText noteEdit = new noteEditText(this);
             noteEdit.setOnNoteEditListener(this);
             vwNew = noteEdit;
-        } else if (nType == noteConfig.m_nItemTypePict){
-            noteImageView noteImage = new noteImageView(this);
+        } else if (nType == noteConfig.m_nItemTypePict) {
+            noteImageView noteImage = new noteImageView(this, true);
+            noteImage.setNoteImageListener(this);
+            vwNew = noteImage;
+        } else if (nType == noteConfig.m_nItemTypeVido) {
+            noteImageView noteImage = new noteImageView(this, false);
             noteImage.setNoteImageListener(this);
             vwNew = noteImage;
         } else if (nType == noteConfig.m_nItemTypeAudo){
@@ -250,6 +255,11 @@ public class noteEditActivity extends AppCompatActivity
             param.width = -1;
             audView.setLayoutParams(param);
             vwLast = audView;
+            noteConfig.m_bNoteModified = true;
+        } else if (nType == noteConfig.m_nItemTypeVido) {
+            noteImageView imgView = (noteImageView) addNoteView(vwAfter, noteConfig.m_nItemTypeVido);
+            imgView.setVideoFile(strFile, false);
+            vwLast = imgView;
             noteConfig.m_bNoteModified = true;
         }
 
@@ -519,9 +529,12 @@ public class noteEditActivity extends AppCompatActivity
                 } else if (nMediaType == mediaSelectAdapter.m_nMediaAudio) {
                     m_strMusicFile = strFiles[i];
                     addMediaView(strFiles[i], noteConfig.m_nItemTypeMusc);
+                } else if (nMediaType == mediaSelectAdapter.m_nMediaVideo) {
+                    m_strVideoFile = strFiles[i];
+                    addMediaView(strFiles[i], noteConfig.m_nItemTypeVido);
                 }
             }
-            m_layView.postDelayed(()->onResizeView(), 200);
+            m_layView.postDelayed(() -> onResizeView(), 200);
             return;
         }
 
@@ -735,6 +748,10 @@ public class noteEditActivity extends AppCompatActivity
                     noteImageView noteImage = (noteImageView)vwItem;
                     strName = noteConfig.m_strTagNotePict; bw.write((strName+"\n").toCharArray());
                     strText = noteImage.getImageFileName().substring(nNotePathLen); bw.write((strText+"\n").toCharArray());
+                } else if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypeVido) {
+                    noteImageView noteImage = (noteImageView)vwItem;
+                    strName = noteConfig.m_strTagNoteVido; bw.write((strName+"\n").toCharArray());
+                    strText = noteImage.getVideoFileName().substring(nNotePathLen); bw.write((strText+"\n").toCharArray());
                 } else if (noteConfig.getNoteviewType(vwItem) == noteConfig.m_nItemTypeAudo) {
                     noteAudioEditView noteAudio = (noteAudioEditView)vwItem;
                     String strAudioFile = noteAudio.getAudioFile();

@@ -37,7 +37,7 @@ public class noteImageSlider extends noteBaseSlider
 
         noteImageShow imgView = null;
         for (int i = 0;i < 3; i++) {
-            imgView = new noteImageShow(m_context);
+            imgView = new noteImageShow(m_context, true);
             addView(imgView);
             imgView.setNoteImageShowListener(this);
             m_lstChildView.add(imgView);

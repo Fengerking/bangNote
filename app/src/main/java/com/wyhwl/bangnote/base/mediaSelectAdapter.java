@@ -64,10 +64,14 @@ public class mediaSelectAdapter extends BaseAdapter {
 
         File file = Environment.getExternalStorageDirectory();
         m_strSdcard = file.getPath();
-        setFolder(m_strSdcard);
+        setFolder(m_strSdcard, false);
     }
 
-    public void setFolder (String strFolder) {
+    public String getFolder () {
+        return m_strFolder;
+    }
+
+    public void setFolder (String strFolder, boolean bVideo) {
         if (!m_bFinished) {
             m_bCanceled = true;
             while (!m_bFinished) {
@@ -103,6 +107,9 @@ public class mediaSelectAdapter extends BaseAdapter {
                 }
 
                 if (nMediaType >= 0) {
+                    if (bVideo && nMediaType != m_nMediaVideo) {
+                        continue;
+                    }
                     mediaItem item = new mediaItem();
                     item.m_strFile = file.getPath();
                     item.m_lTime = file.lastModified();
@@ -232,6 +239,8 @@ public class mediaSelectAdapter extends BaseAdapter {
             else if (strExtName.compareToIgnoreCase("mp4") == 0)
                 nMediaType = m_nMediaVideo;
             else if (strExtName.compareToIgnoreCase("flv") == 0)
+                nMediaType = m_nMediaVideo;
+            else if (strExtName.compareToIgnoreCase("bnv") == 0)
                 nMediaType = m_nMediaVideo;
         }
         return nMediaType;

@@ -171,6 +171,11 @@ public class noteConfig {
         return m_strNoteFile;
     }
 
+    public static String    getNoteVideoFile () {
+        m_strNoteFile = getNoteFileName("vid_", ".bnv");
+        return m_strNoteFile;
+    }
+
     public static String    getNoteFileName (String strPrev, String strExt) {
         Date dateNow = new Date(System.currentTimeMillis());
         SimpleDateFormat fmtDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");

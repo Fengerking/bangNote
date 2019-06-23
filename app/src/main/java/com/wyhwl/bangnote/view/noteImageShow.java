@@ -15,7 +15,10 @@ import android.widget.ImageView;
 import android.util.Log;
 
 import java.io.FileInputStream;
+import java.io.File;
 import android.media.ExifInterface;
+
+import com.wyhwl.bangnote.R;
 import com.wyhwl.bangnote.base.*;
 
 public class noteImageShow extends ImageView {
@@ -24,6 +27,7 @@ public class noteImageShow extends ImageView {
     private static final int MODE_ZOOM = 2;
 
     private Context     m_context   = null;
+    private boolean     m_bImage    = true;
     private int         m_nID       = 0;
     private String      m_strFile   = null;
     private int         m_nMode     = MODE_NONE;
@@ -61,8 +65,9 @@ public class noteImageShow extends ImageView {
         m_imgListener = listener;
     }
 
-    public noteImageShow(Context context) {
+    public noteImageShow(Context context, boolean bImage) {
         super(context);
+        m_bImage = bImage;
         initView (context);
     }
 
@@ -78,7 +83,10 @@ public class noteImageShow extends ImageView {
 
     private void initView (Context context) {
         m_context = context;
-        m_nID = noteConfig.getImagViewID ();
+        if (m_bImage)
+            m_nID = noteConfig.getImagViewID ();
+        else
+            m_nID = noteConfig.getVidoViewID ();
         setScaleType(ImageView.ScaleType.MATRIX);
         DisplayMetrics dm = this.getResources().getDisplayMetrics();
         m_nScrWidth = dm.widthPixels;
@@ -100,31 +108,45 @@ public class noteImageShow extends ImageView {
             return;
 
         try {
-            FileInputStream fis = null;
-            String strExt = strFile.substring(strFile.length() - 4);
-            if (strExt.compareTo(".bnp") == 0)
-                fis = new noteFileInputStream(strFile);
-            else
-                fis = new FileInputStream(strFile);
-            Bitmap bmp = BitmapFactory.decodeStream(fis);
-            fis.close();
-
             Matrix matBmp = null;
-            ExifInterface ei = new ExifInterface(m_strFile);
-            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-            switch (orientation) {
-                case ExifInterface.ORIENTATION_ROTATE_90:
-                    matBmp = new Matrix();
-                    matBmp.postRotate(90);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-                    matBmp = new Matrix();
-                    matBmp.postRotate(180);
-                    break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-                    matBmp = new Matrix();
-                    matBmp.postRotate(270);
-                    break;
+            Bitmap bmp = null;
+            if (m_bImage) {
+                FileInputStream fis = null;
+                String strExt = strFile.substring(strFile.length() - 4);
+                if (strExt.compareTo(".bnp") == 0)
+                    fis = new noteFileInputStream(strFile);
+                else
+                    fis = new FileInputStream(strFile);
+                bmp = BitmapFactory.decodeStream(fis);
+                fis.close();
+
+                ExifInterface ei = new ExifInterface(m_strFile);
+                int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                switch (orientation) {
+                    case ExifInterface.ORIENTATION_ROTATE_90:
+                        matBmp = new Matrix();
+                        matBmp.postRotate(90);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_180:
+                        matBmp = new Matrix();
+                        matBmp.postRotate(180);
+                        break;
+                    case ExifInterface.ORIENTATION_ROTATE_270:
+                        matBmp = new Matrix();
+                        matBmp.postRotate(270);
+                        break;
+                }
+            } else {
+                String strThumbFile = strFile.substring(0, strFile.length()-3);
+                strThumbFile += "tmb";
+                File fileThumb = new File(strThumbFile);
+                if (fileThumb.exists()) {
+                    FileInputStream fis = new noteFileInputStream(strThumbFile);
+                    bmp = BitmapFactory.decodeStream(fis);
+                    fis.close();
+                } else {
+                    bmp = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.note_video_view);
+                }
             }
 
             m_nBmpWidth = bmp.getWidth();

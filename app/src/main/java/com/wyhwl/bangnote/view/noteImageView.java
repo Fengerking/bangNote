@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.media.ExifInterface;
+import android.media.MediaMetadataRetriever;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.File;
 
+import com.wyhwl.bangnote.R;
 import com.wyhwl.bangnote.base.*;
 
 public class noteImageView extends ImageView {
@@ -26,8 +28,12 @@ public class noteImageView extends ImageView {
     private String                  m_strFileName = null;
     private onNoteImageListener     m_lsnImage = null;
 
-    public noteImageView(Context context) {
+    private String                  m_strVideoFile = null;
+    private boolean                 m_bImage = true;
+
+    public noteImageView(Context context, boolean bImage) {
         super(context);
+        m_bImage = bImage;
         initImageView(context);
     }
     public noteImageView(Context context, AttributeSet attrs) {
@@ -56,7 +62,10 @@ public class noteImageView extends ImageView {
 
     public void initImageView (Context context) {
         m_context = context;
-        m_nID = noteConfig.getImagViewID ();
+        if (m_bImage)
+            m_nID = noteConfig.getImagViewID ();
+        else
+            m_nID = noteConfig.getVidoViewID ();
         setScaleType(ScaleType.FIT_XY);
         setBackgroundColor(Color.argb(0, 0, 0, 0));
     }
@@ -143,6 +152,51 @@ public class noteImageView extends ImageView {
 
     public String getImageFileName () {
         return m_strFileName;
+    }
+
+    public int setVideoFile (String strFile, boolean bRead) {
+        Bitmap bmpThumb = null;
+        if (bRead) {
+            m_strVideoFile = strFile;
+        } else {
+            m_strVideoFile = noteConfig.getNoteVideoFile();
+            try {
+                FileInputStream fis = new FileInputStream(strFile);
+                FileOutputStream fos = new FileOutputStream(m_strVideoFile);
+
+                byte[] buffer = new byte[1024];
+                int byteRead;
+                while (-1 != (byteRead = fis.read(buffer))) {
+                    fos.write(buffer, 0, byteRead);
+                }
+                fis.close();
+                fos.flush();
+                fos.close();
+
+                MediaMetadataRetriever media = new MediaMetadataRetriever();
+                media.setDataSource(m_strVideoFile);
+                bmpThumb = media.getFrameAtTime();
+
+                String strThumbFile = m_strVideoFile.substring(0, m_strVideoFile.length()-3);
+                strThumbFile = strThumbFile + "tmb";
+                noteFileOutputStream fosBmp = new noteFileOutputStream(strThumbFile);
+                bmpThumb.compress(Bitmap.CompressFormat.JPEG, 65, fosBmp);
+                fosBmp.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (bmpThumb == null)
+            bmpThumb = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.note_video);
+        setImageBitmap(bmpThumb);
+        ViewGroup.LayoutParams params = getLayoutParams();
+        params.height = noteConfig.m_nImageHeight;
+        setLayoutParams(params);
+        return 1;
+    }
+
+    public String getVideoFileName () {
+        return m_strVideoFile;
     }
 
     public void setSelected (boolean bSelected) {

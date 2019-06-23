@@ -123,6 +123,8 @@ public class noteListItemView extends TextView {
             } else {
                 bmpItem = m_dataItem.m_thumb;
             }
+        } else if (m_dataItem.m_strVidFile != null) {
+            bmpItem = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.note_video_icon);
         } else if (m_dataItem.m_strAudFile != null) {
             bmpItem = BitmapFactory.decodeResource(m_context.getResources(), R.drawable.note_music_icon);
         } else {

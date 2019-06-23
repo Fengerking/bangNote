@@ -191,7 +191,7 @@ public class noteShowLayout extends FrameLayout
                 txtView.setTextColor(noteConfig.m_nTextColor);
                 m_nWordCount += dataItem.m_strItem.length();
             } else if (dataItem.m_nType == noteConfig.m_nItemTypePict) {
-                noteImageShow imgView = new noteImageShow(m_context);
+                noteImageShow imgView = new noteImageShow(m_context, true);
                 m_layView.addView(imgView);
                 imgView.setImageFile(dataItem.m_strItem, false);
                 imgView.setNoteImageShowListener(this);

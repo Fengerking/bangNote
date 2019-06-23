@@ -500,9 +500,19 @@ public class noteListActivity extends AppCompatActivity
             dataNoteItem.dataContent dataContent = dataItem.m_lstItem.get(j);
             if (dataContent.m_nType == noteConfig.m_nItemTypePict ||
                     dataContent.m_nType == noteConfig.m_nItemTypeAudo ||
+                    dataContent.m_nType == noteConfig.m_nItemTypeMusc ||
                     dataContent.m_nType == noteConfig.m_nItemTypeVido) {
-                File filePic = new File (dataContent.m_strItem);
-                filePic.delete();
+                File fileDel = new File (dataContent.m_strItem);
+                if (fileDel.exists())
+                    fileDel.delete();
+                if (dataContent.m_nType == noteConfig.m_nItemTypeVido) {
+                    String strThumbFile = dataContent.m_strItem.substring(0, dataContent.m_strItem.length()-3);
+                    strThumbFile += "tmb";
+                    File fileThumb = new File(strThumbFile);
+                    if (fileThumb.exists()) {
+                        fileThumb.delete();
+                    }
+                }
             }
         }
         if (bDelFile) {

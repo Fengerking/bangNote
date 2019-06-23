@@ -1,8 +1,10 @@
 package com.wyhwl.bangnote;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
@@ -53,6 +55,8 @@ public class noteVideoActivity extends AppCompatActivity
     private long                m_lLastTime     = 0;
     private long                m_lShowTime     = 5000;
 
+    private String              m_strVideoFile  = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +64,12 @@ public class noteVideoActivity extends AppCompatActivity
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null)
             actionBar.hide();
+
+        Intent intent = getIntent();
+        Uri uri = intent.getData();
+        if (uri != null)
+            m_strVideoFile = uri.toString();
+
         initViews();
     }
 
@@ -109,13 +119,14 @@ public class noteVideoActivity extends AppCompatActivity
 
         m_updHandler = new updateHandler();
 
-        //m_layVideo.postDelayed(()->hideSystemViews(), 20);
+        m_layVideo.postDelayed(()->hideSystemViews(), 20);
 
         m_layVideo.postDelayed(()->openVideo(), 10);
     }
 
     private void openVideo () {
-        m_vwVideo.setVideoPath("/sdcard/shangbuqi.mp4");
+        if (m_strVideoFile != null)
+            m_vwVideo.setVideoPath(m_strVideoFile);
     }
 
     public void onPrepared(MediaPlayer mp) {
