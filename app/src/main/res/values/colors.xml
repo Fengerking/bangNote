@@ -13,4 +13,5 @@
     <color name="colorBlueLight">#000088</color>
 
     <color name="black_overlay">#66000000</color>
+    <color name="border_text">#000000</color>
 </resources>

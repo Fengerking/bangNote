@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    tools:context=".noteVideoActivity">
+
+    <RelativeLayout
+        android:id="@+id/layMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000">
+        <RelativeLayout
+            android:id="@+id/layVideo"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:background="#000000">
+            <VideoView
+                android:id="@+id/vwVideo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"/>
+
+            <RelativeLayout
+                android:id="@+id/layButtons"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:orientation="vertical" >
+
+                <ImageButton
+                    android:id="@+id/btnPlay"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/btn_play"/>
+
+                <SeekBar
+                    android:id="@+id/sbPos"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_toRightOf="@+id/txtPos"
+                    android:layout_marginRight="40dp"
+                    android:maxHeight="3dp"
+                    android:minHeight="3dp"
+                    android:paddingBottom="4dp"
+                    android:paddingTop="4dp"
+                    android:progress="2"
+                    android:max="100"
+                    android:progressDrawable="@layout/seekbar_prog"
+                    android:thumb="@drawable/btn_pos_thumb"/>
+
+                <ImageButton
+                    android:id="@+id/btnFull"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="0dp"
+                    android:background="@drawable/btn_video_full"/>
+
+                <com.wyhwl.bangnote.video.StrokeTextView
+                    android:id="@+id/txtPos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="6dp"
+                    android:gravity="center"
+                    android:textColor="@android:color/background_light"
+                    android:textSize="14dp"
+                    android:textStyle="normal"
+                    android:typeface="normal" />
+
+                <com.wyhwl.bangnote.video.StrokeTextView
+                    android:id="@+id/txtDur"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@+id/btnFull"
+                    android:layout_above="@+id/sbPos"
+                    android:gravity="center"
+                    android:textColor="@android:color/background_light"
+                    android:textSize="16dp"
+                    android:textStyle="normal"
+                    android:typeface="normal" />
+
+            </RelativeLayout>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+</FrameLayout>
