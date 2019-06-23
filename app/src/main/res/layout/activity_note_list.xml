@@ -53,13 +53,27 @@
                     android:layout_alignParentRight="true"
                     android:background="@drawable/note_search"/>
                 <ImageButton
+                    android:id="@+id/imbSortUp"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_toLeftOf="@+id/imbSearchNote"
+                    android:background="@drawable/note_sort_up"/>
+                <ImageButton
+                    android:id="@+id/imbSortDown"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginRight="12dp"
+                    android:layout_toLeftOf="@+id/imbSearchNote"
+                    android:background="@drawable/note_sort_down"/>
+                <ImageButton
                     android:id="@+id/imbDelNote"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_marginTop="2dp"
                     android:layout_marginRight="12dp"
                     android:layout_marginBottom="2dp"
-                    android:layout_toLeftOf="@+id/imbSearchNote"
+                    android:layout_toLeftOf="@+id/imbSortDown"
                     android:background="@drawable/note_delete"/>
                 <ImageButton
                     android:id="@+id/imbNewNote"

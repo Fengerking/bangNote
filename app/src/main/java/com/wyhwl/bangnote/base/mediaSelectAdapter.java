@@ -68,12 +68,14 @@ public class mediaSelectAdapter extends BaseAdapter {
     }
 
     public void setFolder (String strFolder) {
-        m_bCanceled = true;
-        while (!m_bFinished) {
-            try {
-                Thread.sleep(50);
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (!m_bFinished) {
+            m_bCanceled = true;
+            while (!m_bFinished) {
+                try {
+                    Thread.sleep(50);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         if (strFolder == null)
@@ -88,9 +90,10 @@ public class mediaSelectAdapter extends BaseAdapter {
         if (fList != null) {
             for (int i = 0; i < fList.length; i++) {
                 File file = fList[i];
-                if (file.isHidden())
-                    continue;
-
+                if (noteConfig.m_nShowSecurity == 0) {
+                    if (file.isHidden())
+                        continue;
+                }
                 nMediaType = -1;
                 if (file.isDirectory()) {
                     if (haveMediaInFolder (file.getPath()))
@@ -130,6 +133,12 @@ public class mediaSelectAdapter extends BaseAdapter {
         updateThumbThread ();
     }
 
+    public void continueThumb () {
+        if (!m_bCanceled)
+            return;
+        updateThumbThread();
+    }
+
     private boolean haveMediaInFolder (String strFolder) {
         File fFolder = new File(strFolder);
         File[] fList = fFolder.listFiles();
@@ -139,7 +148,11 @@ public class mediaSelectAdapter extends BaseAdapter {
         int i = 0;
         for (i = 0; i < fList.length; i++) {
             File file = fList[i];
-            if (file.isHidden() || file.isDirectory())
+            if (noteConfig.m_nShowSecurity == 0) {
+                if (file.isHidden())
+                    continue;
+            }
+            if (file.isDirectory())
                 continue;
             if (getMediaType (file.getPath()) > 0)
                 return true;
@@ -147,8 +160,10 @@ public class mediaSelectAdapter extends BaseAdapter {
 
         for (i = 0; i < fList.length; i++) {
             File file = fList[i];
-            if (file.isHidden())
-                continue;
+            if (noteConfig.m_nShowSecurity == 0) {
+                if (file.isHidden())
+                    continue;
+            }
             if (file.isDirectory()) {
                 if (haveMediaInFolder (file.getPath()))
                     return true;
@@ -212,6 +227,8 @@ public class mediaSelectAdapter extends BaseAdapter {
                 nMediaType = m_nMediaImage;
             else if (strExtName.compareToIgnoreCase("png") == 0)
                 nMediaType = m_nMediaImage;
+            else if (strExtName.compareToIgnoreCase("bnp") == 0)
+                nMediaType = m_nMediaImage;
             else if (strExtName.compareToIgnoreCase("mp4") == 0)
                 nMediaType = m_nMediaVideo;
             else if (strExtName.compareToIgnoreCase("flv") == 0)
@@ -266,7 +283,12 @@ public class mediaSelectAdapter extends BaseAdapter {
                     if (dataItem.m_thumb == null && dataItem.m_nType == m_nMediaImage) {
                         Bitmap bmpFile = null;
                         try {
-                            FileInputStream fis = new FileInputStream (dataItem.m_strFile);
+                            FileInputStream fis = null;
+                            String strExt = dataItem.m_strFile.substring(dataItem.m_strFile.length() - 4);
+                            if (strExt.compareTo(".bnp") == 0)
+                                fis = new noteFileInputStream (dataItem.m_strFile);
+                            else
+                                fis = new FileInputStream (dataItem.m_strFile);
                             bmpFile = BitmapFactory.decodeStream(fis);
                             fis.close();
 

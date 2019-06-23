@@ -36,6 +36,8 @@ public class mediaSelectActivity extends AppCompatActivity
     private ImageButton             m_btnTimeUp = null;
     private ImageButton             m_btnTimeDown = null;
 
+    private boolean                 m_bSelectMode = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +46,11 @@ public class mediaSelectActivity extends AppCompatActivity
         actionBar.hide();
 
         initViews();
+    }
+
+    protected void onResume () {
+        super.onResume();
+        m_mediaAdpater.continueThumb();
     }
 
     protected void onStop () {
@@ -88,7 +95,7 @@ public class mediaSelectActivity extends AppCompatActivity
                 break;
 
             case R.id.imbImageShow:
-                showImage ();
+                showImage (null);
                 break;
 
             case R.id.imbSortNameDown:
@@ -154,7 +161,7 @@ public class mediaSelectActivity extends AppCompatActivity
         }
     }
 
-    private void showImage () {
+    private void showImage (String strCurFile) {
         int nImageCount = 0;
         int nCount = m_mediaAdpater.m_lstItems.size();
         for (int i = 0; i < nCount; i++) {
@@ -174,8 +181,12 @@ public class mediaSelectActivity extends AppCompatActivity
                 strFiles[nImageCount++] = m_mediaAdpater.m_lstItems.get(i).m_strFile;
             }
         }
+
         Intent intent = new Intent(mediaSelectActivity.this, noteImageActivity.class);
-        intent.setData(Uri.parse(strFiles[0]));
+        if (strCurFile == null)
+            intent.setData(Uri.parse(strFiles[0]));
+        else
+            intent.setData(Uri.parse(strCurFile));
         intent.putExtra("FileList", strFiles);
         intent.putExtra("FileCount", nImageCount);
         startActivity(intent);
@@ -193,27 +204,51 @@ public class mediaSelectActivity extends AppCompatActivity
             String strPath = vwItem.getMediaItem().m_strFile.substring(nPos+1);
             m_txtPath.setText(strPath + " (" + (m_mediaAdpater.getCount() - 1) + ")");
         } else {
-            if (item.m_nSelect > 0) {
-                int nCount = m_mediaAdpater.m_lstItems.size();
-                for (int i = 0; i < nCount; i++) {
-                    if (m_mediaAdpater.m_lstItems.get(i).m_nSelect > item.m_nSelect) {
-                        m_mediaAdpater.m_lstItems.get(i).m_nSelect--;
-                        if (m_mediaAdpater.m_lstItems.get(i).m_view != null)
-                            m_mediaAdpater.m_lstItems.get(i).m_view.invalidate();
-                    }
-                }
-                m_nSelectNum--;
-                item.m_nSelect = 0;
+            if (m_bSelectMode == true) {
+                setItemSelect(item);
             } else {
-                m_nSelectNum++;
-                item.m_nSelect = m_nSelectNum;
+                showImage(item.m_strFile);
             }
-            vwItem.invalidate();
         }
     }
 
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        mediaItem item = m_mediaAdpater.m_lstItems.get(position);
+        if (item.m_nType == mediaSelectAdapter.m_nMediaFolder || item.m_nType == mediaSelectAdapter.m_nMediaBack)
+            return true;
+
+        setItemSelect (item);
+
         return true;
+    }
+
+    private void setItemSelect (mediaItem item) {
+        if (item.m_nSelect > 0) {
+            int nCount = m_mediaAdpater.m_lstItems.size();
+            for (int i = 0; i < nCount; i++) {
+                if (m_mediaAdpater.m_lstItems.get(i).m_nSelect > item.m_nSelect) {
+                    m_mediaAdpater.m_lstItems.get(i).m_nSelect--;
+                    if (m_mediaAdpater.m_lstItems.get(i).m_view != null)
+                        m_mediaAdpater.m_lstItems.get(i).m_view.invalidate();
+                }
+            }
+            m_nSelectNum--;
+            item.m_nSelect = 0;
+        } else {
+            m_nSelectNum++;
+            item.m_nSelect = m_nSelectNum;
+        }
+        if (item.m_view != null)
+            item.m_view.invalidate();
+
+        m_bSelectMode = false;
+        int nCount = m_mediaAdpater.m_lstItems.size();
+        for (int i = 0; i < nCount; i++) {
+            if (m_mediaAdpater.m_lstItems.get(i).m_nSelect > 0) {
+                m_bSelectMode = true;
+                break;
+            }
+        }
     }
 
     public class selectComparator implements Comparator<Object> {

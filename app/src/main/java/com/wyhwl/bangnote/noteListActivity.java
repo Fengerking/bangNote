@@ -63,6 +63,8 @@ public class noteListActivity extends AppCompatActivity
     private noteListSlider      m_sldList = null;
 
     private ImageButton         m_btnNewNote = null;
+    private ImageButton         m_btnSortUp = null;
+    private ImageButton         m_btnSortDown = null;
 
     private LinearLayout        m_layToolBarList = null;
     private RelativeLayout      m_layToolBarSearch = null;
@@ -123,6 +125,12 @@ public class noteListActivity extends AppCompatActivity
         ((ImageButton)findViewById(R.id.appBack)).setOnClickListener(this);
 
         ((ImageButton)findViewById(R.id.imbCalendar)).setVisibility(View.INVISIBLE);
+
+        m_btnSortUp = (ImageButton)findViewById(R.id.imbSortUp);
+        m_btnSortDown = (ImageButton)findViewById(R.id.imbSortDown);
+        m_btnSortUp.setOnClickListener(this);
+        m_btnSortDown.setOnClickListener(this);
+        m_btnSortDown.setVisibility(View.INVISIBLE);
 
         m_layToolBarList = (LinearLayout) findViewById(R.id.ntlList);
         //m_layToolBarList.setVisibility(View.INVISIBLE);
@@ -206,6 +214,22 @@ public class noteListActivity extends AppCompatActivity
             case R.id.imbCalendar:
                 intent = new Intent(noteListActivity.this, noteCalendarActivity.class);
                 startActivityForResult(intent, ACTIVITY_CALENDAR);
+                break;
+
+            case R.id.imbSortUp:
+                m_btnSortDown.setVisibility(View.VISIBLE);
+                m_btnSortUp.setVisibility(View.INVISIBLE);
+                noteConfig.m_lstData.sortData(1);
+                m_lstView.setAdapter(noteConfig.m_lstData);
+                m_lstView.invalidate();
+                break;
+
+            case R.id.imbSortDown:
+                m_btnSortDown.setVisibility(View.INVISIBLE);
+                m_btnSortUp.setVisibility(View.VISIBLE);
+                noteConfig.m_lstData.sortData(0);
+                m_lstView.setAdapter(noteConfig.m_lstData);
+                m_lstView.invalidate();
                 break;
         }
     }

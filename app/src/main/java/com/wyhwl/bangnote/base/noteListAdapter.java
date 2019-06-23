@@ -22,6 +22,7 @@ public class noteListAdapter extends BaseAdapter {
     public  ArrayList<dataNoteItem>     m_lstAllItem    = null;
     public  ArrayList<dataNoteItem>     m_lstSelItem    = null;
 
+    private int                         m_nSortType     = 0;
     private boolean                     m_bCanceled     = false;
     private boolean                     m_bFinished     = true;
 
@@ -41,6 +42,12 @@ public class noteListAdapter extends BaseAdapter {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void sortData (int nSortType) {
+        stopUpdate ();
+        m_nSortType = nSortType;
+        updNoteType (noteConfig.m_noteTypeMng.getCurType());
     }
 
     public dataNoteItem getNoteItem (int nIndex) {
@@ -311,7 +318,10 @@ public class noteListAdapter extends BaseAdapter {
         public int compare(Object o1, Object o2) {
             dataNoteItem noteItem1 = (dataNoteItem)o1;
             dataNoteItem noteItem2 = (dataNoteItem)o2;
-            return noteItem2.m_strDateTime.compareTo(noteItem1.m_strDateTime);
+            if (m_nSortType == 0)
+                return noteItem2.m_strDateTime.compareTo(noteItem1.m_strDateTime);
+            else
+                return noteItem1.m_strDateTime.compareTo(noteItem2.m_strDateTime);
         }
     }
 
