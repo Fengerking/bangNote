@@ -2,6 +2,7 @@ package com.wyhwl.bangnote;
 
 import android.app.DatePickerDialog;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 
 import android.content.ContentUris;
@@ -74,6 +75,11 @@ public class noteEditActivity extends AppCompatActivity
     private dataNoteItem    m_dataItem = null;
     private boolean         m_bNewNote = true;
     private boolean         m_bReadFromFile = false;
+
+    private int             m_requestCode;
+    private int             m_resultCode;
+    private Intent          m_intentData;
+    private ProgressDialog  m_dlgWait = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -511,17 +517,32 @@ public class noteEditActivity extends AppCompatActivity
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RESULT_CAPTURE_IMAGE) {
+        m_requestCode = requestCode;
+        m_resultCode = resultCode;
+        m_intentData = data;
+
+        showWaitDialog("加载中。。。", true);
+        m_layView.postDelayed(()->onActivityResult(), 100);
+    }
+
+    private void onActivityResult () {
+        implementResult ();
+        showWaitDialog(null, false);
+    }
+
+    private void implementResult () {
+        if (m_requestCode == RESULT_CAPTURE_IMAGE) {
             File file = new File(m_strImageFile);
             if (!file.exists())
                 return;
             addMediaView(m_strImageFile, noteConfig.m_nItemTypePict);
             return;
-        } else if (requestCode == RESULT_LOAD_MEDIA && resultCode == RESULT_OK) {
-            if (data == null)
+        } else if (m_requestCode == RESULT_LOAD_MEDIA && m_resultCode == RESULT_OK) {
+            if (m_intentData == null)
                 return;
-            int nFileNum = data.getIntExtra("FileCount", 0);
-            String[] strFiles = data.getStringArrayExtra("FileList");
+
+            int nFileNum = m_intentData.getIntExtra("FileCount", 0);
+            String[] strFiles = m_intentData.getStringArrayExtra("FileList");
             for (int i = 0; i < nFileNum; i++) {
                 int nMediaType = mediaSelectAdapter.getMediaType(strFiles[i]);
                 if (nMediaType == mediaSelectAdapter.m_nMediaImage) {
@@ -535,28 +556,29 @@ public class noteEditActivity extends AppCompatActivity
                 }
             }
             m_layView.postDelayed(() -> onResizeView(), 200);
+
             return;
         }
 
-        if (data == null)
+        if (m_intentData == null)
             return;
         String imagePath = null;
-        Uri uri = data.getData();
+        Uri uri = m_intentData.getData();
         if (DocumentsContract.isDocumentUri(this, uri)) {
             //如果是document类型的uri，则通过document id处理
             String docId = DocumentsContract.getDocumentId(uri);
             if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
                 String id = docId.split(":")[1];
                 String selection = MediaStore.Images.Media._ID + "=" + id;
-                if (requestCode == RESULT_LOAD_IMAGE) {
-                    imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection, requestCode);
-                } else if (requestCode == RESULT_LOAD_AUDIO) {
-                    imagePath = getImagePath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, selection, requestCode);
+                if (m_requestCode == RESULT_LOAD_IMAGE) {
+                    imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection, m_requestCode);
+                } else if (m_requestCode == RESULT_LOAD_AUDIO) {
+                    imagePath = getImagePath(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, selection, m_requestCode);
                 }
             } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
                 Uri contentUri = ContentUris.withAppendedId(Uri.parse("content:" +
-                                                        "//downloads/public_downloads"), Long.valueOf(docId));
-                imagePath = getImagePath(contentUri, null, requestCode);
+                        "//downloads/public_downloads"), Long.valueOf(docId));
+                imagePath = getImagePath(contentUri, null, m_requestCode);
             }
         } else if ("content".equalsIgnoreCase(uri.getScheme())) {
             //如果是content类型的uri，则使用普通方式处理
@@ -572,9 +594,9 @@ public class noteEditActivity extends AppCompatActivity
             imagePath = uri.getPath();
         }
         if (imagePath != null) {
-            if (requestCode == RESULT_LOAD_IMAGE) {
+            if (m_requestCode == RESULT_LOAD_IMAGE) {
                 addMediaView(imagePath, noteConfig.m_nItemTypePict);
-            } else if (requestCode == RESULT_LOAD_AUDIO) {
+            } else if (m_requestCode == RESULT_LOAD_AUDIO) {
                 m_strMusicFile = imagePath;
                 addMediaView(imagePath, noteConfig.m_nItemTypeMusc);
             }
@@ -778,5 +800,23 @@ public class noteEditActivity extends AppCompatActivity
             noteConfig.m_lstData.newNoteFile(m_dataItem.m_strFile);
         else
             noteConfig.m_lstData.updNoteFile(m_dataItem.m_strFile);
+    }
+
+    private void showWaitDialog(String strMsg, boolean bShow) {
+        if (bShow) {
+            if (m_dlgWait == null) {
+                m_dlgWait = new ProgressDialog(noteEditActivity.this);
+                m_dlgWait.setIndeterminate(true);
+                m_dlgWait.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                m_dlgWait.setMessage(strMsg);
+                m_dlgWait.setCancelable(false);
+            }
+            m_dlgWait.show();
+        } else {
+            if (m_dlgWait == null)
+                return;
+            m_dlgWait.dismiss();
+            m_dlgWait = null;
+        }
     }
 }

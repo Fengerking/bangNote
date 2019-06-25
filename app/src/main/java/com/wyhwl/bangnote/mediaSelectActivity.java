@@ -2,8 +2,10 @@ package com.wyhwl.bangnote;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -11,6 +13,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.app.ProgressDialog;
 
 import com.wyhwl.bangnote.base.mediaSelectAdapter;
 import com.wyhwl.bangnote.base.mediaSelectAdapter.mediaItem;
@@ -38,6 +41,9 @@ public class mediaSelectActivity extends AppCompatActivity
 
     private boolean                 m_bSelectMode = false;
     private boolean                 m_bVideoOnly = false;
+    private String                  m_strFolder = null;
+
+    private ProgressDialog          m_dlgWait = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +57,8 @@ public class mediaSelectActivity extends AppCompatActivity
 
     protected void onResume () {
         super.onResume();
-        m_mediaAdpater.continueThumb();
+        if (m_mediaAdpater != null)
+            m_mediaAdpater.continueThumb();
     }
 
     protected void onStop () {
@@ -81,8 +88,20 @@ public class mediaSelectActivity extends AppCompatActivity
         m_grdMedia.setOnItemClickListener(this);
         m_grdMedia.setOnItemLongClickListener(this);
 
-        m_mediaAdpater = new mediaSelectAdapter (this);
-        m_grdMedia.setAdapter(m_mediaAdpater);
+        showWaitDialog("加载中。。。", true);
+        m_grdMedia.postDelayed(()->updateFolder(), 10);
+    }
+
+    private void updateFolder () {
+        if (m_mediaAdpater == null) {
+            m_mediaAdpater = new mediaSelectAdapter (this);
+            m_grdMedia.setAdapter(m_mediaAdpater);
+        } else {
+            m_mediaAdpater.setFolder(m_strFolder, m_bVideoOnly);
+            m_grdMedia.setAdapter(m_mediaAdpater);
+            m_grdMedia.invalidate();
+        }
+        showWaitDialog(null, false);
     }
 
     public void onClick(View v) {
@@ -218,9 +237,9 @@ public class mediaSelectActivity extends AppCompatActivity
         mediaSelectItemView vwItem = (mediaSelectItemView)view.findViewById(R.id.ivMediaItem);
         mediaItem item = vwItem.getMediaItem();
         if (item.m_nType == mediaSelectAdapter.m_nMediaFolder || item.m_nType == mediaSelectAdapter.m_nMediaBack) {
-            m_mediaAdpater.setFolder(vwItem.getMediaItem().m_strFile, m_bVideoOnly);
-            m_grdMedia.setAdapter(m_mediaAdpater);
-            m_grdMedia.invalidate();
+            m_strFolder = vwItem.getMediaItem().m_strFile;
+            showWaitDialog("加载中。。。", true);
+            m_grdMedia.postDelayed(()->updateFolder(), 10);
 
             int nPos = vwItem.getMediaItem().m_strFile.lastIndexOf(File.separator);
             String strPath = vwItem.getMediaItem().m_strFile.substring(nPos+1);
@@ -278,6 +297,24 @@ public class mediaSelectActivity extends AppCompatActivity
             mediaItem noteItem1 = (mediaItem)o1;
             mediaItem noteItem2 = (mediaItem)o2;
             return noteItem1.m_nSelect >= noteItem2.m_nSelect ? 1 : -1;
+        }
+    }
+
+    private void showWaitDialog(String strMsg, boolean bShow) {
+        if (bShow) {
+            if (m_dlgWait == null) {
+                m_dlgWait = new ProgressDialog(mediaSelectActivity.this);
+                m_dlgWait.setIndeterminate(true);
+                m_dlgWait.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                m_dlgWait.setMessage(strMsg);
+                m_dlgWait.setCancelable(false);
+            }
+            m_dlgWait.show();
+        } else {
+            if (m_dlgWait == null)
+                return;
+            m_dlgWait.dismiss();
+            m_dlgWait = null;
         }
     }
 }
