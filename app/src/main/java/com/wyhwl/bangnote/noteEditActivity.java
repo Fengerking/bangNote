@@ -44,7 +44,7 @@ import java.util.Date;
 import com.wyhwl.bangnote.base.*;
 import com.wyhwl.bangnote.view.*;
 
-public class noteEditActivity extends AppCompatActivity
+public class noteEditActivity extends noteBaseActivity
         implements  noteEditText.onNoteEditListener,
                     noteImageView.onNoteImageListener,
                     AdapterView.OnItemSelectedListener,
@@ -86,11 +86,6 @@ public class noteEditActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_edit);
-
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        if (actionBar != null)
-            actionBar.hide();
 
         initViews();
 
@@ -523,7 +518,7 @@ public class noteEditActivity extends AppCompatActivity
         m_intentData = data;
 
         showWaitDialog("加载中。。。", true);
-        m_layView.postDelayed(()->doActivityResult(), 10);
+        m_layView.postDelayed(()->doActivityResult(), 200);
     }
 
     private void doActivityResult() {
@@ -679,6 +674,9 @@ public class noteEditActivity extends AppCompatActivity
                 if (dataItem.m_nType == noteConfig.m_nItemTypePict) {
                     noteImageView noteImage = (noteImageView)addNoteView(null, noteConfig.m_nItemTypePict);
                     noteImage.setImageFile(dataItem.m_strItem, true);
+                } else if (dataItem.m_nType == noteConfig.m_nItemTypeVido) {
+                    noteImageView noteImage = (noteImageView)addNoteView(null, noteConfig.m_nItemTypeVido);
+                    noteImage.setVideoFile(dataItem.m_strItem, true);
                 } else if (dataItem.m_nType == noteConfig.m_nItemTypeAudo) {
                     noteAudioEditView noteAudio = (noteAudioEditView)addNoteView(null, noteConfig.m_nItemTypeAudo);
                     noteAudio.setAudioFile(dataItem.m_strItem);
@@ -801,24 +799,5 @@ public class noteEditActivity extends AppCompatActivity
             noteConfig.m_lstData.newNoteFile(m_dataItem.m_strFile);
         else
             noteConfig.m_lstData.updNoteFile(m_dataItem.m_strFile);
-    }
-
-    private void showWaitDialog(String strMsg, boolean bShow) {
-        if (bShow) {
-            if (m_dlgWait == null) {
-                m_dlgWait = new Dialog(this, R.style.progress_dialog);
-                m_dlgWait.setContentView(R.layout.dialog_wait);
-                m_dlgWait.setCancelable(false);
-                m_dlgWait.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                TextView txtMsg = (TextView) m_dlgWait.findViewById(R.id.tvLoadingText);
-                txtMsg.setText(strMsg);
-            }
-            m_dlgWait.show();
-        } else {
-            if (m_dlgWait == null)
-                return;
-            m_dlgWait.dismiss();
-            m_dlgWait = null;
-        }
     }
 }

@@ -1,14 +1,10 @@
 package com.wyhwl.bangnote;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.content.FileProvider;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,13 +13,14 @@ import android.widget.TextView;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
+import android.os.Build;
+
 import com.wyhwl.bangnote.base.noteAliyunOSS;
-import com.wyhwl.bangnote.base.noteBackupRestore;
 import com.wyhwl.bangnote.base.noteConfig;
 
 import java.io.File;
 
-public class noteAboutActivity extends AppCompatActivity
+public class noteAboutActivity extends noteBaseActivity
                                     implements View.OnClickListener,
                                         noteAliyunOSS.onOssProgressListener  {
     private TextView        m_txtFeatureInfo = null;
@@ -34,15 +31,12 @@ public class noteAboutActivity extends AppCompatActivity
     private noteAliyunOSS   m_noteOSS       = null;
     private String          m_strApp        = "app";
     private String          m_strAPKFile    = null;
-    private downlaodHandler m_hdlDownload   = null;
     private ProgressBar     m_prgDownload   = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_about);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.hide();
 
         try {
             m_strVersion = this.getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
@@ -132,7 +126,7 @@ public class noteAboutActivity extends AppCompatActivity
         int nPercent = nProgress * 100 / nTotal;
         String strInfo = String.format("Prog: %d  Total: %d  Percent: %d", nProgress, nTotal, nPercent);
         Log.v ("noteBackup", strInfo);
-        Message msg = m_hdlDownload.obtainMessage(100, nPercent, 0, null);
+        Message msg = m_msgHandler.obtainMessage(MSG_DOWNLOAD_APK_PROCSSS, nPercent, 0, null);
         msg.sendToTarget();
     }
 
@@ -141,60 +135,45 @@ public class noteAboutActivity extends AppCompatActivity
             @Override
             public void run() {
                 m_noteOSS.downlaodFile(m_strAPKFile, noteConfig.m_strRootPath);
-                Message msg = m_hdlDownload.obtainMessage(101, 0, 0, null);
+                Message msg = m_msgHandler.obtainMessage(MSG_DOWNLOAD_APK_FINISH, 0, 0, null);
                 msg.sendToTarget();
             }
         }).start();
     }
 
-    class downlaodHandler extends Handler {
-        public void handleMessage(Message msg) {
-            if (msg.what == 100) {
-                if (m_prgDownload.getVisibility() == View.INVISIBLE)
-                    m_prgDownload.setVisibility(View.VISIBLE);
-                m_prgDownload.setProgress(msg.arg1);
-            } else if (msg.what == 101) {
-                m_prgDownload.setVisibility(View.INVISIBLE);
-                String strApkFile = noteConfig.m_strRootPath + m_strAPKFile;
-                installApk (strApkFile);
-            }
+    protected void onMsgHandler (Message msg) {
+        if (msg.what == MSG_DOWNLOAD_APK_PROCSSS) {
+            if (m_prgDownload.getVisibility() == View.INVISIBLE)
+                m_prgDownload.setVisibility(View.VISIBLE);
+            m_prgDownload.setProgress(msg.arg1);
+        } else if (msg.what == MSG_DOWNLOAD_APK_FINISH) {
+            showWaitDialog(null,false);
+            m_prgDownload.setVisibility(View.INVISIBLE);
+            String strApkFile = noteConfig.m_strRootPath + m_strAPKFile;
+            installApk (strApkFile);
         }
+    }
+
+    protected void onDlgOK () {
+        m_prgDownload.setProgress(0);
+        downlaodThread();
+        showWaitDialog("正在下载安装文件。。。",true);
     }
 
     protected void installApk(String strAPK) {
-        Intent intent = new Intent();
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-        File file = new File(strAPK);
-        Uri uri = Uri.fromFile(file);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setDataAndType(uri, "application/vnd.android.package-archive");
-        this.startActivity(intent);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            // Android N 写法
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Uri contentUri = FileProvider.getUriForFile(noteAboutActivity.this,
+                                                        BuildConfig.APPLICATION_ID+".fileProvider",
+                                                            new File (strAPK));
+            intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
+        } else {
+            intent.setDataAndType(Uri.fromFile(new File(strAPK)), "application/vnd.android.package-archive");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        startActivity(intent);
     }
 
-    private void showMsgDlg(String strTitle, String strMsg, boolean bConfirm){
-        final AlertDialog.Builder msgDialog = new AlertDialog.Builder(noteAboutActivity.this);
-        msgDialog.setIcon(R.drawable.app_menu_icon);
-        if (strTitle != null)
-            msgDialog.setTitle(strTitle);
-        if (strMsg != null)
-            msgDialog.setMessage(strMsg);
-        if (bConfirm) {
-            msgDialog.setNeutralButton("取消",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    });
-        }
-        msgDialog.setPositiveButton("确定",
-            new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    if (bConfirm) {
-                        m_prgDownload.setProgress(0);
-                        m_hdlDownload = new downlaodHandler();
-                        downlaodThread();
-                    }
-                }
-            });
-        msgDialog.show();
-    }
 }

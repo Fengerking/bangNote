@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import com.wyhwl.bangnote.base.*;
 import com.wyhwl.bangnote.view.*;
 
-public class noteViewActivity extends AppCompatActivity
+public class noteViewActivity extends noteBaseActivity
                             implements noteImageShow.noteImageShowListener,
                                         AdapterView.OnItemSelectedListener,
                                         noteAudioPlayView.audioPlayViewListener,
@@ -64,10 +64,6 @@ public class noteViewActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_view);
-        setTitle(R.string.old_note);
-
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.hide();
 
         Intent intent = getIntent();
         Uri uri = intent.getData();

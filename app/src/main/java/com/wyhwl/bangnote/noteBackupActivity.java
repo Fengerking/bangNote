@@ -21,12 +21,9 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 
 import com.wyhwl.bangnote.base.*;
 
-public class noteBackupActivity extends AppCompatActivity
+public class noteBackupActivity extends noteBaseActivity
                                 implements View.OnClickListener,
                                             noteAliyunOSS.onOssProgressListener {
-    private final int           BMSG_PROCESS     = 100;
-    private final int           BMSG_END         = 200;
-
     private noteAliyunOSS       m_noteOSS = null;
     private String              m_strUserID = "";
     private String              m_strUserName = "";
@@ -43,16 +40,12 @@ public class noteBackupActivity extends AppCompatActivity
     private int                 m_nFileCount = 0;
     private int                 m_nFileIndex = 0;
 
-    private backupHandler       m_hdlBackup = null;
-
     private IWXAPI              m_wxAPI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_backup);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.hide();
 
         //通过WXAPIFactory工厂获取IWXApI的示例
         m_wxAPI = WXAPIFactory.createWXAPI(this, noteConfig.APP_ID_WX);//,true);
@@ -108,8 +101,6 @@ public class noteBackupActivity extends AppCompatActivity
         if (m_strUserID.length() > 6) {
             m_txtWechat.setText (m_strUserName + "已经登录，可以远程备份和恢复");
         }
-
-        m_hdlBackup = new backupHandler();
     }
 
     public void onClick(View v) {
@@ -137,7 +128,7 @@ public class noteBackupActivity extends AppCompatActivity
 
     private void noteBackup () {
         if (m_strUserID.length() < 6) {
-            showMsgDlg ("远程备份", "请先登录微信！");
+            showMsgDlg ("远程备份", "请先登录微信！", false);
             return;
         }
         m_prgBackup.setProgress(0);
@@ -152,7 +143,7 @@ public class noteBackupActivity extends AppCompatActivity
 
     private void noteRestore () {
         if (m_strUserID.length() < 6) {
-            showMsgDlg ("远程备份", "请先登录微信！");
+            showMsgDlg ("远程备份", "请先登录微信！", false);
             return;
         }
         m_prgBackup.setProgress(0);
@@ -180,24 +171,13 @@ public class noteBackupActivity extends AppCompatActivity
         return false;
     }
 
-    private void showMsgDlg(String strTitle, String strMsg){
-        final AlertDialog.Builder msgDialog = new AlertDialog.Builder(noteBackupActivity.this);
-        msgDialog.setIcon(R.drawable.app_menu_icon);
-        if (strTitle != null)
-            msgDialog.setTitle(strTitle);
-        if (strMsg != null)
-            msgDialog.setMessage(strMsg);
-        msgDialog.setPositiveButton("确定", null);
-        msgDialog.show();
-    }
-
     public void onOssProgress (int nProgress, int nTotal){
         int nCurPages = m_nFileIndex * 100 / m_nFileCount;
         int nPercent = nCurPages + (nProgress * 100 / nTotal) / m_nFileCount;
         String strInfo = String.format("Index: %d  Total: %d  Prog: %d  Total: %d  Percent: %d",
                                             m_nFileIndex, m_nFileCount, nProgress, nTotal, nPercent);
         Log.v ("noteBackup", strInfo);
-        Message msg = m_hdlBackup.obtainMessage(BMSG_PROCESS, nPercent, 0, null);
+        Message msg = m_msgHandler.obtainMessage(MSG_OSS_PROCESS, nPercent, 0, null);
         msg.sendToTarget();
     }
 
@@ -217,7 +197,7 @@ public class noteBackupActivity extends AppCompatActivity
                     uloadFiles ();
                 else
                     downloadFiles();
-                Message msg = m_hdlBackup.obtainMessage(BMSG_END, 0, 0, null);
+                Message msg = m_msgHandler.obtainMessage(MSG_OSS_END, 0, 0, null);
                 msg.sendToTarget();
             }
         }).start();
@@ -283,16 +263,16 @@ public class noteBackupActivity extends AppCompatActivity
 
     class backupHandler extends Handler {
         public void handleMessage(Message msg) {
-            if (msg.what == BMSG_PROCESS) {
+            if (msg.what == MSG_OSS_PROCESS) {
                 if (m_bUploading)
                     m_prgBackup.setProgress(msg.arg1);
                 else
                     m_prgRestore.setProgress(msg.arg1);
-            } else if (msg.what == BMSG_END) {
+            } else if (msg.what == MSG_OSS_END) {
                 if (m_bUploading)
-                    showMsgDlg ("远程备份", "远程备份成功！");
+                    showMsgDlg ("远程备份", "远程备份成功！", false);
                 else
-                    showMsgDlg ("远程恢复", "远程恢复完成！");
+                    showMsgDlg ("远程恢复", "远程恢复完成！", false);
 
                 m_prgBackup.setProgress(0);
                 m_prgRestore.setProgress(0);

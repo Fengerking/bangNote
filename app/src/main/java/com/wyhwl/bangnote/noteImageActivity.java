@@ -11,7 +11,7 @@ import android.widget.ImageButton;
 
 import com.wyhwl.bangnote.view.*;
 
-public class noteImageActivity extends AppCompatActivity
+public class noteImageActivity extends noteBaseActivity
                 implements noteImageShow.noteImageShowListener {
     private noteImageSlider     m_imgSlider = null;
 
@@ -31,9 +31,6 @@ public class noteImageActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_image);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null)
-            actionBar.hide();
 
         initViews ();
     }

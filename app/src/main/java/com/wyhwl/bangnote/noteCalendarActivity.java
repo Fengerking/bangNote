@@ -25,7 +25,7 @@ import com.wyhwl.bangnote.base.noteDateAdapter;
 import com.wyhwl.bangnote.base.noteListAdapter;
 import com.wyhwl.bangnote.view.*;
 
-public class noteCalendarActivity extends AppCompatActivity
+public class noteCalendarActivity extends noteBaseActivity
                                     implements View.OnClickListener,
                                     AdapterView.OnItemClickListener,
                                     noteCalendarView.noteCalendarListener {
@@ -53,8 +53,6 @@ public class noteCalendarActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_calendar);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.hide();
 
         initViews();
     }

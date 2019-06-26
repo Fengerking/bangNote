@@ -23,7 +23,7 @@ import com.wyhwl.bangnote.video.StrokeTextView;
 
 import java.util.Date;
 
-public class noteVideoActivity extends AppCompatActivity
+public class noteVideoActivity extends noteBaseActivity
                                 implements MediaPlayer.OnPreparedListener,
                                             MediaPlayer.OnCompletionListener,
                                             MediaPlayer.OnErrorListener,
@@ -31,8 +31,7 @@ public class noteVideoActivity extends AppCompatActivity
                                             MediaPlayer.OnVideoSizeChangedListener,
                                             MediaPlayer.OnSeekCompleteListener,
                                             View.OnClickListener {
-    private final static int    MSG_UPDATE_UI   = 100;
-    private final static int    MSG_HIDE_BUTTON = 101;
+
 
     private VideoView           m_vwVideo = null;
 
@@ -44,8 +43,6 @@ public class noteVideoActivity extends AppCompatActivity
     private StrokeTextView      m_txtPos        = null;
     private StrokeTextView      m_txtDur        = null;
     private SeekBar             m_sbPos         = null;
-
-    private updateHandler       m_updHandler    = null;
 
     private boolean             m_bPlaying      = false;
     private int                 m_nWidth        = 0;
@@ -61,9 +58,6 @@ public class noteVideoActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_video);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null)
-            actionBar.hide();
 
         Intent intent = getIntent();
         Uri uri = intent.getData();
@@ -117,8 +111,6 @@ public class noteVideoActivity extends AppCompatActivity
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { }
         });
 
-        m_updHandler = new updateHandler();
-
         m_layVideo.postDelayed(()->hideSystemViews(), 20);
 
         m_layVideo.postDelayed(()->openVideo(), 10);
@@ -135,7 +127,7 @@ public class noteVideoActivity extends AppCompatActivity
         m_nDuration = mp.getDuration();
         UpdateSurfaceViewPos (m_nWidth, m_nHeight);
         playVideo ();
-        m_updHandler.sendEmptyMessageDelayed(MSG_UPDATE_UI, 500);
+        m_msgHandler.sendEmptyMessageDelayed(MSG_UPDATE_UI, 500);
     }
 
     public void onCompletion(MediaPlayer mp){
@@ -239,7 +231,7 @@ public class noteVideoActivity extends AppCompatActivity
         if (m_layButtons.getVisibility() == View.INVISIBLE)
             m_layButtons.setVisibility(View.VISIBLE);
         m_lLastTime = System.currentTimeMillis();
-        m_updHandler.sendEmptyMessageDelayed(MSG_HIDE_BUTTON, m_lShowTime);
+        m_msgHandler.sendEmptyMessageDelayed(MSG_HIDE_BUTTON, m_lShowTime);
     }
 
     private void hideControls () {
@@ -268,13 +260,13 @@ public class noteVideoActivity extends AppCompatActivity
                     m_sbPos.setProgress(nPos);
                 }
 
-                m_updHandler.sendEmptyMessageDelayed(MSG_UPDATE_UI, 500);
+                m_msgHandler.sendEmptyMessageDelayed(MSG_UPDATE_UI, 500);
             } else if (msg.what == MSG_HIDE_BUTTON) {
                 long lNowTime = System.currentTimeMillis();
                 if (lNowTime - m_lLastTime >= m_lShowTime) {
                     hideControls();
                 } else {
-                    m_updHandler.sendEmptyMessageDelayed(MSG_HIDE_BUTTON, m_lShowTime - (lNowTime - m_lLastTime));
+                    m_msgHandler.sendEmptyMessageDelayed(MSG_HIDE_BUTTON, m_lShowTime - (lNowTime - m_lLastTime));
                 }
             }
         }

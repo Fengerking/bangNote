@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class mediaSelectActivity extends AppCompatActivity
+public class mediaSelectActivity extends noteBaseActivity
                                     implements View.OnClickListener,
                                         AdapterView.OnItemClickListener,
                                             AdapterView.OnItemLongClickListener {
@@ -43,14 +43,10 @@ public class mediaSelectActivity extends AppCompatActivity
     private boolean                 m_bVideoOnly = false;
     private String                  m_strFolder = null;
 
-    private Dialog                  m_dlgWait = null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_select);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.hide();
 
         initViews();
     }
@@ -300,23 +296,6 @@ public class mediaSelectActivity extends AppCompatActivity
         }
     }
 
-    private void showWaitDialog(String strMsg, boolean bShow) {
-        if (bShow) {
-            if (m_dlgWait == null) {
-                m_dlgWait = new Dialog(this, R.style.progress_dialog);
-                m_dlgWait.setContentView(R.layout.dialog_wait);
-                m_dlgWait.setCancelable(false);
-                m_dlgWait.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-                TextView txtMsg = (TextView) m_dlgWait.findViewById(R.id.tvLoadingText);
-                txtMsg.setText(strMsg);
-            }
-            m_dlgWait.show();
-        } else {
-            if (m_dlgWait == null)
-                return;
-            m_dlgWait.dismiss();
-            m_dlgWait = null;
-        }
-    }
+
 }
 

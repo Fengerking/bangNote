@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AlertDialog;
 
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -45,7 +44,7 @@ import com.wyhwl.bangnote.view.*;
 import com.wyhwl.bangnote.lock.LockActivity;
 import com.wyhwl.bangnote.lock.LockSettingActivity;
 
-public class noteListActivity extends AppCompatActivity
+public class noteListActivity extends noteBaseActivity
                               implements noteListSlider.switchListener,
                                             AdapterView.OnItemClickListener,
                                             AdapterView.OnItemLongClickListener,
@@ -83,9 +82,6 @@ public class noteListActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_list);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null)
-            actionBar.hide();
 
         m_noteInfo = new noteBaseInfo(this);
         initViews();
@@ -294,9 +290,9 @@ public class noteListActivity extends AppCompatActivity
             } else if (strCommand.compareTo("备份笔记") == 0) {
                 noteBackupRestore noteBackup = new noteBackupRestore(this);
                 if (noteBackup.backupNote () > 0)
-                    showMsgDlg ("备份笔记成功", null);
+                    showMsgDlg ("备份笔记成功", null, false);
                 else
-                    showMsgDlg ("备份笔记失败", null);
+                    showMsgDlg ("备份笔记失败", null, false);
                 m_sldList.scrollToPage (1);
             } else if (strCommand.compareTo("恢复备份") == 0) {
                 noteBackupRestore noteBackup = new noteBackupRestore(this);
@@ -305,9 +301,9 @@ public class noteListActivity extends AppCompatActivity
                     noteConfig.m_lstData.fillFileList(noteConfig.m_strNotePath);
                     fillLeftList(false);
                     updateList();
-                    showMsgDlg("恢复笔记成功", null);
+                    showMsgDlg("恢复笔记成功", null, false);
                 } else {
-                    showMsgDlg("恢复笔记失败", null);
+                    showMsgDlg("恢复笔记失败", null, false);
                 }
                 m_sldList.scrollToPage (1);
             } else if (strCommand.compareTo("远程备份") == 0) {
@@ -567,7 +563,7 @@ public class noteListActivity extends AppCompatActivity
             noteApplication.getInstance().writeLockKey(strKeyFile);
             noteConfig.m_nShowSecurity = 1;
             fillLeftList(false);
-            showMsgDlg("密记已经激活", "先添加密记笔记类型");
+            showMsgDlg("密记已经激活", "先添加密记笔记类型", false);
          } else if (requestCode == ACTIVITY_NOTEUNLOCK) {
             if (!noteApplication.getInstance().m_isUnlock)
                 return;
@@ -577,226 +573,131 @@ public class noteListActivity extends AppCompatActivity
         }
     }
 
-    private void addNoteTypeDialog() {
-        final View noteTypeView = LayoutInflater.from(noteListActivity.this)
-                .inflate(R.layout.note_type_input,null);
-        AlertDialog.Builder dlgNoteType = new AlertDialog.Builder(noteListActivity.this){
-            public AlertDialog create() {
-                RadioButton rbnNormal = (RadioButton)noteTypeView.findViewById(R.id.noteTypeNormal);
+    protected void onDlgCreate () {
+        switch (m_dlgParam.nType) {
+            case DLG_NOTETYPE_NEW:
+                RadioButton rbnNormal = (RadioButton)m_dlgParam.dlgView.findViewById(R.id.noteTypeNormal);
                 rbnNormal.setChecked(true);
-                RadioButton rbnSecurity = (RadioButton)noteTypeView.findViewById(R.id.noteTypeSecurity);
+                RadioButton rbnSecurity = (RadioButton)m_dlgParam.dlgView.findViewById(R.id.noteTypeSecurity);
                 rbnSecurity.setChecked(false);
                 if (noteConfig.m_nShowSecurity == 0) {
-                    noteTypeView.findViewById(R.id.laySecurity).setVisibility(View.INVISIBLE);
+                    m_dlgParam.dlgView.findViewById(R.id.laySecurity).setVisibility(View.INVISIBLE);
                 }
-                return super.create();
-            }
-            public AlertDialog show() {
-                return super.show();
-            }
-        };
+                break;
 
-        dlgNoteType.setIcon(R.drawable.notetype_aa);
-        dlgNoteType.setTitle("输入笔记类型名称：");
-        dlgNoteType.setView(noteTypeView);
-        dlgNoteType.setNeutralButton("取消",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        m_sldList.scrollToPage (1);
-                    }
-                });
-        dlgNoteType.setPositiveButton("确定",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        String strType = ((EditText)noteTypeView.findViewById(R.id.noteType)).getText().toString();
-                        RadioButton rtbSecurity = (RadioButton)noteTypeView.findViewById(R.id.noteTypeSecurity);
-                        if (strType.length() > 0) {
-                            int nRC = 0;
-                            if (rtbSecurity.isChecked())
-                                nRC = noteConfig.m_noteTypeMng.addType(strType, 10);
-                            else
-                                nRC = noteConfig.m_noteTypeMng.addType(strType, 0);
-                            if (nRC < 0)
-                                Toast.makeText(noteListActivity.this, "增加笔记类型失败了！", Toast.LENGTH_SHORT).show();
-                            else {
-                                m_sldList.scrollToPage (1);
-                                fillLeftList(true);
-                            }
+            case DLG_NOTETYPE_DEL:
+                LinearLayout layItems = (LinearLayout)m_dlgParam.dlgView.findViewById(R.id.layItems);
+                noteTypeMng.noteTypeItem    itemType = null;
+                int                         nCount = noteConfig.m_noteTypeMng.getCount();
+                for (int i = 0; i < nCount; i++) {
+                    itemType = noteConfig.m_noteTypeMng.getItem(i);
+                    if (noteConfig.m_nShowSecurity == 0 && itemType.m_nLevel >= 10)
+                        continue;
+                    if (itemType.m_nLevel < 0)
+                        continue;
+
+                    CheckBox chkNoteType = new CheckBox(noteListActivity.this);
+                    chkNoteType.setText(itemType.m_strName);
+                    chkNoteType.setChecked(false);
+                    layItems.addView(chkNoteType);
+
+                    dataNoteItem itemData = null;
+                    int nAllCount = noteConfig.m_lstData.m_lstAllItem.size();
+                    for (int j = 0; j < nAllCount; j++) {
+                        itemData = noteConfig.m_lstData.m_lstAllItem.get(j);
+                        if (itemData.m_strType.compareTo(itemType.m_strName) == 0) {
+                            chkNoteType.setEnabled(false);
+                            break;
                         }
                     }
-                });
-        dlgNoteType.show();
+                }
+                break;
+
+            case DLG_NOTETYPE_CHG:
+                EditText edtType = (EditText)m_dlgParam.dlgView.findViewById(R.id.edtOldType);
+                edtType.setText(noteConfig.m_noteTypeMng.getCurType());
+                edtType.setEnabled(false);
+                break;
+
+            case DLG_NOTETYPE_MOV:
+                Spinner spnType = (Spinner)m_dlgParam.dlgView.findViewById(R.id.spinNoteType);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                        noteListActivity.this, R.layout.spn_note_type, noteConfig.m_noteTypeMng.getListName(false));
+                spnType.setAdapter(adapter);
+                break;
+
+            case DLG_NOTEITEM_DEL:
+                m_lstRubbish.clear();
+                layItems = (LinearLayout)m_dlgParam.dlgView.findViewById(R.id.layItems);
+                dataNoteItem itemData = null;
+                int nAllCount = noteConfig.m_lstData.m_lstAllItem.size();
+                for (int j = 0; j < nAllCount; j++) {
+                    itemData = noteConfig.m_lstData.m_lstAllItem.get(j);
+                    if (itemData.m_strType.compareTo(noteConfig.m_noteTypeMng.m_strRubbish) != 0) {
+                        continue;
+                    }
+                    CheckBox chkNoteType = new CheckBox (noteListActivity.this);
+                    if (itemData.m_strTitle.length() > 0)
+                        chkNoteType.setText(itemData.m_strTitle);
+                    else if (itemData.m_strFirstLine.length() > 0)
+                        chkNoteType.setText(itemData.m_strFirstLine);
+                    else
+                        chkNoteType.setText("没有标题");
+                    chkNoteType.setChecked(false);
+                    m_lstRubbish.add(itemData);
+                    layItems.addView(chkNoteType);
+                }
+                if (layItems.getChildCount() <= 0) {
+                    TextView tvText = new TextView(noteListActivity.this);
+                    tvText.setText("没有垃圾笔记！");
+                    layItems.addView(tvText);
+                }
+                break;
+        }
     }
 
-    private void delNoteTypeDialog() {
-        final View noteDelView = LayoutInflater.from(noteListActivity.this)
-                .inflate(R.layout.note_type_delete,null);
-        AlertDialog.Builder dlgNoteTDel =
-                new AlertDialog.Builder(noteListActivity.this){
-                    public AlertDialog create() {
-                        LinearLayout layItems = (LinearLayout)noteDelView.findViewById(R.id.layItems);
-                        noteTypeMng.noteTypeItem    itemType = null;
-                        int                         nCount = noteConfig.m_noteTypeMng.getCount();
-                        for (int i = 0; i < nCount; i++) {
-                            itemType = noteConfig.m_noteTypeMng.getItem(i);
-                            if (noteConfig.m_nShowSecurity == 0 && itemType.m_nLevel >= 10)
-                                continue;
-                            if (itemType.m_nLevel < 0)
-                                continue;
+    protected void onDlgShow () {
+    }
 
-                            CheckBox chkNoteType = new CheckBox (noteListActivity.this);
-                            chkNoteType.setText(itemType.m_strName);
-                            chkNoteType.setChecked(false);
-                            layItems.addView(chkNoteType);
-
-                            dataNoteItem itemData = null;
-                            int nAllCount = noteConfig.m_lstData.m_lstAllItem.size();
-                            for (int j = 0; j < nAllCount; j++) {
-                                itemData = noteConfig.m_lstData.m_lstAllItem.get(j);
-                                if (itemData.m_strType.compareTo(itemType.m_strName) == 0) {
-                                    chkNoteType.setEnabled(false);
-                                    break;
-                                }
-                            }
-                        }
-                        return super.create();
+    protected void onDlgOK () {
+        String strType = "";
+        switch (m_dlgParam.nType) {
+            case DLG_NOTETYPE_NEW:
+                strType = ((EditText)m_dlgParam.dlgView.findViewById(R.id.noteType)).getText().toString();
+                RadioButton rtbSecurity = (RadioButton)m_dlgParam.dlgView.findViewById(R.id.noteTypeSecurity);
+                if (strType.length() > 0) {
+                    int nRC = 0;
+                    if (rtbSecurity.isChecked())
+                        nRC = noteConfig.m_noteTypeMng.addType(strType, 10);
+                    else
+                        nRC = noteConfig.m_noteTypeMng.addType(strType, 0);
+                    if (nRC < 0)
+                        showMsgDlg("增加笔记类型", "操作失败。", false);
+                    else {
+                        m_sldList.scrollToPage (1);
+                        fillLeftList(true);
                     }
-                    public AlertDialog show() {
-                        return super.show();
-                    }
-                };
+                }
+                break;
 
-        dlgNoteTDel.setIcon(R.drawable.notetype_del);
-        dlgNoteTDel.setTitle("删除笔记类型");
-        dlgNoteTDel.setView(noteDelView);
-        dlgNoteTDel.setNeutralButton("取消", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                m_sldList.scrollToPage (1);
-            }
-        });
-        dlgNoteTDel.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                LinearLayout    layItems = (LinearLayout)noteDelView.findViewById(R.id.layItems);
+            case DLG_NOTETYPE_DEL:
+                LinearLayout    layItems = (LinearLayout)m_dlgParam.dlgView.findViewById(R.id.layItems);
                 int             nCount = layItems.getChildCount();
                 CheckBox        chkNoteType = null;
                 for (int i = 0; i < nCount; i++) {
                     chkNoteType = (CheckBox)layItems.getChildAt(i);
                     if (chkNoteType.isChecked()) {
-                        String strType = chkNoteType.getText().toString();
+                        strType = chkNoteType.getText().toString();
                         noteConfig.m_noteTypeMng.delType(strType);
                     }
                 }
                 m_sldList.scrollToPage (1);
                 fillLeftList(true);
-            }
-        });
-        dlgNoteTDel.show();
-    }
+                break;
 
-    private void delNoteItemDialog() {
-        final View noteDelView = LayoutInflater.from(noteListActivity.this)
-                .inflate(R.layout.note_type_delete,null);
-        AlertDialog.Builder dlgNoteTDel =
-                new AlertDialog.Builder(noteListActivity.this){
-                    public AlertDialog create() {
-                        m_lstRubbish.clear();
-                        LinearLayout layItems = (LinearLayout)noteDelView.findViewById(R.id.layItems);
-                        dataNoteItem itemData = null;
-                        int nAllCount = noteConfig.m_lstData.m_lstAllItem.size();
-                        for (int j = 0; j < nAllCount; j++) {
-                            itemData = noteConfig.m_lstData.m_lstAllItem.get(j);
-                            if (itemData.m_strType.compareTo(noteConfig.m_noteTypeMng.m_strRubbish) != 0) {
-                                continue;
-                            }
-                            CheckBox chkNoteType = new CheckBox (noteListActivity.this);
-                            if (itemData.m_strTitle.length() > 0)
-                                chkNoteType.setText(itemData.m_strTitle);
-                            else
-                                chkNoteType.setText(itemData.m_strFirstLine);
-                            chkNoteType.setChecked(false);
-                            m_lstRubbish.add(itemData);
-                            layItems.addView(chkNoteType);
-                        }
-                        if (layItems.getChildCount() <= 0) {
-                            TextView tvText = new TextView(noteListActivity.this);
-                            tvText.setText("没有垃圾笔记！");
-                            layItems.addView(tvText);
-                        }
-                        return super.create();
-                    }
-                    public AlertDialog show() {
-                        return super.show();
-                    }
-                };
-
-        dlgNoteTDel.setIcon(R.drawable.notetype_del);
-        dlgNoteTDel.setTitle("清理垃圾笔记");
-        dlgNoteTDel.setView(noteDelView);
-        dlgNoteTDel.setNeutralButton("取消", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                m_sldList.scrollToPage (1);
-            }
-        });
-        dlgNoteTDel.setNegativeButton("全部删除", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                int             nCount = m_lstRubbish.size();
-                for (int i = 0; i < nCount; i++) {
-                    dataNoteItem dataItem = m_lstRubbish.get(i);
-                    delDataItemContent (dataItem, true);
-                }
-                m_sldList.scrollToPage (1);
-                if (nCount > 0)
-                    updateList();
-            }
-        });
-        dlgNoteTDel.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                LinearLayout    layItems = (LinearLayout)noteDelView.findViewById(R.id.layItems);
-                int             nCount = m_lstRubbish.size();
-                CheckBox        chkNoteType = null;
-                for (int i = 0; i < nCount; i++) {
-                    chkNoteType = (CheckBox)layItems.getChildAt(i);
-                    if (chkNoteType.isChecked()) {
-                        dataNoteItem dataItem = m_lstRubbish.get(i);
-                        delDataItemContent (dataItem, true);
-                    }
-                }
-                m_sldList.scrollToPage (1);
-                if (nCount > 0)
-                    updateList();
-            }
-        });
-        dlgNoteTDel.show();
-    }
-
-    private void chgNoteTypeDialog() {
-        final View noteChgView = LayoutInflater.from(noteListActivity.this)
-                .inflate(R.layout.note_type_modify,null);
-        AlertDialog.Builder dlgNoteTDel =
-                new AlertDialog.Builder(noteListActivity.this){
-                    public AlertDialog create() {
-                        return super.create();
-                    }
-                    public AlertDialog show() {
-                        EditText edtType = (EditText)noteChgView.findViewById(R.id.edtOldType);
-                        edtType.setText(noteConfig.m_noteTypeMng.getCurType());
-                        edtType.setEnabled(false);
-                        return super.show();
-                    }
-                };
-
-        dlgNoteTDel.setIcon(R.drawable.notetype_del);
-        dlgNoteTDel.setTitle("修改笔记类型名称");
-        dlgNoteTDel.setView(noteChgView);
-        dlgNoteTDel.setNeutralButton("取消", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                m_sldList.scrollToPage (1);
-            }
-        });
-        dlgNoteTDel.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                String strOldType = ((EditText)noteChgView.findViewById(R.id.edtOldType)).getText().toString();
-                String strNewType = ((EditText)noteChgView.findViewById(R.id.edtNewType)).getText().toString();
+            case DLG_NOTETYPE_CHG:
+                String strOldType = ((EditText)m_dlgParam.dlgView.findViewById(R.id.edtOldType)).getText().toString();
+                String strNewType = ((EditText)m_dlgParam.dlgView.findViewById(R.id.edtNewType)).getText().toString();
                 if (noteConfig.m_noteTypeMng.changeType(strOldType, strNewType) < 0) {
                     return;
                 }
@@ -812,42 +713,14 @@ public class noteListActivity extends AppCompatActivity
                 m_sldList.scrollToPage (1);
                 fillLeftList(true);
                 updateList();
-            }
-        });
-        dlgNoteTDel.show();
-    }
+                break;
 
-    private void movNoteTypeDialog() {
-        final View noteMovView = LayoutInflater.from(noteListActivity.this)
-                .inflate(R.layout.note_type_move,null);
-        AlertDialog.Builder dlgNoteTDel = new AlertDialog.Builder(noteListActivity.this){
-            public AlertDialog create() {
-                Spinner spnType = (Spinner)noteMovView.findViewById(R.id.spinNoteType);
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                        noteListActivity.this, R.layout.spn_note_type, noteConfig.m_noteTypeMng.getListName(false));
-                spnType.setAdapter(adapter);
-                return super.create();
-            }
-            public AlertDialog show() {
-                return super.show();
-            }
-        };
-
-        dlgNoteTDel.setIcon(R.drawable.notetype_del);
-        dlgNoteTDel.setTitle("把选中笔记移到新的类型");
-        dlgNoteTDel.setView(noteMovView);
-        dlgNoteTDel.setNeutralButton("取消", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                m_sldList.scrollToPage (1);
-            }
-        });
-        dlgNoteTDel.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Spinner spnType = (Spinner)noteMovView.findViewById(R.id.spinNoteType);
+            case DLG_NOTETYPE_MOV:
+                Spinner spnType = (Spinner)m_dlgParam.dlgView.findViewById(R.id.spinNoteType);
                 int     nSel = spnType.getSelectedItemPosition();
                 String  strNoteType = (String)spnType.getAdapter().getItem(nSel);
                 dataNoteItem    dataItem = null;
-                int             nCount = noteConfig.m_lstData.getCount();
+                nCount = noteConfig.m_lstData.getCount();
                 for (int i = 0; i < nCount; i++) {
                     dataItem = (dataNoteItem)noteConfig.m_lstData.getItem(i);
                     if (dataItem.isSelect()) {
@@ -857,20 +730,96 @@ public class noteListActivity extends AppCompatActivity
                 }
                 m_sldList.scrollToPage (1);
                 updateList();
+                break;
+
+            case DLG_NOTEITEM_DEL:
+                layItems = (LinearLayout)m_dlgParam.dlgView.findViewById(R.id.layItems);
+                nCount = m_lstRubbish.size();
+                for (int i = 0; i < nCount; i++) {
+                    chkNoteType = (CheckBox)layItems.getChildAt(i);
+                    if (chkNoteType.isChecked()) {
+                        dataItem = m_lstRubbish.get(i);
+                        delDataItemContent (dataItem, true);
+                    }
+                }
+                m_sldList.scrollToPage (1);
+                if (nCount > 0)
+                    updateList();
+                break;
+
+        }
+        m_sldList.scrollToPage (1);
+    }
+    protected void onDlgCnacel () {
+        m_sldList.scrollToPage (1);
+    }
+    protected void onDlgOther () {
+        if (m_dlgParam.nType == DLG_NOTEITEM_DEL) {
+            int nCount = m_lstRubbish.size();
+            for (int i = 0; i < nCount; i++) {
+                dataNoteItem dataItem = m_lstRubbish.get(i);
+                delDataItemContent (dataItem, true);
             }
-        });
-        dlgNoteTDel.show();
+            m_sldList.scrollToPage (1);
+            if (nCount > 0)
+                updateList();
+        }
     }
 
-    private void showMsgDlg(String strTitle, String strMsg){
-        final AlertDialog.Builder msgDialog = new AlertDialog.Builder(noteListActivity.this);
-        msgDialog.setIcon(R.drawable.app_menu_icon);
-        if (strTitle != null)
-            msgDialog.setTitle(strTitle);
-        if (strMsg != null)
-            msgDialog.setMessage(strMsg);
-        msgDialog.setPositiveButton("确定", null);
-        msgDialog.show();
+    private void addNoteTypeDialog() {
+        initDlgParam();
+        m_dlgParam.nType = DLG_NOTETYPE_NEW;
+        m_dlgParam.nIcon = R.drawable.notetype_aa;
+        m_dlgParam.nView = R.layout.note_type_input;
+        m_dlgParam.strTitle = "输入笔记类型名称：";
+        m_dlgParam.strCancel = "取消";
+        m_dlgParam.strOK = "确定";
+        showNoteDialog ();
+    }
+
+    private void delNoteTypeDialog() {
+        initDlgParam();
+        m_dlgParam.nType = DLG_NOTETYPE_DEL;
+        m_dlgParam.nIcon = R.drawable.notetype_del;
+        m_dlgParam.nView = R.layout.note_type_delete;
+        m_dlgParam.strTitle = "删除笔记类型：";
+        m_dlgParam.strCancel = "取消";
+        m_dlgParam.strOK = "确定";
+        showNoteDialog ();
+    }
+
+    private void chgNoteTypeDialog() {
+        initDlgParam();
+        m_dlgParam.nType = DLG_NOTETYPE_CHG;
+        m_dlgParam.nIcon = R.drawable.notetype_del;
+        m_dlgParam.nView = R.layout.note_type_modify;
+        m_dlgParam.strTitle = "修改笔记类型名称：";
+        m_dlgParam.strCancel = "取消";
+        m_dlgParam.strOK = "确定";
+        showNoteDialog ();
+    }
+
+    private void movNoteTypeDialog() {
+        initDlgParam();
+        m_dlgParam.nType = DLG_NOTETYPE_MOV;
+        m_dlgParam.nIcon = R.drawable.notetype_del;
+        m_dlgParam.nView = R.layout.note_type_move;
+        m_dlgParam.strTitle = "把选中笔记移到新的类型";
+        m_dlgParam.strCancel = "取消";
+        m_dlgParam.strOK = "确定";
+        showNoteDialog ();
+    }
+
+    private void delNoteItemDialog() {
+        initDlgParam();
+        m_dlgParam.nType = DLG_NOTEITEM_DEL;
+        m_dlgParam.nIcon = R.drawable.notetype_del;
+        m_dlgParam.nView = R.layout.note_type_delete;
+        m_dlgParam.strTitle = "清理垃圾笔记";
+        m_dlgParam.strCancel = "取消";
+        m_dlgParam.strOK = "确定";
+        m_dlgParam.strOther = "全部删除";
+        showNoteDialog ();
     }
 
     public void CheckWritePermission () {
@@ -899,6 +848,10 @@ public class noteListActivity extends AppCompatActivity
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //成功
                     //Toast.makeText(this, "用户授权相机权限", Toast.LENGTH_SHORT).show();
+                    noteConfig.m_noteTypeMng.readFromFile();
+                    noteConfig.m_lstData.fillFileList(noteConfig.m_strNotePath);
+                    fillLeftList(false);
+                    updateList();
                 } else {
                     // 勾选了不再询问
                     Toast.makeText(this, "用户拒绝相机权限", Toast.LENGTH_SHORT).show();
