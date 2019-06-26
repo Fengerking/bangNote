@@ -2,6 +2,7 @@ package com.wyhwl.bangnote;
 
 import android.app.DatePickerDialog;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 
@@ -79,7 +80,7 @@ public class noteEditActivity extends AppCompatActivity
     private int             m_requestCode;
     private int             m_resultCode;
     private Intent          m_intentData;
-    private ProgressDialog  m_dlgWait = null;
+    private Dialog          m_dlgWait = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -522,12 +523,12 @@ public class noteEditActivity extends AppCompatActivity
         m_intentData = data;
 
         showWaitDialog("加载中。。。", true);
-        m_layView.postDelayed(()->onActivityResult(), 100);
+        m_layView.postDelayed(()->doActivityResult(), 10);
     }
 
-    private void onActivityResult () {
-        implementResult ();
-        showWaitDialog(null, false);
+    private void doActivityResult() {
+         implementResult ();
+         showWaitDialog(null, false);
     }
 
     private void implementResult () {
@@ -805,11 +806,12 @@ public class noteEditActivity extends AppCompatActivity
     private void showWaitDialog(String strMsg, boolean bShow) {
         if (bShow) {
             if (m_dlgWait == null) {
-                m_dlgWait = new ProgressDialog(noteEditActivity.this);
-                m_dlgWait.setIndeterminate(true);
-                m_dlgWait.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                m_dlgWait.setMessage(strMsg);
+                m_dlgWait = new Dialog(this, R.style.progress_dialog);
+                m_dlgWait.setContentView(R.layout.dialog_wait);
                 m_dlgWait.setCancelable(false);
+                m_dlgWait.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                TextView txtMsg = (TextView) m_dlgWait.findViewById(R.id.tvLoadingText);
+                txtMsg.setText(strMsg);
             }
             m_dlgWait.show();
         } else {

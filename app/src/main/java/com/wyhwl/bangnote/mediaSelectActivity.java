@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.app.ProgressDialog;
+import android.app.Dialog;
 
 import com.wyhwl.bangnote.base.mediaSelectAdapter;
 import com.wyhwl.bangnote.base.mediaSelectAdapter.mediaItem;
@@ -43,7 +43,7 @@ public class mediaSelectActivity extends AppCompatActivity
     private boolean                 m_bVideoOnly = false;
     private String                  m_strFolder = null;
 
-    private ProgressDialog          m_dlgWait = null;
+    private Dialog                  m_dlgWait = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -303,11 +303,12 @@ public class mediaSelectActivity extends AppCompatActivity
     private void showWaitDialog(String strMsg, boolean bShow) {
         if (bShow) {
             if (m_dlgWait == null) {
-                m_dlgWait = new ProgressDialog(mediaSelectActivity.this);
-                m_dlgWait.setIndeterminate(true);
-                m_dlgWait.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                m_dlgWait.setMessage(strMsg);
+                m_dlgWait = new Dialog(this, R.style.progress_dialog);
+                m_dlgWait.setContentView(R.layout.dialog_wait);
                 m_dlgWait.setCancelable(false);
+                m_dlgWait.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                TextView txtMsg = (TextView) m_dlgWait.findViewById(R.id.tvLoadingText);
+                txtMsg.setText(strMsg);
             }
             m_dlgWait.show();
         } else {
