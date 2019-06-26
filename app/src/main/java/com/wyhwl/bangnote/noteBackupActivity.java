@@ -4,12 +4,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.util.Log;
@@ -95,6 +93,9 @@ public class noteBackupActivity extends noteBaseActivity
         m_btnBackup.setOnClickListener(this);
         m_btnRestore.setOnClickListener(this);
 
+        ((Button)findViewById(R.id.btnLocalBackup)).setOnClickListener(this);
+        ((Button)findViewById(R.id.btnLocalRestore)).setOnClickListener(this);
+
         m_prgBackup = (ProgressBar)findViewById(R.id.pgbBackup);
         m_prgRestore = (ProgressBar)findViewById(R.id.pgbRestore);
 
@@ -121,6 +122,16 @@ public class noteBackupActivity extends noteBaseActivity
                 noteRestore ();
                 break;
 
+            case R.id.btnLocalBackup:
+                backupLocalThread (0);
+                showWaitDialog("正在备份笔记到本地。。。", true);
+                break;
+
+            case R.id.btnLocalRestore:
+                backupLocalThread (1);
+                showWaitDialog("正在从本地恢复笔记。。。", true);
+                break;
+
             default:
                 break;
         }
@@ -135,10 +146,8 @@ public class noteBackupActivity extends noteBaseActivity
         m_prgRestore.setProgress(0);
         m_bUploading = true;
 
-        noteBackupRestore noteBackup = new noteBackupRestore(this);
-        noteBackup.backupNote();
-
         backupThread (0);
+        showWaitDialog("正在上传备份文件。。。",true);
     }
 
     private void noteRestore () {
@@ -151,6 +160,7 @@ public class noteBackupActivity extends noteBaseActivity
         m_bUploading = false;
 
         backupThread (1);
+        showWaitDialog("正在下载备份文件。。。",true);
     }
 
     private void wechatLogin () {
@@ -185,7 +195,6 @@ public class noteBackupActivity extends noteBaseActivity
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-
     private void backupThread(int nType) {
         new Thread(new Runnable() {
             @Override
@@ -193,10 +202,13 @@ public class noteBackupActivity extends noteBaseActivity
                 m_btnWechat.setEnabled(false);
                 m_btnBackup.setEnabled(false);
                 m_btnRestore.setEnabled(false);
-                if (nType == 0)
-                    uloadFiles ();
-                else
+                if (nType == 0) {
+                    noteBackupRestore noteBackup = new noteBackupRestore(noteBackupActivity.this);
+                    noteBackup.backupNote();
+                    uloadFiles();
+                } else {
                     downloadFiles();
+                }
                 Message msg = m_msgHandler.obtainMessage(MSG_OSS_END, 0, 0, null);
                 msg.sendToTarget();
             }
@@ -261,25 +273,60 @@ public class noteBackupActivity extends noteBaseActivity
         noteConfig.m_lstData.fillFileList(noteConfig.m_strNotePath);
     }
 
-    class backupHandler extends Handler {
-        public void handleMessage(Message msg) {
-            if (msg.what == MSG_OSS_PROCESS) {
-                if (m_bUploading)
-                    m_prgBackup.setProgress(msg.arg1);
-                else
-                    m_prgRestore.setProgress(msg.arg1);
-            } else if (msg.what == MSG_OSS_END) {
-                if (m_bUploading)
-                    showMsgDlg ("远程备份", "远程备份成功！", false);
-                else
-                    showMsgDlg ("远程恢复", "远程恢复完成！", false);
+    private void backupLocalThread(int nType) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Message msg = null;
+                int     nRC = 0;
+                noteBackupRestore noteBackup = new noteBackupRestore(noteBackupActivity.this);
+                if (nType == 0) {
+                    nRC = noteBackup.backupNote();
+                    msg = m_msgHandler.obtainMessage(MSG_LOCAL_BACKUP, nRC, 0, null);
+                } else {
+                    nRC = noteBackup.restoreNote();
+                    if (nRC > 0) {
+                        noteConfig.m_bNoteModified = true;
+                        noteConfig.m_lstData.fillFileList(noteConfig.m_strNotePath);
+                    }
+                    msg = m_msgHandler.obtainMessage(MSG_LOCAL_RESTORE, nRC, 0, null);
+                }
+                msg.sendToTarget();
+            }
+        }).start();
+    }
 
-                m_prgBackup.setProgress(0);
-                m_prgRestore.setProgress(0);
+    protected void onMsgHandler (Message msg) {
+        if (msg.what == MSG_OSS_PROCESS) {
+            if (m_bUploading)
+                m_prgBackup.setProgress(msg.arg1);
+            else
+                m_prgRestore.setProgress(msg.arg1);
+        } else if (msg.what == MSG_OSS_END) {
+            showWaitDialog(null, false);
+            if (m_bUploading)
+                showMsgDlg ("远程备份", "远程备份成功！", false);
+            else
+                showMsgDlg ("远程恢复", "远程恢复完成！", false);
 
-                m_btnWechat.setEnabled(true);
-                m_btnBackup.setEnabled(true);
-                m_btnRestore.setEnabled(true);
+            m_prgBackup.setProgress(0);
+            m_prgRestore.setProgress(0);
+
+            m_btnWechat.setEnabled(true);
+            m_btnBackup.setEnabled(true);
+            m_btnRestore.setEnabled(true);
+        } else if (msg.what == MSG_LOCAL_BACKUP) {
+            showWaitDialog(null, false);
+            if (msg.arg1 > 0)
+                showMsgDlg ("备份笔记成功", null, false);
+            else
+                showMsgDlg ("备份笔记失败", null, false);
+        } else if (msg.what == MSG_LOCAL_RESTORE) {
+            showWaitDialog(null, false);
+            if (msg.arg1 > 0) {
+                showMsgDlg("恢复笔记成功", null, false);
+            } else {
+                showMsgDlg("恢复笔记失败", null, false);
             }
         }
     }

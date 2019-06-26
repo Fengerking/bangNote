@@ -306,7 +306,7 @@ public class noteListActivity extends noteBaseActivity
                     showMsgDlg("恢复笔记失败", null, false);
                 }
                 m_sldList.scrollToPage (1);
-            } else if (strCommand.compareTo("远程备份") == 0) {
+            } else if (strCommand.compareTo("备份管理") == 0) {
                 Intent intent = new Intent(noteListActivity.this, noteBackupActivity.class);
                 startActivityForResult(intent, ACTIVITY_BACKUP);
                 m_sldList.scrollToPage (1);
@@ -437,9 +437,9 @@ public class noteListActivity extends noteBaseActivity
         addRightCommand (listItem, "清除垃圾", R.drawable.lajitong);
         addRightCommand (listItem, "全部选中", R.drawable.notetype_selall);
         addRightCommand (listItem, "清除选择", R.drawable.notetype_selnone);
-        addRightCommand (listItem, "备份笔记", R.drawable.note_backup);
-        addRightCommand (listItem, "恢复备份", R.drawable.note_restore);
-        addRightCommand (listItem, "远程备份", R.drawable.note_send);
+        //addRightCommand (listItem, "备份笔记", R.drawable.note_backup);
+        //addRightCommand (listItem, "恢复备份", R.drawable.note_restore);
+        addRightCommand (listItem, "备份管理", R.drawable.note_send);
         addRightCommand (listItem, "激活密记", R.drawable.note_lock);
         addRightCommand (listItem, "笔记设置", R.drawable.note_setting);
         //addRightCommand (listItem, "退出笔记", R.drawable.note_exit);

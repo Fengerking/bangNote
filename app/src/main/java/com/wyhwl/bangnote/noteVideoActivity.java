@@ -238,36 +238,34 @@ public class noteVideoActivity extends noteBaseActivity
         m_layButtons.setVisibility(View.INVISIBLE);
     }
 
-    class updateHandler extends Handler {
-        public void handleMessage(Message msg) {
-            if (msg.what == MSG_UPDATE_UI) {
-                int nPos = m_vwVideo.getCurrentPosition();
-                if (nPos + 100 >= m_nDuration) {
-                    m_bPlaying = false;
-                    m_vwVideo.seekTo(0);
-                    playVideo();
-                }
+    protected void onMsgHandler (Message msg) {
+        if (msg.what == MSG_UPDATE_UI) {
+            int nPos = m_vwVideo.getCurrentPosition();
+            if (nPos + 100 >= m_nDuration) {
+                m_bPlaying = false;
+                m_vwVideo.seekTo(0);
+                playVideo();
+            }
 
-                String strPos = new String();
-                strPos = strPos.format("%02d:%02d / %02d:%02d  ", nPos / 60000, (nPos % 60000) / 1000, m_nDuration / 60000, (m_nDuration % 60000) / 1000);
-                m_txtPos.setText(strPos);
-                if (m_nDuration > 0) {
-                    nPos = nPos / (m_nDuration / 100);
-                    if (nPos < 2)
-                        nPos = 2;
-                    else if (nPos > 98)
-                        nPos = 98;
-                    m_sbPos.setProgress(nPos);
-                }
+            String strPos = new String();
+            strPos = strPos.format("%02d:%02d / %02d:%02d  ", nPos / 60000, (nPos % 60000) / 1000, m_nDuration / 60000, (m_nDuration % 60000) / 1000);
+            m_txtPos.setText(strPos);
+            if (m_nDuration > 0) {
+                nPos = nPos / (m_nDuration / 100);
+                if (nPos < 2)
+                    nPos = 2;
+                else if (nPos > 98)
+                    nPos = 98;
+                m_sbPos.setProgress(nPos);
+            }
 
-                m_msgHandler.sendEmptyMessageDelayed(MSG_UPDATE_UI, 500);
-            } else if (msg.what == MSG_HIDE_BUTTON) {
-                long lNowTime = System.currentTimeMillis();
-                if (lNowTime - m_lLastTime >= m_lShowTime) {
-                    hideControls();
-                } else {
-                    m_msgHandler.sendEmptyMessageDelayed(MSG_HIDE_BUTTON, m_lShowTime - (lNowTime - m_lLastTime));
-                }
+            m_msgHandler.sendEmptyMessageDelayed(MSG_UPDATE_UI, 500);
+        } else if (msg.what == MSG_HIDE_BUTTON) {
+            long lNowTime = System.currentTimeMillis();
+            if (lNowTime - m_lLastTime >= m_lShowTime) {
+                hideControls();
+            } else {
+                m_msgHandler.sendEmptyMessageDelayed(MSG_HIDE_BUTTON, m_lShowTime - (lNowTime - m_lLastTime));
             }
         }
     }

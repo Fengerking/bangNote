@@ -162,7 +162,10 @@ public class noteConfig {
     }
 
     public static String    getNoteZipFile () {
-        m_strNoteFile = getNoteFileName("bck_", ".bnz");
+        Date dateNow = new Date(System.currentTimeMillis());
+        SimpleDateFormat fmtDate = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+        String strTime = fmtDate.format(dateNow);
+        m_strNoteFile = m_strBackPath + "bck_" + strTime + ".bnz";
         return m_strNoteFile;
     }
 

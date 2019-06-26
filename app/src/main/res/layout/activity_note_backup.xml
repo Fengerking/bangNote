@@ -162,4 +162,36 @@
             android:background="@color/colorBlack" />
 
     </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/layLocal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:background="@color/colorView">
+
+        <Button
+            android:id="@+id/btnLocalBackup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="60dp"
+            android:layout_marginTop="50dp"
+            android:textSize="18dp"
+            android:textColor="@color/colorBlack"
+            android:text="备份到本地"/>
+
+        <Button
+            android:id="@+id/btnLocalRestore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:layout_marginRight="60dp"
+            android:layout_alignParentRight="true"
+            android:textSize="18dp"
+            android:textColor="@color/colorBlack"
+            android:text="从本地恢复"/>
+
+
+    </RelativeLayout>
 </LinearLayout>

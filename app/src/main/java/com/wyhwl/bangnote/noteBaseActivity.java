@@ -25,6 +25,9 @@ public class noteBaseActivity extends AppCompatActivity {
     protected final static int      MSG_HIDE_BUTTON                 = 201;
     protected final static int      MSG_OSS_PROCESS                 = 300;
     protected final static int      MSG_OSS_END                     = 301;
+    protected final static int      MSG_LOCAL_BACKUP                = 310;
+    protected final static int      MSG_LOCAL_RESTORE               = 311;
+
 
     public static final int         DLG_NOTETYPE_NEW        = 1;
     public static final int         DLG_NOTETYPE_DEL        = 2;
